@@ -36,7 +36,7 @@
             <div class="difficulty-panel" id="difficulty-panel">
                 <button class="btn difficulty-btn" data-difficulty="easy">Easy (60s)</button>
                 <button class="btn difficulty-btn" data-difficulty="medium">Medium (120s)</button>
-                <button class="btn difficulty-btn" data-difficulty="hard">Hard (180s)</button>
+                <button class="btn difficulty-btn" data-difficulty="hard">Hard (1800s)</button>
                 <button class="btn difficulty-btn" data-difficulty="expert">Expert (240s)</button>
             </div>
 
@@ -71,6 +71,7 @@
                     <button class="key-btn" data-value="-">-</button>
                     <button class="key-btn" data-value="0">0</button>
                     <button class="key-btn" data-value=".">.</button>
+                    <button class="key-btn" data-value="/">/</button> <!-- New: Slash key -->
                 </div>
                 <div class="keyboard-row">
                     <button class="key-btn wide utility-key" data-value="backspace">&#x232B; Back</button>
@@ -88,6 +89,7 @@
         </div>
     </div>
 
+
     <footer class="bg-gray-800 text-white p-4 text-center rounded-lg shadow-lg">
   <p class="text-sm">
     <span id="start-year"></span>-<span id="current-year"></span> &copy; SnakeMeetsMath
@@ -101,6 +103,11 @@
   document.getElementById('start-year').textContent = projectStartYear;
   document.getElementById('current-year').textContent = currentYear;
 </script>
+
+
+
+
+
 
 
     <script src="script.js"></script>
