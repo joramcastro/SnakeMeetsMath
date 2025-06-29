@@ -1,0 +1,21 @@
+{
+  "name": "SnakeMeetsMath",
+  "short_name": "SnakeMeetsMath",
+  "description": "A fun and educational Snake game with math challenges. Practice Addition, Subtraction, Multiplication, Division, Fraction, and Evaluating Function while having fun playing the Snake Game! SnakeMeetsMath is Made with ❤️ by Joram V. Castro.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#e0f2f7",
+  "theme_color": "#f6ad55",
+  "icons": [
+    {
+      "src": "icons/SnakeMath192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/SnakeMath512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
