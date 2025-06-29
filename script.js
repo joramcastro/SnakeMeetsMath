@@ -486,13 +486,11 @@ function generateMathProblem() {
     mathAnswerInput.value = '';
 }
 
-// GCD function for simplifying fractions
 function gcd(a, b) {
     if (b === 0) return a;
     return gcd(b, a % b);
 }
 
-// Function to simplify a fraction
 function simplifyFraction(numerator, denominator) {
     const commonDivisor = gcd(Math.abs(numerator), Math.abs(denominator));
     return {
@@ -521,11 +519,6 @@ function generateFractionProblem() {
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
         
-        // Generate numerators and denominators based on difficulty
-        // Easy: Single digit num/den (1-9)
-        // Medium: Nums up to 2 digits, Dens up to 1 digit (1-99 / 1-9)
-        // Hard: Nums up to 3 digits, Dens up to 2 digits (1-999 / 1-99)
-        // Expert: Nums up to 4 digits, Dens up to 3 digits (1-9999 / 1-999)
         let nRangeMin = 1, nRangeMax = 9;
         let dRangeMin = 1, dRangeMax = 9;
 
@@ -538,21 +531,17 @@ function generateFractionProblem() {
         num2 = getNum(1, nRangeMax);
         den2 = getNum(dRangeMin, dRangeMax);
 
-        // Ensure denominators are not zero
         if (den1 === 0) den1 = 1;
         if (den2 === 0) den2 = 1;
 
-        // Simplify initial fractions to keep numbers smaller
         let frac1 = simplifyFraction(num1, den1);
         let frac2 = simplifyFraction(num2, den2);
         num1 = frac1.numerator; den1 = frac1.denominator;
         num2 = frac2.numerator; den2 = frac2.denominator;
 
-        // Ensure fractions are not 0/X
         if (num1 === 0) num1 = (Math.random() < 0.5 ? 1 : -1) * generateRandomNum(1, nRangeMax);
         if (num2 === 0) num2 = (Math.random() < 0.5 ? 1 : -1) * generateRandomNum(1, nRangeMax);
 
-        // Perform operation
         switch (op) {
             case '+':
                 resultNum = num1 * den2 + num2 * den1;
@@ -567,8 +556,7 @@ function generateFractionProblem() {
                 resultDen = den1 * den2;
                 break;
             case '/':
-                // Division: (num1/den1) / (num2/den2) = (num1*den2) / (den1*num2)
-                if (num2 === 0) { // Cannot divide by zero
+                if (num2 === 0) {
                     problemGenerated = false; continue;
                 }
                 resultNum = num1 * den2;
@@ -576,41 +564,28 @@ function generateFractionProblem() {
                 break;
         }
 
-        // Simplify the result
         let simplified = simplifyFraction(resultNum, resultDen);
         resultNum = simplified.numerator;
         resultDen = simplified.denominator;
 
-        // Handle case where resultDen is 0 (should ideally be caught by div by zero check)
         if (resultDen === 0) {
             problemGenerated = false; continue;
         }
 
-        // Check if numbers are too large for display or comparison (max 7-8 digits)
         if (Math.abs(resultNum) > 99999999 || Math.abs(resultDen) > 9999999) {
             problemGenerated = false; continue;
         }
         
-        // Ensure result is a whole number if possible, for simplicity of input
-        // For fraction problems, we allow decimals, but integer answer for comparison.
         correctMathAnswer = resultNum / resultDen; 
         
-        // Ensure answer can be represented as an integer if it simplifies to one
-        // Or if it's explicitly a decimal, ensure it's not excessively long for user input.
-        if (Math.abs(correctMathAnswer - Math.round(correctMathAnswer)) < 0.0001) { // Close enough to integer
+        if (Math.abs(correctMathAnswer - Math.round(correctMathAnswer)) < 0.0001) {
             correctMathAnswer = Math.round(correctMathAnswer);
         } else {
-            // For now, if it's not a simple integer, we will just take up to 2 decimal places.
-            // If the user needs to input fractions, the input mechanism would need to change.
             correctMathAnswer = parseFloat(correctMathAnswer.toFixed(2));
-            // If we have decimals, ensure keyboard has '.'
             if (correctMathAnswer % 1 !== 0 && !mathAnswerInput.value.includes('.')) {
-                // This will be handled by keyboard, but ensures problem is reasonable
             }
         }
 
-
-        // Format problem string
         let displayOp = op;
         if (op === '*') displayOp = 'x';
         else if (op === '/') displayOp = '÷';
@@ -733,21 +708,21 @@ function startChallenge() {
     mathChallengeArea.style.display = 'block';
     customKeyboard.style.display = 'flex';
     canvas.style.display = 'none';
-    // scoreDisplay.parentElement.style.display = 'flex'; // REMOVED: Score now stays visible
     
     if (selectedChallengeType === 'math') {
         generateMathProblem();
-        timeLeftForMath = difficultyTimes[currentDifficulty];
+        initialTimeForCurrentChallenge = difficultyTimes[currentDifficulty];
+        timeLeftForMath = initialTimeForCurrentChallenge;
         pauseGameBtn.style.display = 'inline-block';
     } else if (selectedChallengeType === 'function') {
         generateFunctionProblem();
-        timeLeftForCurrentChallenge = FUNCTION_CHALLENGE_TIME; // Ensure correct initial time for function
-        timeLeftForMath = FUNCTION_CHALLENGE_TIME;
+        initialTimeForCurrentChallenge = FUNCTION_CHALLENGE_TIME;
+        timeLeftForMath = initialTimeForCurrentChallenge;
         pauseGameBtn.style.display = 'none';
     } else if (selectedChallengeType === 'fraction') {
         generateFractionProblem();
-        timeLeftForCurrentChallenge = FRACTION_CHALLENGE_TIME; // Ensure correct initial time for fraction
-        timeLeftForMath = FRACTION_CHALLENGE_TIME;
+        initialTimeForCurrentChallenge = FRACTION_CHALLENGE_TIME;
+        timeLeftForMath = initialTimeForCurrentChallenge;
         pauseGameBtn.style.display = 'none';
     }
     
@@ -805,7 +780,6 @@ function submitMathAnswer() {
 
         score += pointsEarned;
         scoreDisplay.textContent = score;
-        console.log('Score updated:', score);
 
         if (score > highScore) {
             highScore = score;
@@ -820,7 +794,6 @@ function submitMathAnswer() {
         mathChallengeArea.style.display = 'none';
         customKeyboard.style.display = 'none';
         canvas.style.display = 'block';
-        // scoreDisplay.parentElement.style.display = 'flex'; // REMOVED: Score stays visible
         
         if (currentChallengeMode === 'snake-game') {
             gameInterval = setInterval(moveSnake, GAME_SPEED);
