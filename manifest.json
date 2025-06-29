@@ -1,6 +1,6 @@
 {
-  "name": "Math Snake Game",
-  "short_name": "MathSnake",
+  "name": "SnakeMeetsMath",
+  "short_name": "SnakeMeetsMath",
   "description": "A fun and educational Snake game with math challenges. Created with ❤️ by Joram V. Castro SST-II, Cogon National High School",
   "start_url": "./index.html",
   "display": "standalone",
