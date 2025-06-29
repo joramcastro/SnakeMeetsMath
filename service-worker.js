@@ -6,6 +6,7 @@ const urlsToCache = [
     '/script.js',
     '/manifest.json',
     '/offline.html',
+    '/service-worker.js',
     '/icons/icon-192x192.png',
     '/icons/icon-512x512.png',
     'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
