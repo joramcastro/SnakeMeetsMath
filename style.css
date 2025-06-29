@@ -1,6 +1,6 @@
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #f0f4f8;
+    background: linear-gradient(135deg, #a7e4e1 0%, #c7ecec 100%);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -10,89 +10,102 @@ body {
     color: #334155;
     margin: 0;
     overflow: hidden;
-    background: linear-gradient(135deg, #a7e4e1, #c7ecec);
     box-sizing: border-box;
-    padding: 10px;
+    padding: 20px;
 }
 
-.main-content-wrapper {
+.main-wrapper {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
+    flex-direction: column;
     flex-grow: 1;
+    justify-content: center;
+    align-items: center;
     max-width: 1200px;
     width: 100%;
     box-sizing: border-box;
-    padding: 10px;
+    padding: 0;
     overflow-y: auto;
+    gap: 20px;
+}
+
+.game-area-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.game-card {
+    background-color: #ffffff;
+    border-radius: 25px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    padding: 25px;
+    box-sizing: border-box;
+    border: 2px solid #81e6d9;
+    flex-shrink: 0;
 }
 
 .game-panel {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    padding: 15px;
-    background-color: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-    max-width: 450px;
+    gap: 15px;
     width: 100%;
-    flex-shrink: 0;
-    box-sizing: border-box;
-    border: 2px solid #a7e4e1;
+    max-width: 480px;
 }
 
 .right-panel {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-    box-sizing: border-box;
+    gap: 15px;
     width: 100%;
-    max-width: 180px;
+    max-width: 200px;
+    justify-content: center;
 }
 
 canvas {
     background-color: #e0f2f7;
-    border: 6px solid #81e6d9;
-    display: block;
-    margin: 0 auto;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
+    border: 8px solid #4CAF50;
+    border-radius: 18px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.1), 0 10px 25px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease, border-color 0.3s ease;
     width: 100%;
     height: auto;
     max-width: 400px;
     max-height: 400px;
+    aspect-ratio: 1 / 1;
     object-fit: contain;
     flex-shrink: 0;
 }
 canvas:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.1), 0 20px 50px rgba(0,0,0,0.4);
 }
 
 .header {
     text-align: center;
     width: 100%;
-    flex-shrink: 0;
 }
 
 h1 {
     font-family: 'Press Start 2P', cursive;
-    font-size: 2.25rem;
+    font-size: 2.8rem;
     color: #f6ad55;
     margin-bottom: 0.5rem;
-    text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-    letter-spacing: 2px;
+    text-shadow: 4px 4px 8px rgba(0,0,0,0.4);
+    letter-spacing: 3px;
+    line-height: 1.1;
 }
-.game-panel p {
+
+.app-description {
     color: #64748b;
-    font-size: 1rem;
+    font-size: 1.1rem;
+    margin-top: 5px;
+    line-height: 1.4;
 }
 
 .stats-panel {
@@ -100,107 +113,193 @@ h1 {
     justify-content: space-between;
     width: 100%;
     background-color: #f7fafc;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-size: 1.1rem;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 1.2rem;
     font-weight: bold;
     color: #5b21b6;
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.1);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
     border: 1px solid #d1d8df;
     flex-shrink: 0;
+    margin-top: 10px;
 }
 
-.control-panel, .difficulty-panel {
+.button-grid {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
     width: 100%;
     flex-shrink: 0;
-}
-
-.math-challenge {
-    background-color: #e0f2f7;
-    padding: 15px 10px;
-    border-radius: 12px;
-    text-align: center;
-    width: 100%;
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #0d9488;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-    border: 2px dashed #64748b;
-    flex-shrink: 0;
-}
-
-.math-challenge input {
-    background-color: #ffffff;
-    border: 3px solid #63b3ed;
-    color: #334155;
-    padding: 8px 12px;
-    border-radius: 8px;
-    width: calc(100% - 24px);
-    margin-top: 10px;
-    font-size: 1.1rem;
-    text-align: center;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
-}
-.math-challenge input::placeholder {
-    color: #94a3b8;
-}
-
-.math-challenge button {
-    background-color: #10b981;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    margin-top: 10px;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-.math-challenge button:hover {
-    background-color: #059669;
-    transform: translateY(-2px);
-}
-.math-challenge button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-.math-challenge #timer-display {
-    color: #ef4444;
-    font-weight: bold;
-    font-size: 1rem;
+    margin-top: 15px;
 }
 
 .btn {
     background-color: #3b82f6;
     color: white;
-    padding: 10px 20px;
-    border-radius: 10px;
+    padding: 12px 25px;
+    border-radius: 12px;
     border: none;
     cursor: pointer;
     font-weight: bold;
-    font-size: 1rem;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    font-size: 1.1rem;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+    flex-grow: 1;
+    min-width: 120px;
+    text-align: center;
 }
 .btn:hover {
     background-color: #2563eb;
-    transform: translateY(-3px);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.35);
 }
 .btn:active {
     transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
 
-.btn-red {
-    background-color: #ef4444;
+.btn-primary { background-color: #48bb78; }
+.btn-primary:hover { background-color: #38a169; }
+.btn-secondary { background-color: #805ad5; }
+.btn-secondary:hover { background-color: #6b46c1; }
+.btn-danger { background-color: #ef4444; }
+.btn-danger:hover { background-color: #dc2626; }
+.btn-warning { background-color: #f6ad55; color: #334155; }
+.btn-warning:hover { background-color: #ed8936; }
+.btn-info { background-color: #63b3ed; }
+.btn-info:hover { background-color: #4299e1; }
+
+.difficulty-btn {
+    flex-basis: calc(50% - 6px);
+    max-width: 200px;
 }
-.btn-red:hover {
-    background-color: #dc2626;
+.difficulty-btn.selected {
+    background-color: #c084fc;
+    border: 3px solid #8b5cf6;
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.difficulty-btn.selected:hover {
+    transform: scale(1.08) translateY(-4px);
+}
+
+.message-box {
+    font-weight: bold;
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-top: 20px;
+    background-color: #fffbeb;
+    color: #a16207;
+    border: 1px solid #fde68a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.math-challenge {
+    background-color: #e0f2f7;
+    padding: 20px 15px;
+    border-radius: 15px;
+    text-align: center;
+    width: 100%;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #0d9488;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    border: 3px dashed #a7d9b5;
+    flex-shrink: 0;
+}
+.math-challenge input {
+    background-color: #ffffff;
+    border: 4px solid #63b3ed;
+    color: #334155;
+    padding: 12px 15px;
+    border-radius: 10px;
+    width: calc(100% - 30px);
+    margin-top: 15px;
+    font-size: 1.4rem;
+    text-align: center;
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.15);
+}
+.math-challenge input::placeholder {
+    color: #94a3b8;
+}
+.math-challenge button {
+    background-color: #10b981;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 1rem;
+    margin-top: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.math-challenge button:hover { background-color: #059669; transform: translateY(-2px); }
+.math-challenge button:active { transform: translateY(0); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+.timer-display-text {
+    color: #ef4444;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-top: 10px;
+}
+
+.custom-keyboard {
+    background-color: #334155;
+    padding: 10px;
+    border-radius: 15px;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 160px;
+    margin-top: 0;
+}
+
+.keyboard-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.key-btn {
+    flex: 1;
+    padding: 15px 0;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: white;
+    background-color: #475569;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.1s ease, transform 0.05s ease;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.2);
+    min-width: 45px;
+}
+.key-btn:hover { background-color: #64748b; }
+.key-btn:active { transform: translateY(1px); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
+
+.key-btn.wide {
+    flex: 2;
+    font-size: 1.1rem;
+    background-color: #94a3b8;
+}
+.key-btn.wide:hover { background-color: #cbd5e1; }
+
+.app-footer {
+    width: 100%;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-top: auto;
+    padding: 10px 0;
+    flex-shrink: 0;
+}
+
+.hidden {
+    display: none !important;
 }
 
 .modal {
@@ -236,137 +335,84 @@ h1 {
     margin-bottom: 20px;
 }
 
-.difficulty-btn {
-    background-color: #9333ea;
-}
-.difficulty-btn:hover {
-    background-color: #7e22ce;
-}
-.difficulty-btn.selected {
-    background-color: #c084fc;
-    border: 3px solid #8b5cf6;
-    transform: scale(1.05);
-}
-
-#message-area {
-    font-weight: bold;
-    padding: 10px 15px;
-    border-radius: 8px;
-    margin-top: 15px;
-    background-color: #fffbeb;
-    color: #a16207;
-    border: 1px solid #fde68a;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    flex-shrink: 0;
-}
-
-footer {
-    flex-shrink: 0;
-    margin-top: 15px;
-    padding-bottom: 5px;
-}
-
-.custom-keyboard {
-    background-color: #334155;
-    padding: 5px;
-    border-radius: 10px;
-    box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    width: 100%;
-    max-width: 160px;
-    margin-top: 0;
-}
-
-.keyboard-row {
-    display: flex;
-    gap: 4px;
-    justify-content: center;
-}
-
-.key-btn {
-    flex: 1;
-    padding: 7px 0;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: white;
-    background-color: #475569;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.1s ease, transform 0.05s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    min-width: 25px;
-}
-.key-btn:hover {
-    background-color: #64748b;
-}
-.key-btn:active {
-    transform: translateY(0.5px);
-    box-shadow: 0 0.5px 1.5px rgba(0, 0, 0, 0.2);
-}
-
-.key-btn.wide {
-    flex: 2;
-    font-size: 0.6rem;
-    background-color: #94a3b8;
-}
-.key-btn.wide:hover {
-    background-color: #cbd5e1;
-}
-
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-input[type="number"] {
-    -moz-appearance: textfield;
-}
-
 @media (min-width: 768px) {
-    .main-content-wrapper {
+    .main-wrapper {
         flex-direction: row;
         align-items: flex-start;
+        justify-content: center;
+        gap: 30px;
     }
-    
+    .game-area-wrapper {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 30px;
+        flex-grow: 0;
+        justify-content: center;
+    }
     .game-panel {
-        max-width: 450px;
-        width: auto;
-        flex-shrink: 1;
+        padding: 30px;
+        gap: 20px;
+        max-width: 500px;
     }
-
     .right-panel {
-        max-width: 180px;
-        width: auto;
-        flex-shrink: 0;
-        padding-top: 15px;
+        padding-top: 45px;
+        max-width: 250px;
     }
-
+    h1 {
+        font-size: 3rem;
+    }
+    .app-description {
+        font-size: 1.2rem;
+    }
+    .stats-panel {
+        font-size: 1.3rem;
+        padding: 15px 25px;
+    }
+    .button-grid {
+        gap: 15px;
+    }
+    .btn {
+        padding: 15px 30px;
+        font-size: 1.2rem;
+    }
+    .difficulty-btn {
+        flex-basis: auto;
+    }
     .math-challenge {
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 10px;
+        padding: 25px 20px;
+        font-size: 1.4rem;
     }
-
+    .math-challenge input {
+        padding: 15px 20px;
+        font-size: 1.5rem;
+    }
+    .math-challenge button {
+        padding: 12px 25px;
+        font-size: 1.1rem;
+    }
+    .timer-display-text {
+        font-size: 1.2rem;
+    }
     .custom-keyboard {
-        width: 100%;
-        padding: 8px;
-        gap: 6px;
+        max-width: 200px;
+        padding: 12px;
+        gap: 10px;
+    }
+    .keyboard-row {
+        gap: 10px;
     }
     .key-btn {
-        padding: 10px 0;
-        font-size: 1rem;
-        min-width: 40px;
+        padding: 18px 0;
+        font-size: 1.6rem;
+        min-width: 55px;
     }
     .key-btn.wide {
-        font-size: 0.8rem;
+        font-size: 1.2rem;
     }
 }
 
 @media (max-width: 767px) {
-    .main-content-wrapper {
+    .main-wrapper {
         flex-direction: column;
         gap: 15px;
         padding: 5px;
@@ -383,55 +429,49 @@ input[type="number"] {
     h1 {
         font-size: 1.5rem;
     }
-    .game-panel p {
+    .app-description {
         font-size: 0.9rem;
     }
     .stats-panel {
         font-size: 0.9rem;
         padding: 6px 8px;
     }
+    .btn {
+        padding: 10px 18px;
+        font-size: 0.9rem;
+    }
     .math-challenge {
-        font-size: 1rem;
-        padding: 10px 12px;
+        font-size: 1.1rem;
+        padding: 12px 10px;
     }
     .math-challenge input {
         font-size: 1rem;
-        padding: 5px 8px;
-        width: calc(100% - 16px);
+        padding: 8px 10px;
     }
     .math-challenge button {
-        padding: 5px 10px;
+        padding: 8px 15px;
         font-size: 0.8rem;
     }
-    .math-challenge #timer-display {
-        font-size: 0.8rem;
-    }
-    .btn {
-        padding: 7px 12px;
-        font-size: 0.8rem;
-    }
-    .modal-content {
-        padding: 15px;
-    }
-    .modal-content h2 {
-        font-size: 1.8rem;
-    }
-    .modal-content p {
+    .timer-display-text {
         font-size: 0.9rem;
     }
     .custom-keyboard {
-        max-width: 100%;
-        padding: 5px;
-        gap: 4px;
-        border-radius: 8px;
+        padding: 6px;
+        gap: 5px;
+    }
+    .keyboard-row {
+        gap: 5px;
     }
     .key-btn {
-        padding: 10px 0;
-        font-size: 1.1rem;
-        border-radius: 6px;
-        min-width: 35px;
+        padding: 12px 0;
+        font-size: 1.2rem;
+        min-width: 38px;
     }
     .key-btn.wide {
         font-size: 0.9rem;
+    }
+    .app-footer {
+        font-size: 0.8rem;
+        padding: 5px 0;
     }
 }
