@@ -3,27 +3,11 @@ const CELL_SIZE = 20;
 const INITIAL_SNAKE_LENGTH = 1;
 const GAME_SPEED = 350;
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const scoreDisplay = document.getElementById('score');
-const highScoreDisplay = document.getElementById('high-score');
-const mathChallengeArea = document.getElementById('math-challenge-area');
-const mathProblemDisplay = document = document.getElementById('math-problem');
-const mathAnswerInput = document.getElementById('math-answer-input');
-const submitAnswerBtn = document.getElementById('submit-answer-btn');
-const timerDisplay = document.getElementById('timer-display');
-const startGameBtn = document.getElementById('start-game-btn');
-const pauseGameBtn = document.getElementById('pause-game-btn');
-const resetGameBtn = document.getElementById('reset-game-btn');
-const difficultyPanel = document.getElementById('difficulty-panel');
-const difficultyButtons = document.querySelectorAll('.difficulty-btn');
-const gameOverModal = document.getElementById('gameOverModal');
-const finalScoreDisplay = document.getElementById('finalScore');
-const restartGameBtn = document.getElementById('restartGameBtn');
-const installButton = document.getElementById('install-button');
-const evaluateFunctionBtn = document.getElementById('evaluate-function-btn');
-const customKeyboard = document.getElementById('custom-keyboard');
-const messageArea = document.getElementById('message-area');
+let canvas, ctx, scoreDisplay, highScoreDisplay, mathChallengeArea, mathProblemDisplay,
+    mathAnswerInput, submitAnswerBtn, timerDisplay, startGameBtn, pauseGameBtn,
+    resetGameBtn, difficultyPanel, difficultyButtons, gameOverModal, finalScoreDisplay,
+    restartGameBtn, installButton, evaluateFunctionBtn, fractionChallengeBtn,
+    customKeyboard, messageArea;
 
 let snake = [];
 let food = {};
@@ -60,6 +44,7 @@ const difficultyTimes = {
     expert: 240
 };
 const FUNCTION_CHALLENGE_TIME = 240;
+const FRACTION_CHALLENGE_TIME = 240;
 
 function initializeGame() {
     canvas.width = CANVAS_SIZE;
@@ -77,11 +62,13 @@ function initializeGame() {
     isGameRunning = false;
     isPaused = false;
     awaitingMathAnswer = false;
-    mathChallengeArea.style.display = 'none';
-    customKeyboard.style.display = 'none';
-    gameOverModal.style.display = 'none';
-    canvas.style.display = 'none';
-    scoreDisplay.parentElement.style.display = 'none';
+    
+    gameOverModal.classList.add('hidden');
+    mathChallengeArea.classList.add('hidden');
+    customKeyboard.classList.add('hidden');
+    canvas.classList.add('hidden');
+    scoreDisplay.parentElement.classList.add('hidden');
+    pauseGameBtn.classList.add('hidden');
 
     clearInterval(gameInterval);
     clearInterval(mathTimerInterval);
@@ -89,12 +76,13 @@ function initializeGame() {
 
     selectedChallengeType = 'math';
     currentChallengeMode = 'snake-game';
-    startGameBtn.style.display = 'inline-block';
-    evaluateFunctionBtn.style.display = 'inline-block';
-    pauseGameBtn.style.display = 'none';
-    resetGameBtn.style.display = 'inline-block';
-    difficultyPanel.style.display = 'flex';
-    messageArea.style.display = 'block';
+    
+    startGameBtn.classList.remove('hidden');
+    evaluateFunctionBtn.classList.remove('hidden');
+    fractionChallengeBtn.classList.remove('hidden');
+    resetGameBtn.classList.remove('hidden');
+    difficultyPanel.classList.remove('hidden');
+    messageArea.classList.remove('hidden');
 
     generateFood();
     drawGame();
@@ -214,7 +202,6 @@ function moveSnake() {
     snake.unshift(head);
 
     if (head.x === food.x && head.y === food.y) {
-        
         if (score > highScore) {
             highScore = score;
             localStorage.setItem('mathSnakeHighScore', highScore);
@@ -230,11 +217,17 @@ function moveSnake() {
 
 function generateFood() {
     let newFoodPos;
+    let attempts = 0;
+    const MAX_FOOD_GEN_ATTEMPTS = 100;
     do {
         newFoodPos = {
             x: Math.floor(Math.random() * (CANVAS_SIZE / CELL_SIZE)) * CELL_SIZE,
             y: Math.floor(Math.random() * (CANVAS_SIZE / CELL_SIZE)) * CELL_SIZE
         };
+        attempts++;
+        if (attempts > MAX_FOOD_GEN_ATTEMPTS) {
+            break;
+        }
     } while (isFoodOnSnake(newFoodPos));
     food = newFoodPos;
 }
@@ -256,15 +249,16 @@ function startGame() {
     if (isGameRunning) return;
     isGameRunning = true;
     currentChallengeMode = 'snake-game';
-    startGameBtn.style.display = 'none';
-    evaluateFunctionBtn.style.display = 'none';
-    pauseGameBtn.style.display = 'inline-block';
-    resetGameBtn.style.display = 'inline-block';
-    difficultyPanel.style.display = 'none';
-    canvas.style.display = 'block';
-    scoreDisplay.parentElement.style.display = 'flex';
+    startGameBtn.classList.add('hidden');
+    evaluateFunctionBtn.classList.add('hidden');
+    fractionChallengeBtn.classList.add('hidden');
+    pauseGameBtn.classList.remove('hidden');
+    resetGameBtn.classList.remove('hidden');
+    difficultyPanel.classList.add('hidden');
+    canvas.classList.remove('hidden');
+    scoreDisplay.parentElement.classList.remove('hidden');
     gameInterval = setInterval(moveSnake, GAME_SPEED);
-    messageArea.style.display = 'none';
+    messageArea.classList.add('hidden');
 }
 
 function pauseGame() {
@@ -280,8 +274,8 @@ function pauseGame() {
         return;
     }
 
-    if (!awaitingMathAnswer || timeLeftForMath > 10) {
-        setMessage(`The pause button only works when a math challenge is active AND time left is 10s or less. Current time left: ${timeLeftForMath}s.`);
+    if (!awaitingMathAnswer || timeLeftForMath > 20) {
+        setMessage(`The pause button only works when a math challenge is active AND time left is 20s or less. Current time left: ${timeLeftForMath}s.`);
         return;
     }
 
@@ -313,7 +307,7 @@ function resumeGame() {
         startMathTimer();
     }
     pauseGameBtn.textContent = 'Pause';
-    messageArea.style.display = 'none';
+    messageArea.classList.add('hidden');
 }
 
 function endGame() {
@@ -322,20 +316,21 @@ function endGame() {
     clearInterval(mathTimerInterval);
     clearInterval(pauseCountdownInterval);
     finalScoreDisplay.textContent = score;
-    gameOverModal.style.display = 'flex';
-    mathChallengeArea.style.display = 'none';
-    customKeyboard.style.display = 'none';
-    canvas.style.display = 'none';
-    scoreDisplay.parentElement.style.display = 'none';
+    gameOverModal.classList.remove('hidden');
+    mathChallengeArea.classList.add('hidden');
+    customKeyboard.classList.add('hidden');
+    canvas.classList.add('hidden');
+    scoreDisplay.parentElement.classList.add('hidden');
     
     selectedChallengeType = 'math';
     currentChallengeMode = 'snake-game';
-    startGameBtn.style.display = 'inline-block';
-    evaluateFunctionBtn.style.display = 'inline-block';
-    pauseGameBtn.style.display = 'none';
-    resetGameBtn.style.display = 'inline-block';
-    difficultyPanel.style.display = 'flex';
-    messageArea.style.display = 'block';
+    startGameBtn.classList.remove('hidden');
+    evaluateFunctionBtn.classList.remove('hidden');
+    fractionChallengeBtn.classList.remove('hidden');
+    pauseGameBtn.classList.add('hidden');
+    resetGameBtn.classList.remove('hidden');
+    difficultyPanel.classList.remove('hidden');
+    messageArea.classList.remove('hidden');
 }
 
 function resetGame() {
@@ -482,6 +477,127 @@ function generateMathProblem() {
     mathAnswerInput.value = '';
 }
 
+function gcd(a, b) {
+    if (b === 0) return a;
+    return gcd(b, a % b);
+}
+
+function simplifyFraction(numerator, denominator) {
+    const commonDivisor = gcd(Math.abs(numerator), Math.abs(denominator));
+    return {
+        numerator: numerator / commonDivisor,
+        denominator: denominator / commonDivisor
+    };
+}
+
+function generateFractionProblem() {
+    const operators = ['+', '-', '*', '/'];
+    let op = operators[Math.floor(Math.random() * operators.length)];
+
+    let num1, den1, num2, den2, resultNum, resultDen;
+    let problemString;
+    const MAX_ATTEMPTS = 500;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    const allowNegatives = ['medium', 'hard', 'expert'].includes(currentDifficulty);
+    const getNum = (min, max) => {
+        let val = Math.floor(Math.random() * (max - min + 1)) + min;
+        if (allowNegatives && Math.random() < 0.5) val *= -1;
+        return val;
+    };
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        
+        let nRangeMin = 1, nRangeMax = 9;
+        let dRangeMin = 1, dRangeMax = 9;
+
+        if (currentDifficulty === 'medium') { nRangeMax = 99; dRangeMin = 2; dRangeMax = 9; }
+        else if (currentDifficulty === 'hard') { nRangeMax = 999; dRangeMin = 2; dRangeMax = 99; }
+        else if (currentDifficulty === 'expert') { nRangeMax = 9999; dRangeMin = 2; dRangeMax = 999; }
+
+        num1 = getNum(1, nRangeMax);
+        den1 = getNum(dRangeMin, dRangeMax);
+        num2 = getNum(1, nRangeMax);
+        den2 = getNum(dRangeMin, dRangeMax);
+
+        if (den1 === 0) den1 = 1;
+        if (den2 === 0) den2 = 1;
+
+        let frac1 = simplifyFraction(num1, den1);
+        let frac2 = simplifyFraction(num2, den2);
+        num1 = frac1.numerator; den1 = frac1.denominator;
+        num2 = frac2.numerator; den2 = frac2.denominator;
+
+        if (num1 === 0) num1 = (Math.random() < 0.5 ? 1 : -1) * generateRandomNum(1, nRangeMax);
+        if (num2 === 0) num2 = (Math.random() < 0.5 ? 1 : -1) * generateRandomNum(1, nRangeMax);
+
+        switch (op) {
+            case '+':
+                resultNum = num1 * den2 + num2 * den1;
+                resultDen = den1 * den2;
+                break;
+            case '-':
+                resultNum = num1 * den2 - num2 * den1;
+                resultDen = den1 * den2;
+                break;
+            case '*':
+                resultNum = num1 * num2;
+                resultDen = den1 * den2;
+                break;
+            case '/':
+                if (num2 === 0) {
+                    problemGenerated = false; continue;
+                }
+                resultNum = num1 * den2;
+                resultDen = den1 * num2;
+                break;
+        }
+
+        let simplified = simplifyFraction(resultNum, resultDen);
+        resultNum = simplified.numerator;
+        resultDen = simplified.denominator;
+
+        if (resultDen === 0) {
+            problemGenerated = false; continue;
+        }
+
+        if (Math.abs(resultNum) > 99999999 || Math.abs(resultDen) > 9999999) {
+            problemGenerated = false; continue;
+        }
+        
+        correctMathAnswer = resultNum / resultDen; 
+        
+        if (Math.abs(correctMathAnswer - Math.round(correctMathAnswer)) < 0.0001) {
+            correctMathAnswer = Math.round(correctMathAnswer);
+        } else {
+            correctMathAnswer = parseFloat(correctMathAnswer.toFixed(2));
+            if (correctMathAnswer % 1 !== 0 && !mathAnswerInput.value.includes('.')) {
+            }
+        }
+
+        let displayOp = op;
+        if (op === '*') displayOp = 'x';
+        else if (op === '/') displayOp = '÷';
+        
+        problemString = `${num1}/${den1} ${displayOp} ${num2}/${den2} = ?`;
+        
+        problemGenerated = true;
+
+    }
+
+    if (!problemGenerated) {
+        problemString = `1/2 + 1/2 = ? (Fallback)`;
+        correctMathAnswer = 1;
+        setMessage('Fraction problem generation fallback.');
+    }
+
+    mathProblemDisplay.textContent = problemString;
+    mathAnswerInput.value = '';
+}
+
+
 function generateFunctionProblem() {
     let a, b, c, x, answer;
     let problemString;
@@ -576,18 +692,25 @@ function startChallenge() {
     clearInterval(gameInterval);
     initialTimeForCurrentChallenge = timeLeftForMath;
     
-    mathChallengeArea.style.display = 'block';
-    customKeyboard.style.display = 'flex';
-    canvas.style.display = 'none';
+    mathChallengeArea.classList.remove('hidden');
+    customKeyboard.classList.remove('hidden');
+    canvas.classList.add('hidden');
     
     if (selectedChallengeType === 'math') {
         generateMathProblem();
-        timeLeftForMath = difficultyTimes[currentDifficulty];
-        pauseGameBtn.style.display = 'inline-block';
+        initialTimeForCurrentChallenge = difficultyTimes[currentDifficulty];
+        timeLeftForMath = initialTimeForCurrentChallenge;
+        pauseGameBtn.classList.remove('hidden');
     } else if (selectedChallengeType === 'function') {
         generateFunctionProblem();
-        timeLeftForMath = FUNCTION_CHALLENGE_TIME;
-        pauseGameBtn.style.display = 'none';
+        initialTimeForCurrentChallenge = FUNCTION_CHALLENGE_TIME;
+        timeLeftForMath = initialTimeForCurrentChallenge;
+        pauseGameBtn.classList.remove('hidden');
+    } else if (selectedChallengeType === 'fraction') {
+        generateFractionProblem();
+        initialTimeForCurrentChallenge = FRACTION_CHALLENGE_TIME;
+        timeLeftForMath = initialTimeForCurrentChallenge;
+        pauseGameBtn.classList.remove('hidden');
     }
     
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
@@ -602,8 +725,10 @@ function startMathTimer() {
         timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
         if (timeLeftForMath <= 0) {
             clearInterval(mathTimerInterval);
-            setMessage('Time ran out! Game Over.');
-            endGame();
+            setMessage(`Time ran out! The correct answer was: ${correctMathAnswer}. Game Over.`);
+            setTimeout(() => {
+                endGame();
+            }, 3000);
         }
     }, 1000);
 }
@@ -611,7 +736,7 @@ function startMathTimer() {
 function submitMathAnswer() {
     if (!awaitingMathAnswer) return;
 
-    const userAnswer = parseInt(mathAnswerInput.value);
+    const userAnswer = parseFloat(mathAnswerInput.value);
 
     if (mathAnswerInput.value.trim() === '' || isNaN(userAnswer)) {
         setMessage('Please enter a valid number!');
@@ -620,7 +745,8 @@ function submitMathAnswer() {
         return;
     }
 
-    if (userAnswer === correctMathAnswer) {
+    const tolerance = 0.001; 
+    if (Math.abs(userAnswer - correctMathAnswer) < tolerance) {
         let pointsEarned = 0;
         const timeTaken = initialTimeForCurrentChallenge - timeLeftForMath;
 
@@ -635,7 +761,6 @@ function submitMathAnswer() {
         score += pointsEarned;
         scoreDisplay.textContent = score;
 
-
         if (score > highScore) {
             highScore = score;
             localStorage.setItem('mathSnakeHighScore', highScore);
@@ -645,11 +770,10 @@ function submitMathAnswer() {
         setMessage(`Correct! +${pointsEarned} points.`);
         awaitingMathAnswer = false;
         clearInterval(mathTimerInterval);
-        mathChallengeArea.style.display = 'none';
-        customKeyboard.style.display = 'none';
-        canvas.style.display = 'block';
-        scoreDisplay.parentElement.style.display = 'flex';
-
+        mathChallengeArea.classList.add('hidden');
+        customKeyboard.classList.add('hidden');
+        canvas.classList.remove('hidden');
+        
         if (currentChallengeMode === 'snake-game') {
             gameInterval = setInterval(moveSnake, GAME_SPEED);
             generateFood();
@@ -681,115 +805,16 @@ function handleKeyboardInput(value) {
         } else if (mathAnswerInput.value.startsWith('-')) {
             mathAnswerInput.value = mathAnswerInput.value.substring(1);
         } else {
-            mathAnswerInput.value = '-' + mathAnswerInput.value;
+            mathAnswerInput.value = '-' + value;
+        }
+    } else if (value === '/') {
+        if (!mathAnswerInput.value.includes('/') && mathAnswerInput.value !== '' && mathAnswerInput.value !== '-') {
+            mathAnswerInput.value += value;
         }
     } else {
         mathAnswerInput.value += value;
     }
     mathAnswerInput.focus();
-}
-
-document.addEventListener('keydown', e => {
-    if (awaitingMathAnswer) {
-        if (e.key === 'Enter') {
-            submitMathAnswer();
-        } else if (e.key === 'Backspace') {
-            handleKeyboardInput('backspace');
-        } else if (e.key === 'Delete') {
-            handleKeyboardInput('clear');
-        } else if (e.key >= '0' && e.key <= '9' || e.key === '.' || e.key === '-') {
-            handleKeyboardInput(e.key);
-        }
-        return;
-    }
-
-    if (!isGameRunning || isPaused) return;
-
-    const newDirection = e.key.replace('Arrow', '').toLowerCase();
-    if ((newDirection === 'up' && direction !== 'down') ||
-        (newDirection === 'down' && direction !== 'up') ||
-        (newDirection === 'left' && direction !== 'right') ||
-        (newDirection === 'right' && direction !== 'left')) {
-        direction = newDirection;
-    }
-});
-
-canvas.addEventListener('touchstart', (e) => {
-    if (awaitingMathAnswer || !isGameRunning || isPaused) return;
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-    e.preventDefault();
-}, { passive: false });
-
-canvas.addEventListener('touchmove', (e) => {
-    if (awaitingMathAnswer || !isGameRunning || isPaused) return;
-    touchEndX = e.touches[0].clientX;
-    touchEndY = e.touches[0].clientY;
-    e.preventDefault();
-}, { passive: false });
-
-canvas.addEventListener('touchend', () => {
-    if (awaitingMathAnswer || !isGameRunning || isPaused) return;
-
-    const dx = touchEndX - touchStartX;
-    const dy = touchEndY - touchStartY;
-
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipeDistance) {
-        if (dx > 0 && direction !== 'left') {
-            direction = 'right';
-        } else if (dx < 0 && direction !== 'right') {
-            direction = 'left';
-        }
-    } else if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > minSwipeDistance) {
-        if (dy > 0 && direction !== 'up') {
-            direction = 'down';
-        } else if (dy < 0 && direction !== 'down') {
-            direction = 'up';
-        }
-    }
-    touchStartX = 0;
-    touchStartY = 0;
-    touchEndX = 0;
-    touchEndY = 0;
-});
-
-customKeyboard.addEventListener('click', (e) => {
-    if (e.target.classList.contains('key-btn')) {
-        handleKeyboardInput(e.target.dataset.value);
-    }
-});
-
-
-startGameBtn.addEventListener('click', () => {
-    selectedChallengeType = 'math';
-    startGame();
-});
-pauseGameBtn.addEventListener('click', pauseGame);
-resetGameBtn.addEventListener('click', resetGame);
-submitAnswerBtn.addEventListener('click', submitMathAnswer);
-restartGameBtn.addEventListener('click', resetGame);
-evaluateFunctionBtn.addEventListener('click', () => {
-    selectedChallengeType = 'function';
-    startGame();
-});
-
-difficultyButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        currentDifficulty = button.dataset.difficulty;
-        updateDifficultyDisplay();
-        selectedChallengeType = 'math';
-        startGame();
-    });
-});
-
-function updateDifficultyDisplay() {
-    difficultyButtons.forEach(btn => {
-        if (btn.dataset.difficulty === currentDifficulty) {
-            btn.classList.add('selected');
-        } else {
-            btn.classList.remove('selected');
-        }
-    });
 }
 
 function setMessage(msg) {
@@ -799,7 +824,7 @@ function setMessage(msg) {
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
-    installButton.style.display = 'inline-block';
+    installButton.classList.remove('hidden');
 });
 
 installButton.addEventListener('click', () => {
@@ -808,7 +833,7 @@ installButton.addEventListener('click', () => {
         deferredInstallPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
                 setMessage('Game installed successfully!');
-                installButton.style.display = 'none';
+                installButton.classList.add('hidden');
             } else {
                 setMessage('Installation cancelled.');
             }
@@ -820,6 +845,148 @@ installButton.addEventListener('click', () => {
 });
 
 window.onload = function() {
-    initializeGame();
+    canvas = document.getElementById('gameCanvas');
+    ctx = canvas.getContext('2d');
+    scoreDisplay = document.getElementById('score');
+    highScoreDisplay = document.getElementById('high-score');
+    mathChallengeArea = document.getElementById('math-challenge-area');
+    mathProblemDisplay = document.getElementById('math-problem');
+    mathAnswerInput = document.getElementById('math-answer-input');
+    submitAnswerBtn = document.getElementById('submit-answer-btn');
+    timerDisplay = document.getElementById('timer-display');
+    startGameBtn = document.getElementById('start-game-btn');
+    pauseGameBtn = document.getElementById('pause-game-btn');
+    resetGameBtn = document.getElementById('reset-game-btn');
+    difficultyPanel = document.getElementById('difficulty-panel');
+    difficultyButtons = document.querySelectorAll('.difficulty-btn');
+    gameOverModal = document.getElementById('gameOverModal');
+    finalScoreDisplay = document.getElementById('finalScore');
+    restartGameBtn = document.getElementById('restartGameBtn');
+    installButton = document.getElementById('install-button');
+    evaluateFunctionBtn = document.getElementById('evaluate-function-btn');
+    fractionChallengeBtn = document.getElementById('fraction-challenge-btn');
+    customKeyboard = document.getElementById('custom-keyboard');
+    messageArea = document.getElementById('message-area');
+
+    startGameBtn.addEventListener('click', () => {
+        selectedChallengeType = 'math';
+        startGame();
+    });
+    pauseGameBtn.addEventListener('click', pauseGame);
+    resetGameBtn.addEventListener('click', resetGame);
+    submitAnswerBtn.addEventListener('click', submitMathAnswer);
+    restartGameBtn.addEventListener('click', resetGame);
+    evaluateFunctionBtn.addEventListener('click', () => {
+        selectedChallengeType = 'function';
+        startGame();
+    });
+    fractionChallengeBtn.addEventListener('click', () => {
+        selectedChallengeType = 'fraction';
+        startGame();
+    });
+
+    difficultyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            currentDifficulty = button.dataset.difficulty;
+            updateDifficultyDisplay();
+            selectedChallengeType = 'math';
+            startGame();
+        });
+    });
+
+    customKeyboard.addEventListener('click', (e) => {
+        if (e.target.classList.contains('key-btn')) {
+            handleKeyboardInput(e.target.dataset.value);
+        }
+    });
+
+    document.addEventListener('keydown', e => {
+        if (awaitingMathAnswer) {
+            if (e.key === 'Enter') {
+                submitMathAnswer();
+            } else if (e.key === 'Backspace') {
+                handleKeyboardInput('backspace');
+            } else if (e.key === 'Delete') {
+                handleKeyboardInput('clear');
+            } else if (e.key >= '0' && e.key <= '9' || e.key === '.' || e.key === '-' || e.key === '/') {
+                handleKeyboardInput(e.key);
+            }
+            return;
+        }
+
+        if (!isGameRunning || isPaused) return;
+
+        const newDirection = e.key.replace('Arrow', '').toLowerCase();
+        if ((newDirection === 'up' && direction !== 'down') ||
+            (newDirection === 'down' && direction !== 'up') ||
+            (newDirection === 'left' && direction !== 'right') ||
+            (newDirection === 'right' && direction !== 'left')) {
+            direction = newDirection;
+        }
+    });
+
+    canvas.addEventListener('touchstart', (e) => {
+        if (awaitingMathAnswer || !isGameRunning || isPaused) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (awaitingMathAnswer || !isGameRunning || isPaused) return;
+        touchEndX = e.touches[0].clientX;
+        touchEndY = e.touches[0].clientY;
+        e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+        if (awaitingMathAnswer || !isGameRunning || isPaused) return;
+
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipeDistance) {
+            if (dx > 0 && direction !== 'left') {
+                direction = 'right';
+            } else if (dx < 0 && direction !== 'right') {
+                direction = 'left';
+            }
+        } else if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > minSwipeDistance) {
+            if (dy > 0 && direction !== 'up') {
+                direction = 'down';
+            } else if (dy < 0 && direction !== 'down') {
+                direction = 'up';
+            }
+        }
+        touchStartX = 0;
+        touchStartY = 0;
+        touchEndX = 0;
+        touchEndY = 0;
+    });
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        installButton.classList.remove('hidden');
+    });
+
+    installButton.addEventListener('click', () => {
+        if (deferredInstallPrompt) {
+            deferredInstallPrompt.prompt();
+            deferredInstallPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    setMessage('Game installed successfully!');
+                    installButton.classList.add('hidden');
+                } else {
+                    setMessage('Installation cancelled.');
+                }
+                deferredInstallPrompt = null;
+            });
+        } else {
+            setMessage('Install prompt not available. Use your browser menu to install.');
+        }
+    });
+
+    initializeGame(); // Now it's safe to call initializeGame
     setMessage('Welcome! Select difficulty and press "Start Game" or "Evaluate Function".');
 };
