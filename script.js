@@ -1,7 +1,7 @@
 const CANVAS_SIZE = 400;
 const CELL_SIZE = 20;
-const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 350;
+const INITIAL_SNAKE_LENGTH = 3;
+const GAME_SPEED = 200;
 
 let canvas, ctx, scoreDisplay, highScoreDisplay, mathChallengeArea, mathProblemDisplay,
     mathAnswerInput, submitAnswerBtn, timerDisplay, startGameBtn, pauseGameBtn,
@@ -38,13 +38,13 @@ let selectedChallengeType = 'math';
 let currentChallengeMode = 'snake-game';
 
 const difficultyTimes = {
-    easy: 60,
-    medium: 120,
-    hard: 180,
+    easy: 50,
+    medium: 90,
+    hard: 170,
     expert: 240
 };
-const FUNCTION_CHALLENGE_TIME = 240;
-const FRACTION_CHALLENGE_TIME = 240;
+const FUNCTION_CHALLENGE_TIME = 500;
+const FRACTION_CHALLENGE_TIME = 500;
 
 function initializeGame() {
     canvas.width = CANVAS_SIZE;
@@ -62,7 +62,13 @@ function initializeGame() {
     isGameRunning = false;
     isPaused = false;
     awaitingMathAnswer = false;
+    
     gameOverModal.classList.add('hidden');
+    mathChallengeArea.classList.add('hidden');
+    customKeyboard.classList.add('hidden');
+    canvas.classList.add('hidden');
+    scoreDisplay.parentElement.classList.add('hidden');
+    pauseGameBtn.classList.add('hidden');
 
     clearInterval(gameInterval);
     clearInterval(mathTimerInterval);
@@ -70,17 +76,12 @@ function initializeGame() {
 
     selectedChallengeType = 'math';
     currentChallengeMode = 'snake-game';
+    
     startGameBtn.classList.remove('hidden');
     evaluateFunctionBtn.classList.remove('hidden');
     fractionChallengeBtn.classList.remove('hidden');
-    pauseGameBtn.classList.add('hidden');
     resetGameBtn.classList.remove('hidden');
     difficultyPanel.classList.remove('hidden');
-
-    mathChallengeArea.classList.add('hidden');
-    customKeyboard.classList.add('hidden');
-    canvas.classList.add('hidden');
-    scoreDisplay.parentElement.classList.add('hidden');
     messageArea.classList.remove('hidden');
 
     generateFood();
@@ -951,7 +952,6 @@ installButton.addEventListener('click', () => {
 });
 
 window.onload = function() {
-    // Moved all DOM element assignments inside window.onload
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
     scoreDisplay = document.getElementById('score');
