@@ -96,6 +96,8 @@ function drawGame() {
         ctx.strokeStyle = '#2E7D32';
         ctx.lineWidth = 2;
 
+        const cornerRadius = CELL_SIZE / 4;
+
         ctx.beginPath();
         ctx.moveTo(segment.x + cornerRadius, segment.y);
         ctx.lineTo(segment.x + CELL_SIZE - cornerRadius, segment.y);
@@ -252,8 +254,8 @@ function startGame() {
     pauseGameBtn.classList.remove('hidden');
     resetGameBtn.classList.remove('hidden');
     difficultyPanel.classList.add('hidden');
-    canvas.classList.remove('hidden'); // Show canvas
-    scoreDisplay.parentElement.classList.remove('hidden'); // Show score display
+    canvas.classList.remove('hidden');
+    scoreDisplay.parentElement.classList.remove('hidden');
     gameInterval = setInterval(moveSnake, GAME_SPEED);
     messageArea.classList.add('hidden');
 }
@@ -949,6 +951,30 @@ installButton.addEventListener('click', () => {
 });
 
 window.onload = function() {
+    // Moved all DOM element assignments inside window.onload
+    canvas = document.getElementById('gameCanvas');
+    ctx = canvas.getContext('2d');
+    scoreDisplay = document.getElementById('score');
+    highScoreDisplay = document.getElementById('high-score');
+    mathChallengeArea = document.getElementById('math-challenge-area');
+    mathProblemDisplay = document.getElementById('math-problem');
+    mathAnswerInput = document.getElementById('math-answer-input');
+    submitAnswerBtn = document.getElementById('submit-answer-btn');
+    timerDisplay = document.getElementById('timer-display');
+    startGameBtn = document.getElementById('start-game-btn');
+    pauseGameBtn = document.getElementById('pause-game-btn');
+    resetGameBtn = document.getElementById('reset-game-btn');
+    difficultyPanel = document.getElementById('difficulty-panel');
+    difficultyButtons = document.querySelectorAll('.difficulty-btn');
+    gameOverModal = document.getElementById('gameOverModal');
+    finalScoreDisplay = document.getElementById('finalScore');
+    restartGameBtn = document.getElementById('restartGameBtn');
+    installButton = document.getElementById('install-button');
+    evaluateFunctionBtn = document.getElementById('evaluate-function-btn');
+    fractionChallengeBtn = document.getElementById('fraction-challenge-btn');
+    customKeyboard = document.getElementById('custom-keyboard');
+    messageArea = document.getElementById('message-area');
+
     initializeGame();
     setMessage('Welcome! Select difficulty and press "Start Game" or "Evaluate Function".');
 };
