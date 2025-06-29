@@ -271,8 +271,8 @@ function startGame() {
     pauseGameBtn.classList.remove('hidden');
     resetGameBtn.classList.remove('hidden');
     difficultyPanel.classList.add('hidden');
-    canvas.classList.remove('hidden');
-    scoreDisplay.parentElement.classList.remove('hidden');
+    canvas.classList.remove('hidden'); // Show canvas
+    scoreDisplay.parentElement.classList.remove('hidden'); // Show score display
     gameInterval = setInterval(moveSnake, GAME_SPEED);
     messageArea.classList.add('hidden');
 }
