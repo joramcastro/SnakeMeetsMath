@@ -62,13 +62,7 @@ function initializeGame() {
     isGameRunning = false;
     isPaused = false;
     awaitingMathAnswer = false;
-    
     gameOverModal.classList.add('hidden');
-    mathChallengeArea.classList.add('hidden');
-    customKeyboard.classList.add('hidden');
-    canvas.classList.add('hidden');
-    scoreDisplay.parentElement.classList.add('hidden');
-    pauseGameBtn.classList.add('hidden');
 
     clearInterval(gameInterval);
     clearInterval(mathTimerInterval);
@@ -76,12 +70,17 @@ function initializeGame() {
 
     selectedChallengeType = 'math';
     currentChallengeMode = 'snake-game';
-    
     startGameBtn.classList.remove('hidden');
     evaluateFunctionBtn.classList.remove('hidden');
     fractionChallengeBtn.classList.remove('hidden');
+    pauseGameBtn.classList.add('hidden');
     resetGameBtn.classList.remove('hidden');
     difficultyPanel.classList.remove('hidden');
+
+    mathChallengeArea.classList.add('hidden');
+    customKeyboard.classList.add('hidden');
+    canvas.classList.add('hidden');
+    scoreDisplay.parentElement.classList.add('hidden');
     messageArea.classList.remove('hidden');
 
     generateFood();
@@ -952,6 +951,7 @@ installButton.addEventListener('click', () => {
 });
 
 window.onload = function() {
+    // Assign all DOM elements here, once the window is loaded
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
     scoreDisplay = document.getElementById('score');
@@ -975,6 +975,6 @@ window.onload = function() {
     customKeyboard = document.getElementById('custom-keyboard');
     messageArea = document.getElementById('message-area');
 
-    initializeGame();
+    initializeGame(); // Now it's safe to call initializeGame
     setMessage('Welcome! Select difficulty and press "Start Game" or "Evaluate Function".');
 };
