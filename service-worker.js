@@ -1,4 +1,4 @@
-const CACHE_NAME = 'SnakeMeetsMath-v12';
+const CACHE_NAME = 'SnakeMeetsMath-v14';
 const urlsToCache = [
     '/SnakeMeetsMath/',
     '/SnakeMeetsMath/index.html',
