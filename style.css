@@ -82,7 +82,7 @@ canvas:hover {
     flex-shrink: 0;
 }
 
-h1 {
+h2 {
     font-family: 'Press Start 2P', cursive;
     font-size: 2.25rem;
     color: #f6ad55;
@@ -380,7 +380,7 @@ input[type="number"] {
         max-width: 320px;
         margin: 0 auto;
     }
-    h1 {
+    h2 {
         font-size: 1.5rem;
     }
     .game-panel p {
