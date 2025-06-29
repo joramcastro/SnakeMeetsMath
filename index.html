@@ -10,62 +10,63 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-    <div class="main-content-wrapper">
-        <div class="game-panel">
-            <div class="header">
-                <h1>SnakeMeetsMath</h1>
-                <p class="text-gray-400">Answer math problems to keep your snake alive!</p>
-            </div>
-
-            <div class="stats-panel">
-                <span>Score: <span id="score">0</span></span>
-                <span>High Score: <span id="high-score">0</span></span>
-            </div>
-
-            <canvas id="gameCanvas" width="400" height="400" style="display:none;"></canvas>
-
-            <div class="control-panel" id="control-panel">
-                <button id="start-game-btn" class="btn">Start Game</button>
-                <button id="pause-game-btn" class="btn" style="display:none;">Pause</button>
-                <button id="reset-game-btn" class="btn btn-red">Reset Game</button>
-                <button id="install-button" class="btn" style="display:none;">Install Game</button>
-                <button id="evaluate-function-btn" class="btn">Evaluate Function (240s)</button>
-                <button id="fraction-challenge-btn" class="btn">Fraction Challenge (240s)</button>
-            </div>
-
-            <div class="difficulty-panel" id="difficulty-panel">
-                <button class="btn difficulty-btn" data-difficulty="easy">Easy (60s)</button>
-                <button class="btn difficulty-btn" data-difficulty="medium">Medium (120s)</button>
-                <button class="btn difficulty-btn" data-difficulty="hard">Hard (180s)</button>
-                <button class="btn difficulty-btn" data-difficulty="expert">Expert (240s)</button>
-            </div>
-
-            <p id="message-area" class="text-center text-sm mt-4 p-2 rounded-md bg-opacity-20 bg-yellow-500 text-yellow-100 border border-yellow-400" style="display:none;"></p>
-        </div>
-
-        <div class="right-panel">
-            <div class="math-challenge" id="math-challenge-area" style="display:none;">
-                <p id="math-problem">5 + 3 = ?</p>
-                <input type="text" id="math-answer-input" placeholder="Your Answer" autocomplete="off" inputmode="none" readonly />
-                <button id="submit-answer-btn" class="btn">Submit Answer</button>
-                <p id="timer-display" class="mt-2 text-sm text-yellow-300">Time left: 10s</p>
-            </div>
-
-            <div class="custom-keyboard" id="custom-keyboard" style="display:none;">
-                <div class="keyboard-row">
-                    <button class="key-btn" data-value="1">1</button>
-                    <button class="key-btn" data-value="2">2</button>
-                    <button class="key-btn" data-value="3">3</button>
+    <div class="main-wrapper">
+        <div class="game-area-wrapper">
+            <div class="game-card game-panel">
+                <div class="header">
+                    <h1>SnakeMeetsMath</h1>
+                    <p class="app-description">Challenge your mind, conquer math!</p>
                 </div>
-                <div class="keyboard-row">
-                    <button class="key-btn" data-value="4">4</button>
-                    <button class="key-btn" data-value="5">5</button>
-                    <button class="key-btn" data-value="6">6</button>
+
+                <div class="stats-panel hidden">
+                    <span>Score: <span id="score">0</span></span>
+                    <span>High Score: <span id="high-score">0</span></span>
                 </div>
-                <div class="keyboard-row">
-                    <button class="key-btn" data-value="7">7</button>
-                    <button class="key-btn" data-value="8">8</button>
-                    <button class="key-btn" data-value="9">9</button>
+
+                <canvas id="gameCanvas" width="400" height="400" class="hidden"></canvas>
+
+                <div class="button-grid control-panel">
+                    <button id="start-game-btn" class="btn btn-primary">Start Game</button>
+                    <button id="evaluate-function-btn" class="btn btn-secondary">Evaluate Function (240s)</button>
+                    <button id="fraction-challenge-btn" class="btn btn-secondary">Fraction Challenge (240s)</button>
+                    <button id="reset-game-btn" class="btn btn-danger">Reset Game</button>
+                    <button id="pause-game-btn" class="btn btn-warning hidden">Pause</button>
+                    <button id="install-button" class="btn btn-info hidden">Install App</button>
+                </div>
+
+                <div class="button-grid difficulty-panel">
+                    <button class="btn difficulty-btn" data-difficulty="easy">Easy (60s)</button>
+                    <button class="btn difficulty-btn" data-difficulty="medium">Medium (120s)</button>
+                    <button class="btn difficulty-btn" data-difficulty="hard">Hard (180s)</button>
+                    <button class="btn difficulty-btn" data-difficulty="expert">Expert (240s)</button>
+                </div>
+                
+                <p id="message-area" class="message-box hidden"></p>
+            </div>
+
+            <div class="game-card right-panel">
+                <div class="math-challenge hidden" id="math-challenge-area">
+                    <p id="math-problem">5 + 3 = ?</p>
+                    <input type="text" id="math-answer-input" placeholder="Your Answer" autocomplete="off" inputmode="none" readonly />
+                    <button id="submit-answer-btn" class="btn btn-primary">Submit Answer</button>
+                    <p id="timer-display" class="timer-display-text">Time left: 10s</p>
+                </div>
+
+                <div class="custom-keyboard hidden" id="custom-keyboard">
+                    <div class="keyboard-row">
+                        <button class="key-btn" data-value="1">1</button>
+                        <button class="key-btn" data-value="2">2</button>
+                        <button class="key-btn" data-value="3">3</button>
+                    </div>
+                    <div class="keyboard-row">
+                        <button class="key-btn" data-value="4">4</button>
+                        <button class="key-btn" data-value="5">5</button>
+                        <button class="key-btn" data-value="6">6</button>
+                    </div>
+                    <div class="keyboard-row">
+                        <button class="key-btn" data-value="7">7</button>
+                        <button class="key-btn" data-value="8">8</button>
+                        <button class="key-btn" data-value="9">9</button>
                 </div>
                 <div class="keyboard-row">
                     <button class="key-btn" data-value="-">-</button>
@@ -81,16 +82,16 @@
         </div>
     </div>
 
-    <div id="gameOverModal" class="modal" style="display:none;">
+    <div id="gameOverModal" class="modal hidden">
         <div class="modal-content">
-            <h2 class="font-press-start-2p">Game Over!</h2>
-            <p>Your final score: <span id="finalScore">0</span></p>
-            <button id="restartGameBtn" class="btn">Play Again</button>
+            <h2 class="modal-title">Game Over!</h2>
+            <p class="modal-text">Your final score: <span id="finalScore">0</span></p>
+            <button id="restartGameBtn" class="btn btn-primary">Play Again</button>
         </div>
     </div>
 
-    <footer class="text-center text-gray-500 text-sm mt-8">
-        <br>&copy; 2024-<span id="current-year"></span> SnakeMeetsMath
+    <footer class="app-footer">
+        Developed by Joram V. Castro <br>&copy; 2024-<span id="current-year"></span> SnakeMeetsMath
     </footer>
 
     <script src="script.js"></script>
