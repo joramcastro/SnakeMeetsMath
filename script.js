@@ -721,12 +721,12 @@ function startChallenge() {
         generateFunctionProblem();
         initialTimeForCurrentChallenge = FUNCTION_CHALLENGE_TIME;
         timeLeftForMath = initialTimeForCurrentChallenge;
-        pauseGameBtn.classList.remove('hidden'); // Pause button visible for function challenges
+        pauseGameBtn.classList.remove('hidden');
     } else if (selectedChallengeType === 'fraction') {
         generateFractionProblem();
         initialTimeForCurrentChallenge = FRACTION_CHALLENGE_TIME;
         timeLeftForMath = initialTimeForCurrentChallenge;
-        pauseGameBtn.classList.remove('hidden'); // Pause button visible for fraction challenges
+        pauseGameBtn.classList.remove('hidden');
     }
     
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
@@ -761,7 +761,7 @@ function submitMathAnswer() {
         return;
     }
 
-    const tolerance = 0.001;
+    const tolerance = 0.001; 
     if (Math.abs(userAnswer - correctMathAnswer) < tolerance) {
         let pointsEarned = 0;
         const timeTaken = initialTimeForCurrentChallenge - timeLeftForMath;
