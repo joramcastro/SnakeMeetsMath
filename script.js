@@ -3,7 +3,6 @@ const CELL_SIZE = 20;
 const INITIAL_SNAKE_LENGTH = 1;
 const GAME_SPEED = 350;
 
-// All DOM element declarations moved inside window.onload
 let canvas, ctx, scoreDisplay, highScoreDisplay, mathChallengeArea, mathProblemDisplay,
     mathAnswerInput, submitAnswerBtn, timerDisplay, startGameBtn, pauseGameBtn,
     resetGameBtn, difficultyPanel, difficultyButtons, gameOverModal, finalScoreDisplay,
