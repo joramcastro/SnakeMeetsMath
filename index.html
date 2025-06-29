@@ -26,18 +26,18 @@
 
             <div class="button-grid control-panel">
                 <button id="start-game-btn" class="btn btn-primary">Start Game</button>
-                <button id="evaluate-function-btn" class="btn btn-secondary">Evaluate Function (500s)</button>
-                <button id="fraction-challenge-btn" class="btn btn-secondary">Fraction Challenge (500s)</button>
+                <button id="evaluate-function-btn" class="btn btn-secondary">Evaluate Function (240s)</button>
+                <button id="fraction-challenge-btn" class="btn btn-secondary">Fraction Challenge (240s)</button>
                 <button id="reset-game-btn" class="btn btn-danger">Reset Game</button>
                 <button id="pause-game-btn" class="btn btn-warning hidden">Pause</button>
                 <button id="install-button" class="btn btn-info hidden">Install App</button>
             </div>
 
             <div class="button-grid difficulty-panel">
-                <button class="btn difficulty-btn" data-difficulty="easy">Easy (50s)</button>
-                <button class="btn difficulty-btn" data-difficulty="medium">Medium (1m 30s)</button>
-                <button class="btn difficulty-btn" data-difficulty="hard">Hard (2m 50s)</button>
-                <button class="btn difficulty-btn" data-difficulty="expert">Expert (4m)</button>
+                <button class="btn difficulty-btn" data-difficulty="easy">Easy (60s)</button>
+                <button class="btn difficulty-btn" data-difficulty="medium">Medium (120s)</button>
+                <button class="btn difficulty-btn" data-difficulty="hard">Hard (180s)</button>
+                <button class="btn difficulty-btn" data-difficulty="expert">Expert (240s)</button>
             </div>
             
             <p id="message-area" class="message-box hidden"></p>
@@ -99,7 +99,7 @@
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Corrected service worker path for GitHub Pages project page
+
                 navigator.serviceWorker.register('/SnakeMeetsMath/service-worker.js', { scope: '/SnakeMeetsMath/' })
                     .then(registration => {
                         console.log('Service Worker registered:', registration);
