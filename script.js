@@ -3,28 +3,12 @@ const CELL_SIZE = 20;
 const INITIAL_SNAKE_LENGTH = 1;
 const GAME_SPEED = 350;
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const scoreDisplay = document.getElementById('score');
-const highScoreDisplay = document.getElementById('high-score');
-const mathChallengeArea = document.getElementById('math-challenge-area');
-const mathProblemDisplay = document.getElementById('math-problem');
-const mathAnswerInput = document.getElementById('math-answer-input');
-const submitAnswerBtn = document.getElementById('submit-answer-btn');
-const timerDisplay = document.getElementById('timer-display');
-const startGameBtn = document.getElementById('start-game-btn');
-const pauseGameBtn = document.getElementById('pause-game-btn');
-const resetGameBtn = document.getElementById('reset-game-btn');
-const difficultyPanel = document.getElementById('difficulty-panel');
-const difficultyButtons = document.querySelectorAll('.difficulty-btn');
-const gameOverModal = document.getElementById('gameOverModal');
-const finalScoreDisplay = document.getElementById('finalScore');
-const restartGameBtn = document.getElementById('restartGameBtn');
-const installButton = document.getElementById('install-button');
-const evaluateFunctionBtn = document.getElementById('evaluate-function-btn');
-const fractionChallengeBtn = document.getElementById('fraction-challenge-btn');
-const customKeyboard = document.getElementById('custom-keyboard');
-const messageArea = document.getElementById('message-area');
+// All DOM element declarations moved inside window.onload
+let canvas, ctx, scoreDisplay, highScoreDisplay, mathChallengeArea, mathProblemDisplay,
+    mathAnswerInput, submitAnswerBtn, timerDisplay, startGameBtn, pauseGameBtn,
+    resetGameBtn, difficultyPanel, difficultyButtons, gameOverModal, finalScoreDisplay,
+    restartGameBtn, installButton, evaluateFunctionBtn, fractionChallengeBtn,
+    customKeyboard, messageArea;
 
 let snake = [];
 let food = {};
@@ -112,8 +96,6 @@ function drawGame() {
         ctx.fillStyle = index === 0 ? '#4CAF50' : '#8BC34A';
         ctx.strokeStyle = '#2E7D32';
         ctx.lineWidth = 2;
-
-        const cornerRadius = CELL_SIZE / 4;
 
         ctx.beginPath();
         ctx.moveTo(segment.x + cornerRadius, segment.y);
@@ -821,7 +803,7 @@ function handleKeyboardInput(value) {
         } else if (mathAnswerInput.value.startsWith('-')) {
             mathAnswerInput.value = mathAnswerInput.value.substring(1);
         } else {
-            mathAnswerInput.value = '-' + mathAnswerInput.value;
+            mathAnswerInput.value = '-' + value;
         }
     } else if (value === '/') {
         if (!mathAnswerInput.value.includes('/') && mathAnswerInput.value !== '' && mathAnswerInput.value !== '-') {
