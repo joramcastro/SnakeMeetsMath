@@ -62,7 +62,7 @@ const difficultyTimes = {
 };
 const FUNCTION_CHALLENGE_TIME = 240;
 const FRACTION_CHALLENGE_TIME = 240;
-
+    
 function initializeGame() {
     canvas.width = CANVAS_SIZE;
     canvas.height = CANVAS_SIZE;
