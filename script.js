@@ -64,6 +64,7 @@ const FUNCTION_CHALLENGE_TIME = 240;
 const FRACTION_CHALLENGE_TIME = 240;
 
 function initializeGame() {
+    console.log('--- Initializing Game ---');
     canvas.width = CANVAS_SIZE;
     canvas.height = CANVAS_SIZE;
 
@@ -100,8 +101,10 @@ function initializeGame() {
     messageArea.style.display = 'block';
 
     generateFood();
-    drawGame();
+    drawGame(); // Initial draw to set up the board and food
     updateDifficultyDisplay();
+    console.log('Game Initialized. Score display parent:', scoreDisplay.parentElement.style.display, 'Canvas:', canvas.style.display);
+    console.log('Initial Score:', score, 'Initial High Score:', highScore);
 }
 
 function drawGame() {
@@ -176,6 +179,7 @@ function drawGame() {
     ctx.arc(food.x + CELL_SIZE / 2, food.y + CELL_SIZE / 2, CELL_SIZE / 2 - 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
+    console.log('Drew game. Food at:', food.x, food.y, 'Food object:', food);
 }
 
 function moveSnake() {
@@ -221,6 +225,7 @@ function moveSnake() {
             highScore = score;
             localStorage.setItem('mathSnakeHighScore', highScore);
             highScoreDisplay.textContent = highScore;
+            console.log('High score updated during move (before challenge):', highScore);
         }
         startChallenge();
     } else {
@@ -232,13 +237,21 @@ function moveSnake() {
 
 function generateFood() {
     let newFoodPos;
+    let attempts = 0;
+    const MAX_FOOD_GEN_ATTEMPTS = 100;
     do {
         newFoodPos = {
             x: Math.floor(Math.random() * (CANVAS_SIZE / CELL_SIZE)) * CELL_SIZE,
             y: Math.floor(Math.random() * (CANVAS_SIZE / CELL_SIZE)) * CELL_SIZE
         };
+        attempts++;
+        if (attempts > MAX_FOOD_GEN_ATTEMPTS) {
+            console.warn('Max attempts reached for food generation. May be stuck.');
+            break; // Prevent infinite loop if board is full (unlikely here)
+        }
     } while (isFoodOnSnake(newFoodPos));
     food = newFoodPos;
+    console.log('Food generated at:', food.x, food.y);
 }
 
 function isFoodOnSnake(pos) {
@@ -256,6 +269,7 @@ function checkSelfCollision(head) {
 
 function startGame() {
     if (isGameRunning) return;
+    console.log('--- Starting Game ---');
     isGameRunning = true;
     currentChallengeMode = 'snake-game';
     startGameBtn.style.display = 'none';
@@ -268,6 +282,8 @@ function startGame() {
     scoreDisplay.parentElement.style.display = 'flex';
     gameInterval = setInterval(moveSnake, GAME_SPEED);
     messageArea.style.display = 'none';
+    console.log('Game Started. Current Challenge Type:', selectedChallengeType);
+    console.log('Canvas display:', canvas.style.display, 'Score parent display:', scoreDisplay.parentElement.style.display);
 }
 
 function pauseGame() {
@@ -295,7 +311,7 @@ function pauseGame() {
     scoreDisplay.textContent = score;
     setMessage(`Game Paused. 1 point deducted. Pause fuel: ${score} points`);
 
-    pauseTimeLeft = 20;
+    pauseTimeLeft = 20; // Pause lasts for 20 seconds
     pauseGameBtn.textContent = `Resuming in ${pauseTimeLeft}s`;
 
     pauseCountdownInterval = setInterval(() => {
@@ -320,6 +336,7 @@ function resumeGame() {
 }
 
 function endGame() {
+    console.log('--- Game Over ---');
     isGameRunning = false;
     clearInterval(gameInterval);
     clearInterval(mathTimerInterval);
@@ -329,7 +346,7 @@ function endGame() {
     mathChallengeArea.style.display = 'none';
     customKeyboard.style.display = 'none';
     canvas.style.display = 'none';
-    scoreDisplay.parentElement.style.display = 'none';
+    scoreDisplay.parentElement.style.display = 'none'; // Score hidden on game over
     
     selectedChallengeType = 'math';
     currentChallengeMode = 'snake-game';
@@ -340,11 +357,14 @@ function endGame() {
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'flex';
     messageArea.style.display = 'block';
+    console.log('Game Over. Final Score:', score, 'High Score:', highScore);
+    console.log('Canvas display after endGame:', canvas.style.display, 'Score parent display after endGame:', scoreDisplay.parentElement.style.display);
 }
 
 function resetGame() {
-    endGame();
-    initializeGame();
+    console.log('Reset Game clicked. Calling endGame and initializeGame.');
+    endGame(); // Ensure all intervals are cleared and state is reset
+    initializeGame(); // Re-initialize all game state to fresh start
     setMessage('Game reset. Select difficulty and Start Game or Evaluate Function!');
 }
 
@@ -740,8 +760,10 @@ function startMathTimer() {
         timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
         if (timeLeftForMath <= 0) {
             clearInterval(mathTimerInterval);
-            setMessage('Time ran out! Game Over.');
-            endGame();
+            setMessage(`Time ran out! The correct answer was: ${correctMathAnswer}. Game Over.`); // Show answer
+            setTimeout(() => { // Give user time to see answer
+                endGame();
+            }, 3000); // 3 seconds to see the answer
         }
     }, 1000);
 }
@@ -830,6 +852,10 @@ function handleKeyboardInput(value) {
         } else {
             mathAnswerInput.value = '-' + mathAnswerInput.value;
         }
+    } else if (value === '/') {
+        if (!mathAnswerInput.value.includes('/') && mathAnswerInput.value !== '' && mathAnswerInput.value !== '-') {
+            mathAnswerInput.value += value;
+        }
     } else {
         mathAnswerInput.value += value;
     }
@@ -844,7 +870,7 @@ document.addEventListener('keydown', e => {
             handleKeyboardInput('backspace');
         } else if (e.key === 'Delete') {
             handleKeyboardInput('clear');
-        } else if (e.key >= '0' && e.key <= '9' || e.key === '.' || e.key === '-') {
+        } else if (e.key >= '0' && e.key <= '9' || e.key === '.' || e.key === '-' || e.key === '/') {
             handleKeyboardInput(e.key);
         }
         return;
