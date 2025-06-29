@@ -82,7 +82,7 @@ canvas:hover {
     flex-shrink: 0;
 }
 
-h2 {
+h3 {
     font-family: 'Press Start 2P', cursive;
     font-size: 2.25rem;
     color: #f6ad55;
@@ -225,7 +225,7 @@ h2 {
     width: 90%;
     color: #334155;
 }
-.modal-content h2 {
+.modal-content h3 {
     font-family: 'Press Start 2P', cursive;
     font-size: 2.25rem;
     color: #f6ad55;
@@ -380,7 +380,7 @@ input[type="number"] {
         max-width: 320px;
         margin: 0 auto;
     }
-    h2 {
+    h3 {
         font-size: 1.5rem;
     }
     .game-panel p {
@@ -413,7 +413,7 @@ input[type="number"] {
     .modal-content {
         padding: 15px;
     }
-    .modal-content h2 {
+    .modal-content h3 {
         font-size: 1.8rem;
     }
     .modal-content p {
