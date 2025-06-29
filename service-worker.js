@@ -1,12 +1,13 @@
-const CACHE_NAME = 'math-snake-game-v5';
+const CACHE_NAME = 'math-snake-game-v10';
 const urlsToCache = [
     '/',
     '/index.html',
     '/style.css',
     '/script.js',
     '/manifest.json',
-    '/icons/SnakeMath192.png',
-    '/icons/SnakeMath512.png',
+    '/offline.html',
+    '/icons/icon-192x192.png',
+    '/icons/icon-512x512.png',
     'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
     'https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;700&display=swap',
     'https://fonts.gstatic.com/s/pressstart2p/v15/8GYoNGRUIzNwWs4QfFjpypZZFw.woff2',
@@ -23,6 +24,9 @@ self.addEventListener('install', event => {
             })
             .catch(error => {
                 console.error('Service Worker: Cache.addAll failed:', error);
+                if (error instanceof TypeError) {
+                    console.error('Failed to cache a resource:', error.message);
+                }
             })
     );
 });
@@ -54,20 +58,21 @@ self.addEventListener('fetch', event => {
 
                     return fetch(event.request)
                         .then(networkResponse => {
-                            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-                                return networkResponse;
+                            if (!networkResponse || networkResponse.status === 200 || networkResponse.type === 'basic') {
+                                const responseToCache = networkResponse.clone();
+                                caches.open(CACHE_NAME)
+                                    .then(cache => {
+                                        cache.put(event.request, responseToCache);
+                                    });
                             }
-
-                            const responseToCache = networkResponse.clone();
-                            caches.open(CACHE_NAME)
-                                .then(cache => {
-                                    cache.put(event.request, responseToCache);
-                                });
                             return networkResponse;
                         })
-                        .catch(error => {
-                            console.log('Service Worker: Network request failed, serving from cache if available:', event.request.url, error);
-                            return caches.match(event.request);
+                        .catch(() => {
+                            console.log('Service Worker: Network fetch failed for', event.request.url, '. Serving offline fallback.');
+                            if (event.request.mode === 'navigate') {
+                                return caches.match('/offline.html');
+                            }
+                            return new Response(null, { status: 503, statusText: 'Service Unavailable (Offline)' });
                         });
                 })
         );
