@@ -10,7 +10,18 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-    <div class="main-content-wrapper">
+    <div id="installPromptOverlay" class="modal">
+        <div class="modal-content">
+            <h2 class="font-press-start-2p">Install SnakeMeetsMath</h2>
+            <p id="installMessage">Install this app for the best experience!</p>
+            <button id="installAppBtn" class="btn" style="display:none;">Install App</button>
+            <p id="iosInstallInstructions" style="display:none;" class="text-sm text-gray-600 mt-4">
+                For iOS: Tap the <span class="font-bold">Share button</span> <span class="text-lg"> &#x21E7; </span> (at the bottom of Safari), then select "Add to Home Screen".
+            </p>
+        </div>
+    </div>
+
+    <div class="main-content-wrapper" style="display:none;">
         <div class="game-panel">
             <div class="header">
                 <h1>SnakeMeetsMath</h1>
@@ -128,25 +139,9 @@
         </div>
     </div>
 
-
-
-    <footer style="text-align: center; padding: 20px; background-color: #f2f2f2;">
-  <p id="footer-text"></p>
-
-  <script>
-    const startYear = 2024;
-    const currentYear = new Date().getFullYear();
-    const yearText = startYear === currentYear ? `${startYear}` : `${startYear}-${currentYear}`;
-    document.getElementById("footer-text").textContent = `${yearText} ©SnakeMeetsMath`;
-  </script>
-</footer>
-
-
-
-
-
-
-    
+    <footer class="text-center text-gray-500 text-sm mt-8">
+        Developed by Joram V. Castro
+    </footer>
 
     <script src="script.js"></script>
     <script>
