@@ -40,8 +40,8 @@ let correctMathAnswer = 0;
 let mathTimerInterval;
 let timeLeftForMath = 0;
 let initialTimeForCurrentChallenge = 0;
-let currentDifficulty = 'medium';
-let selectedOperationType = 'arithmetic';
+let currentDifficulty = null;
+let selectedOperationType = null;
 let deferredInstallPrompt = null;
 
 let touchStartX = 0;
@@ -87,8 +87,9 @@ function initializeGame() {
     clearInterval(pauseCountdownInterval);
 
     startGameBtn.style.display = 'inline-block';
+    startGameBtn.disabled = true;
     pauseGameBtn.style.display = 'none';
-    resetGameBtn.style.display = 'inline-block';
+    resetGameBtn.style.display = 'none';
     difficultyPanel.style.display = 'flex';
     operationSelectionPanel.style.display = 'flex';
     messageArea.style.display = 'block';
@@ -96,6 +97,7 @@ function initializeGame() {
     generateFood();
     drawGame();
     updateDifficultyAndOperationDisplay();
+    setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
 }
 
 function drawGame() {
@@ -248,6 +250,11 @@ function checkSelfCollision(head) {
 
 function startGame() {
     if (isGameRunning) return;
+    if (!selectedOperationType || !currentDifficulty) {
+        setMessage('Please select both a **problem type** and **difficulty** to start.');
+        return;
+    }
+
     isGameRunning = true;
     startGameBtn.style.display = 'none';
     pauseGameBtn.style.display = 'inline-block';
@@ -333,12 +340,16 @@ function endGame() {
     difficultyPanel.style.display = 'flex';
     operationSelectionPanel.style.display = 'flex';
     messageArea.style.display = 'block';
+
+    startGameBtn.disabled = true;
+    currentDifficulty = null;
+    selectedOperationType = null;
+    updateDifficultyAndOperationDisplay();
 }
 
 function resetGame() {
     endGame();
     initializeGame();
-    setMessage('Game reset. Select difficulty and problem type, then Start Game!');
 }
 
 function getDigitRange(difficulty) {
@@ -352,7 +363,7 @@ function getDigitRange(difficulty) {
 }
 
 const generateRandomNum = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-f
+
 function decToBin(dec, minLength = 0) {
     let bin = (dec >>> 0).toString(2);
     while (bin.length < minLength) {
@@ -701,9 +712,9 @@ function generateArithmeticMeanProblem() {
         answer = sum / numbers.length;
 
         if (answer % 1 === 0 || (answer * 10) % 1 === 0 || (answer * 100) % 1 === 0) {
-            if (Math.abs(answer) < 10000) {
-                problemGenerated = true;
-            }
+             if (Math.abs(answer) < 10000) {
+                 problemGenerated = true;
+             }
         }
     }
 
@@ -1115,7 +1126,8 @@ difficultyButtons.forEach(button => {
     button.addEventListener('click', () => {
         currentDifficulty = button.dataset.difficulty;
         updateDifficultyAndOperationDisplay();
-        setMessage(`Difficulty set to ${currentDifficulty.toUpperCase()}. Press "Start Game" to begin.`);
+        checkAndEnableStartGame();
+        setMessage(`Difficulty set to **${currentDifficulty.toUpperCase()}**. Now choose a **problem type**.`);
     });
 });
 
@@ -1123,7 +1135,8 @@ operationButtons.forEach(button => {
     button.addEventListener('click', () => {
         selectedOperationType = button.dataset.operationType;
         updateDifficultyAndOperationDisplay();
-        setMessage(`Problem type set to ${button.textContent.toUpperCase()}. Press "Start Game" to begin.`);
+        checkAndEnableStartGame();
+        setMessage(`Problem type set to **${button.textContent.toUpperCase()}**. Now choose a **difficulty**.`);
     });
 });
 
@@ -1145,8 +1158,17 @@ function updateDifficultyAndOperationDisplay() {
     });
 }
 
+function checkAndEnableStartGame() {
+    if (currentDifficulty && selectedOperationType) {
+        startGameBtn.disabled = false;
+        setMessage(`Ready to play! Selected: **${document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent}** at **${currentDifficulty.toUpperCase()}** difficulty. Click **Start Game**.`);
+    } else {
+        startGameBtn.disabled = true;
+    }
+}
+
 function setMessage(msg) {
-    messageArea.textContent = msg;
+    messageArea.innerHTML = msg;
     messageArea.style.display = 'block';
 }
 
@@ -1175,14 +1197,5 @@ installButton.addEventListener('click', () => {
 
 window.onload = function() {
     initializeGame();
-    updateDifficultyAndOperationDisplay();
-    const allDetails = document.querySelectorAll('.operation-selection-panel details');
-    allDetails.forEach((detail, index) => {
-        if (index === 0) {
-            detail.open = true;
-        } else {
-            detail.open = false;
-        }
-    });
-    setMessage('Welcome! Choose your problem type and difficulty, then press "Start Game" to begin.');
+    checkAndEnableStartGame();
 };
