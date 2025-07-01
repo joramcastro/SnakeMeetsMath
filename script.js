@@ -8,7 +8,7 @@ const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
 const highScoreDisplay = document.getElementById('high-score');
 const mathChallengeArea = document.getElementById('math-challenge-area');
-const mathProblemDisplay = document = document.getElementById('math-problem');
+const mathProblemDisplay = document.getElementById('math-problem');
 const mathAnswerInput = document.getElementById('math-answer-input');
 const submitAnswerBtn = document.getElementById('submit-answer-btn');
 const timerDisplay = document.getElementById('timer-display');
@@ -21,9 +21,11 @@ const gameOverModal = document.getElementById('gameOverModal');
 const finalScoreDisplay = document.getElementById('finalScore');
 const restartGameBtn = document.getElementById('restartGameBtn');
 const installButton = document.getElementById('install-button');
-const evaluateFunctionBtn = document.getElementById('evaluate-function-btn');
 const customKeyboard = document.getElementById('custom-keyboard');
 const messageArea = document.getElementById('message-area');
+
+const operationSelectionPanel = document.getElementById('operation-selection-panel');
+const operationButtons = document.querySelectorAll('.operation-btn');
 
 let snake = [];
 let food = {};
@@ -39,6 +41,7 @@ let mathTimerInterval;
 let timeLeftForMath = 0;
 let initialTimeForCurrentChallenge = 0;
 let currentDifficulty = 'medium';
+let selectedOperationType = 'arithmetic';
 let deferredInstallPrompt = null;
 
 let touchStartX = 0;
@@ -50,16 +53,12 @@ const minSwipeDistance = 30;
 let pauseCountdownInterval = null;
 let pauseTimeLeft = 0;
 
-let selectedChallengeType = 'math';
-let currentChallengeMode = 'snake-game';
-
 const difficultyTimes = {
     easy: 60,
     medium: 120,
     hard: 180,
     expert: 240
 };
-const FUNCTION_CHALLENGE_TIME = 240;
 
 function initializeGame() {
     canvas.width = CANVAS_SIZE;
@@ -87,18 +86,16 @@ function initializeGame() {
     clearInterval(mathTimerInterval);
     clearInterval(pauseCountdownInterval);
 
-    selectedChallengeType = 'math';
-    currentChallengeMode = 'snake-game';
     startGameBtn.style.display = 'inline-block';
-    evaluateFunctionBtn.style.display = 'inline-block';
     pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'flex';
+    operationSelectionPanel.style.display = 'flex';
     messageArea.style.display = 'block';
 
     generateFood();
     drawGame();
-    updateDifficultyDisplay();
+    updateDifficultyAndOperationDisplay();
 }
 
 function drawGame() {
@@ -129,37 +126,36 @@ function drawGame() {
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 1;
-            let eyeX, eyeY;
             const eyeOffset = CELL_SIZE / 4;
             const eyeRadius = CELL_SIZE / 8;
 
+            let eye1X, eye1Y, eye2X, eye2Y;
+
             switch (direction) {
                 case 'right':
-                    eyeX = segment.x + CELL_SIZE - eyeOffset;
-                    eyeY = segment.y + eyeOffset;
+                    eye1X = segment.x + CELL_SIZE - eyeOffset; eye1Y = segment.y + eyeOffset;
+                    eye2X = segment.x + CELL_SIZE - eyeOffset; eye2Y = segment.y + CELL_SIZE - eyeOffset;
                     break;
                 case 'left':
-                    eyeX = segment.x + eyeOffset;
-                    eyeY = segment.y + eyeOffset;
+                    eye1X = segment.x + eyeOffset; eye1Y = segment.y + eyeOffset;
+                    eye2X = segment.x + eyeOffset; eye2Y = segment.y + CELL_SIZE - eyeOffset;
                     break;
                 case 'up':
-                    eyeX = segment.x + eyeOffset;
-                    eyeY = segment.y + eyeOffset;
+                    eye1X = segment.x + eyeOffset; eye1Y = segment.y + eyeOffset;
+                    eye2X = segment.x + CELL_SIZE - eyeOffset; eye2Y = segment.y + eyeOffset;
                     break;
                 case 'down':
-                    eyeX = segment.x + eyeOffset;
-                    eyeY = segment.y + CELL_SIZE - eyeOffset;
+                    eye1X = segment.x + eyeOffset; eye1Y = segment.y + CELL_SIZE - eyeOffset;
+                    eye2X = segment.x + CELL_SIZE - eyeOffset; eye2Y = segment.y + CELL_SIZE - eyeOffset;
                     break;
             }
             ctx.beginPath();
-            ctx.arc(eyeX, eyeY, eyeRadius, 0, Math.PI * 2);
+            ctx.arc(eye1X, eye1Y, eyeRadius, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
 
             ctx.beginPath();
-            ctx.arc(eyeX + (direction === 'up' || direction === 'down' ? CELL_SIZE / 2 - eyeOffset * 2 : 0),
-                    eyeY + (direction === 'left' || direction === 'right' ? CELL_SIZE / 2 - eyeOffset * 2 : 0),
-                    eyeRadius, 0, Math.PI * 2);
+            ctx.arc(eye2X, eye2Y, eyeRadius, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
         }
@@ -168,7 +164,6 @@ function drawGame() {
     ctx.fillStyle = '#FFC107';
     ctx.strokeStyle = '#FF8F00';
     ctx.lineWidth = 2;
-
     ctx.beginPath();
     ctx.arc(food.x + CELL_SIZE / 2, food.y + CELL_SIZE / 2, CELL_SIZE / 2 - 2, 0, Math.PI * 2);
     ctx.fill();
@@ -214,7 +209,6 @@ function moveSnake() {
     snake.unshift(head);
 
     if (head.x === food.x && head.y === food.y) {
-        
         if (score > highScore) {
             highScore = score;
             localStorage.setItem('mathSnakeHighScore', highScore);
@@ -255,12 +249,11 @@ function checkSelfCollision(head) {
 function startGame() {
     if (isGameRunning) return;
     isGameRunning = true;
-    currentChallengeMode = 'snake-game';
     startGameBtn.style.display = 'none';
-    evaluateFunctionBtn.style.display = 'none';
     pauseGameBtn.style.display = 'inline-block';
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'none';
+    operationSelectionPanel.style.display = 'none';
     canvas.style.display = 'block';
     scoreDisplay.parentElement.style.display = 'flex';
     gameInterval = setInterval(moveSnake, GAME_SPEED);
@@ -275,13 +268,17 @@ function pauseGame() {
         return;
     }
 
-    if (score < 1) {
-        setMessage('A score of at least 1 is required to fuel the pause mechanism. Current points: ' + score);
+    if (!awaitingMathAnswer || (selectedOperationType !== 'arithmetic') || timeLeftForMath > 10) {
+        let currentMessage = `The pause button currently works only during Basic Arithmetic challenges, AND when time left is 10s or less. Current time left: ${timeLeftForMath}s.`;
+        if (selectedOperationType !== 'arithmetic') {
+            currentMessage = `Pause is not available for ${selectedOperationType.replace('-', ' ')} challenges.`;
+        }
+        setMessage(currentMessage);
         return;
     }
 
-    if (!awaitingMathAnswer || timeLeftForMath > 10) {
-        setMessage(`The pause button only works when a math challenge is active AND time left is 10s or less. Current time left: ${timeLeftForMath}s.`);
+    if (score < 1) {
+        setMessage('A score of at least 1 is required to fuel the pause mechanism. Current points: ' + score);
         return;
     }
 
@@ -308,7 +305,9 @@ function pauseGame() {
 function resumeGame() {
     isPaused = false;
     clearInterval(pauseCountdownInterval);
-    gameInterval = setInterval(moveSnake, GAME_SPEED);
+    if (isGameRunning) {
+        gameInterval = setInterval(moveSnake, GAME_SPEED);
+    }
     if (awaitingMathAnswer) {
         startMathTimer();
     }
@@ -327,21 +326,19 @@ function endGame() {
     customKeyboard.style.display = 'none';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
-    
-    selectedChallengeType = 'math';
-    currentChallengeMode = 'snake-game';
+
     startGameBtn.style.display = 'inline-block';
-    evaluateFunctionBtn.style.display = 'inline-block';
     pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'flex';
+    operationSelectionPanel.style.display = 'flex';
     messageArea.style.display = 'block';
 }
 
 function resetGame() {
     endGame();
     initializeGame();
-    setMessage('Game reset. Select difficulty and Start Game or Evaluate Function!');
+    setMessage('Game reset. Select difficulty and problem type, then Start Game!');
 }
 
 function getDigitRange(difficulty) {
@@ -354,14 +351,15 @@ function getDigitRange(difficulty) {
     }
 }
 
-function generateMathProblem() {
+const generateRandomNum = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+function generateArithmeticProblem() {
     const operators = ['+', '-', '*', '/'];
     let op = operators[Math.floor(Math.random() * operators.length)];
 
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
 
-    const generateRandomNum = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
     const MAX_ATTEMPTS = 500;
     let attempts = 0;
     let problemGenerated = false;
@@ -382,11 +380,10 @@ function generateMathProblem() {
             if (Math.random() < 0.5) num1 *= -1;
             if (Math.random() < 0.5) num2 *= -1;
         }
+
+        if (num1 === 0 && currentOp !== '/') num1 = (Math.random() < 0.5 ? 1 : -1) * generateRandomNum(1, Math.max(9, maxVal));
+        if (num2 === 0 && currentOp !== '/') num2 = (Math.random() < 0.5 ? 1 : -1) * generateRandomNum(1, Math.max(9, maxVal));
         
-        if (num1 === 0) num1 = (Math.random() < 0.5 ? 1 : -1) * generateRandomNum(1, Math.max(9,maxVal));
-        if (num2 === 0) num2 = (Math.random() < 0.5 ? 1 : -1) * generateRandomNum(1, Math.max(9,maxVal));
-
-
         switch (currentOp) {
             case '+':
                 answer = num1 + num2;
@@ -400,46 +397,45 @@ function generateMathProblem() {
 
             case '*':
                 if (currentDifficulty === 'easy') {
+                    num1 = generateRandomNum(1, 9);
+                    num2 = generateRandomNum(1, 9);
                 } else if (currentDifficulty === 'medium') {
                     num1 = generateRandomNum(minVal, maxVal);
                     num2 = generateRandomNum(1, 9);
-                    if (allowNegatives && Math.random() < 0.5) num1 *= -1;
-                    if (allowNegatives && Math.random() < 0.5) num2 *= -1;
                 } else if (currentDifficulty === 'hard') {
                     num1 = generateRandomNum(minVal, maxVal);
-                    num2 = generateRandomNum(1, 9);
-                    if (allowNegatives && Math.random() < 0.5) num1 *= -1;
-                    if (allowNegatives && Math.random() < 0.5) num2 *= -1;
+                    num2 = generateRandomNum(1, 15);
                 } else {
                     num1 = generateRandomNum(minVal, maxVal);
-                    num2 = generateRandomNum(1, 9);
-                    if (allowNegatives && Math.random() < 0.5) num1 *= -1;
-                    if (allowNegatives && Math.random() < 0.5) num2 *= -1;
+                    num2 = generateRandomNum(1, 25);
                 }
+                if (allowNegatives && Math.random() < 0.5) num1 *= -1;
+                if (allowNegatives && Math.random() < 0.5) num2 *= -1;
+
                 answer = num1 * num2;
-                if (Math.abs(answer) > 9999999) { problemGenerated = false; continue; }
+                if (Math.abs(answer) > 9999999 || Math.abs(answer) === 0) { problemGenerated = false; continue; }
                 problemGenerated = true;
                 break;
 
             case '/':
                 let quotientCandidate;
                 let divisorCandidate;
-                
+
                 if (currentDifficulty === 'easy') {
                     divisorCandidate = generateRandomNum(1, 9);
                     quotientCandidate = generateRandomNum(1, 9);
                 } else if (currentDifficulty === 'medium') {
-                    divisorCandidate = generateRandomNum(10, 99);
-                    quotientCandidate = generateRandomNum(2, 9);
+                    divisorCandidate = generateRandomNum(2, 12);
+                    quotientCandidate = generateRandomNum(2, 12);
                 } else if (currentDifficulty === 'hard') {
-                    divisorCandidate = generateRandomNum(100, 999);
-                    quotientCandidate = generateRandomNum(2, 9);
+                    divisorCandidate = generateRandomNum(5, 20);
+                    quotientCandidate = generateRandomNum(5, 20);
                 } else {
-                    divisorCandidate = generateRandomNum(1000, 9999);
-                    quotientCandidate = generateRandomNum(2, 9);
+                    divisorCandidate = generateRandomNum(10, 30);
+                    quotientCandidate = generateRandomNum(10, 30);
                 }
 
-                if (divisorCandidate === 0) divisorCandidate = 1;
+                if (divisorCandidate === 0) { problemGenerated = false; continue; }
                 let dividendCandidate = divisorCandidate * quotientCandidate;
 
                 num1 = dividendCandidate;
@@ -454,20 +450,17 @@ function generateMathProblem() {
                     answer = num1 / num2;
                     if (answer % 1 !== 0) { problemGenerated = false; continue; }
                 }
-                
-                if (num2 === 0) { problemGenerated = false; continue; }
-                if (Math.abs(answer) > 9999999) { problemGenerated = false; continue; }
-                if (Math.abs(num1) < minVal || Math.abs(num1) > maxVal) { problemGenerated = false; continue; }
-                if (num1 === 0 && currentDifficulty !== 'easy') { problemGenerated = false; continue; }
+
+                if (num2 === 0 || Math.abs(answer) > 9999999 || Math.abs(answer) === 0) { problemGenerated = false; continue; }
+                if (Math.abs(num1) < 1 && currentDifficulty !== 'easy') { problemGenerated = false; continue; }
                 problemGenerated = true;
                 break;
         }
-
-    } while (!problemGenerated && attempts < MAX_ATTEMPTS);
+    }
 
     if (!problemGenerated) {
         num1 = 5; num2 = 3; op = '+'; answer = 8;
-        setMessage('Problem generation fallback. Please continue.');
+        setMessage('Arithmetic problem generation fallback. Please continue.');
     }
 
     let displayOp = op;
@@ -479,117 +472,232 @@ function generateMathProblem() {
 
     mathProblemDisplay.textContent = `${num1} ${displayOp} ${num2} = ?`;
     correctMathAnswer = Math.round(answer);
-    mathAnswerInput.value = '';
 }
 
-function generateFunctionProblem() {
-    let a, b, c, x, answer;
-    let problemString;
-    const generateRandomNum = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+function generateExponentiationProblem() {
+    let base, exponent, answer;
     const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
-    const allowNegatives = ['medium', 'hard', 'expert'].includes(currentDifficulty);
-    const getNum = (min, max) => {
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        if (currentDifficulty === 'easy') {
+            base = generateRandomNum(2, 5);
+            exponent = generateRandomNum(2, 3);
+        } else if (currentDifficulty === 'medium') {
+            base = generateRandomNum(2, 7);
+            exponent = generateRandomNum(2, 4);
+        } else if (currentDifficulty === 'hard') {
+            base = generateRandomNum(2, 9);
+            exponent = generateRandomNum(2, 5);
+        } else {
+            base = generateRandomNum(2, 12);
+            exponent = generateRandomNum(2, 6);
+        }
+
+        answer = Math.pow(base, exponent);
+
+        if (Math.abs(answer) < 10000000 && Math.abs(answer) > 1) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        base = 3; exponent = 2; answer = 9;
+        setMessage('Exponentiation problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `${base}^${exponent} = ?`;
+    correctMathAnswer = Math.round(answer);
+    mathAnswerInput.value = '';
+}
+
+function generateModulusProblem() {
+    let num, divisor, answer;
+    const MAX_ATTEMPTS = 200;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        if (currentDifficulty === 'easy') {
+            num = generateRandomNum(10, 50);
+            divisor = generateRandomNum(2, 9);
+        } else if (currentDifficulty === 'medium') {
+            num = generateRandomNum(50, 200);
+            divisor = generateRandomNum(5, 20);
+        } else if (currentDifficulty === 'hard') {
+            num = generateRandomNum(100, 500);
+            divisor = generateRandomNum(10, 30);
+        } else {
+            num = generateRandomNum(200, 1000);
+            divisor = generateRandomNum(15, 50);
+        }
+
+        if (divisor === 0) continue;
+        answer = num % divisor;
+
+        if (num > divisor) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        num = 10; divisor = 3; answer = 1;
+        setMessage('Modulus problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `${num} mod ${divisor} = ?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+}
+
+function generateLinearEquationProblem() {
+    let a, b, c, x, problemString, answer;
+    const MAX_ATTEMPTS = 200;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    const getNumForEq = (min, max) => {
         let val = generateRandomNum(min, max);
-        if (allowNegatives && Math.random() < 0.5) val *= -1;
+        if (['medium', 'hard', 'expert'].includes(currentDifficulty) && Math.random() < 0.5) val *= -1;
         return val;
     };
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
 
-        const isQuadratic = Math.random() < 0.5;
-
-        let aRangeMin, aRangeMax, bRangeMin, bRangeMax, cRangeMin, cRangeMax, xRangeMin, xRangeMax;
-
         if (currentDifficulty === 'easy') {
-            aRangeMin = 1; aRangeMax = 3;
-            bRangeMin = 1; bRangeMax = 5;
-            cRangeMin = 1; cRangeMax = 5;
-            xRangeMin = 1; xRangeMax = 3;
+            a = getNumForEq(1, 3);
+            b = getNumForEq(1, 5);
+            x = getNumForEq(1, 5);
+            c = (a * x) + b;
+            if (x <= 0) { problemGenerated = false; continue; }
         } else if (currentDifficulty === 'medium') {
-            aRangeMin = 1; aRangeMax = 5;
-            bRangeMin = 1; bRangeMax = 10;
-            cRangeMin = 1; cRangeMax = 10;
-            xRangeMin = 1; xRangeMax = 5;
+            a = getNumForEq(1, 5);
+            b = getNumForEq(-10, 10);
+            x = getNumForEq(-7, 7);
+            c = (a * x) + b;
         } else if (currentDifficulty === 'hard') {
-            aRangeMin = 1; aRangeMax = 10;
-            bRangeMin = 1; bRangeMax = 20;
-            cRangeMin = 1; cRangeMax = 20;
-            xRangeMin = 1; xRangeMax = 10;
+            a = getNumForEq(1, 10);
+            b = getNumForEq(-20, 20);
+            x = getNumForEq(-10, 10);
+            c = (a * x) + b;
         } else {
-            aRangeMin = 1; aRangeMax = 15;
-            bRangeMin = 1; bRangeMax = 30;
-            cRangeMin = 1; cRangeMax = 30;
-            xRangeMin = 1; xRangeMax = 15;
+            a = getNumForEq(1, 15);
+            b = getNumForEq(-30, 30);
+            x = getNumForEq(-15, 15);
+            c = (a * x) + b;
         }
 
-        if (isQuadratic) {
-            a = getNum(aRangeMin, aRangeMax);
-            b = getNum(bRangeMin, bRangeMax);
-            c = getNum(cRangeMin, cRangeMax);
-            x = getNum(xRangeMin, xRangeMax);
-            
-            if (Math.abs(a * x * x) > 10000000 || Math.abs(b * x) > 10000000) { continue; }
+        if (a === 0) { problemGenerated = false; continue; }
+        if (Math.abs(c) > 999999 || Math.abs(x) > 99999 || Math.abs(b) > 99999) { problemGenerated = false; continue; }
+        if (x % 1 !== 0) { problemGenerated = false; continue; }
 
-            answer = (a * x * x) + (b * x) + c;
-            let aStr = a === 1 ? '' : (a === -1 ? '-' : a.toString());
-            let bStr = b === 0 ? '' : (b > 0 ? ` + ${b}x` : ` - ${Math.abs(b)}x`);
-            let cStr = c === 0 ? '' : (c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`);
+        let aStr = a === 1 ? '' : (a === -1 ? '-' : a.toString());
+        let bStr = b === 0 ? '' : (b > 0 ? ` + ${b}` : ` - ${Math.abs(b)}`);
+        problemString = `${aStr}x${bStr} = ${c}`;
+        answer = x;
+        problemGenerated = true;
+    }
 
-            problemString = `f(x) = ${aStr}x^2${bStr}${cStr}, x = ${x}`;
-        } else {
-            a = getNum(aRangeMin, aRangeMax * 2);
-            b = getNum(bRangeMin, bRangeMax * 2);
-            x = getNum(xRangeMin, xRangeMax * 2);
+    if (!problemGenerated) {
+        problemString = `2x + 3 = 7 (Fallback)`;
+        answer = 2;
+        setMessage('Linear equation problem generation fallback. Please continue.');
+    }
 
-            if (Math.abs(a * x) > 10000000) { continue; }
+    mathProblemDisplay.textContent = `Solve for x: ${problemString}`;
+    correctMathAnswer = Math.round(answer);
+    mathAnswerInput.value = '';
+}
 
-            answer = (a * x) + b;
-            let aStr = a === 1 ? '' : (a === -1 ? '-' : a.toString());
-            let bStr = b === 0 ? '' : (b > 0 ? ` + ${b}` : ` - ${Math.abs(b)}`);
+function generateBinaryToDecimalProblem() {
+    let binaryString;
+    let decimalAnswer;
+    const maxLength = (currentDifficulty === 'easy' ? 4 :
+                      currentDifficulty === 'medium' ? 6 :
+                      currentDifficulty === 'hard' ? 8 :
+                      10);
 
-            problemString = `f(x) = ${aStr}x${bStr}, x = ${x}`;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        binaryString = '';
+        let hasOne = false;
+        const numBits = generateRandomNum(2, maxLength);
+        for (let i = 0; i < numBits; i++) {
+            const bit = Math.random() < 0.5 ? '0' : '1';
+            binaryString += bit;
+            if (bit === '1') hasOne = true;
         }
 
-        if (Math.abs(answer) < 100000000 && Math.abs(answer) > -100000000) {
+        if (!hasOne && numBits > 0) {
+            const randomIndex = generateRandomNum(0, binaryString.length - 1);
+            binaryString = binaryString.substring(0, randomIndex) + '1' + binaryString.substring(randomIndex + 1);
+        }
+
+        decimalAnswer = parseInt(binaryString, 2);
+
+        if (decimalAnswer > 0 && decimalAnswer < 2000) {
             problemGenerated = true;
         }
     }
 
     if (!problemGenerated) {
-        problemString = `f(x) = 10x + 5, x = 1 (Fallback)`;
-        answer = 15;
-        setMessage('Function problem generation fallback.');
+        binaryString = '101';
+        decimalAnswer = 5;
+        setMessage('Binary to Decimal problem generation fallback. Please continue.');
     }
 
-    mathProblemDisplay.textContent = `Evaluate: ${problemString}`;
-    correctMathAnswer = Math.round(answer);
+    mathProblemDisplay.textContent = `Convert binary ${binaryString} to decimal: ?`;
+    correctMathAnswer = decimalAnswer;
     mathAnswerInput.value = '';
 }
-
 
 function startChallenge() {
     awaitingMathAnswer = true;
     clearInterval(gameInterval);
-    initialTimeForCurrentChallenge = timeLeftForMath;
-    
+
+    initialTimeForCurrentChallenge = difficultyTimes[currentDifficulty];
+
     mathChallengeArea.style.display = 'block';
     customKeyboard.style.display = 'flex';
     canvas.style.display = 'none';
-    
-    if (selectedChallengeType === 'math') {
-        generateMathProblem();
-        timeLeftForMath = difficultyTimes[currentDifficulty];
-        pauseGameBtn.style.display = 'inline-block';
-    } else if (selectedChallengeType === 'function') {
-        generateFunctionProblem();
-        timeLeftForMath = FUNCTION_CHALLENGE_TIME;
-        pauseGameBtn.style.display = 'none';
+    scoreDisplay.parentElement.style.display = 'none';
+
+    switch (selectedOperationType) {
+        case 'arithmetic':
+            generateArithmeticProblem();
+            pauseGameBtn.style.display = 'inline-block';
+            break;
+        case 'exponentiation':
+            generateExponentiationProblem();
+            pauseGameBtn.style.display = 'none';
+            break;
+        case 'modulus':
+            generateModulusProblem();
+            pauseGameBtn.style.display = 'none';
+            break;
+        case 'linear-equation':
+            generateLinearEquationProblem();
+            pauseGameBtn.style.display = 'none';
+            break;
+        case 'binary-decimal':
+            generateBinaryToDecimalProblem();
+            pauseGameBtn.style.display = 'none';
+            break;
+        default:
+            generateArithmeticProblem();
+            pauseGameBtn.style.display = 'inline-block';
+            setMessage('Unknown problem type selected, defaulting to Basic Arithmetic.');
     }
-    
+
+    timeLeftForMath = initialTimeForCurrentChallenge;
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
     startMathTimer();
     setMessage('Answer the problem to proceed!');
@@ -635,7 +743,6 @@ function submitMathAnswer() {
         score += pointsEarned;
         scoreDisplay.textContent = score;
 
-
         if (score > highScore) {
             highScore = score;
             localStorage.setItem('mathSnakeHighScore', highScore);
@@ -650,11 +757,9 @@ function submitMathAnswer() {
         canvas.style.display = 'block';
         scoreDisplay.parentElement.style.display = 'flex';
 
-        if (currentChallengeMode === 'snake-game') {
-            gameInterval = setInterval(moveSnake, GAME_SPEED);
-            generateFood();
-            drawGame();
-        }
+        gameInterval = setInterval(moveSnake, GAME_SPEED);
+        generateFood();
+        drawGame();
     } else {
         setMessage('Incorrect answer! Try again.');
         mathAnswerInput.value = '';
@@ -670,8 +775,8 @@ function handleKeyboardInput(value) {
     } else if (value === 'backspace') {
         mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
     } else if (value === '.') {
-        if (!mathAnswerInput.value.includes('.')) {
-            mathAnswerInput.value += value;
+        if (!mathAnswerInput.value.includes('.') && (selectedOperationType === 'linear-equation')) {
+             mathAnswerInput.value += value;
         }
     } else if (value === '-') {
         if (mathAnswerInput.value === '') {
@@ -697,7 +802,10 @@ document.addEventListener('keydown', e => {
             handleKeyboardInput('backspace');
         } else if (e.key === 'Delete') {
             handleKeyboardInput('clear');
-        } else if (e.key >= '0' && e.key <= '9' || e.key === '.' || e.key === '-') {
+        } else if ((e.key >= '0' && e.key <= '9') || e.key === '.' || e.key === '-') {
+            if (e.key === '.' && selectedOperationType !== 'linear-equation') {
+                return;
+            }
             handleKeyboardInput(e.key);
         }
         return;
@@ -759,32 +867,41 @@ customKeyboard.addEventListener('click', (e) => {
     }
 });
 
-
 startGameBtn.addEventListener('click', () => {
-    selectedChallengeType = 'math';
     startGame();
 });
 pauseGameBtn.addEventListener('click', pauseGame);
 resetGameBtn.addEventListener('click', resetGame);
 submitAnswerBtn.addEventListener('click', submitMathAnswer);
 restartGameBtn.addEventListener('click', resetGame);
-evaluateFunctionBtn.addEventListener('click', () => {
-    selectedChallengeType = 'function';
-    startGame();
-});
 
 difficultyButtons.forEach(button => {
     button.addEventListener('click', () => {
         currentDifficulty = button.dataset.difficulty;
-        updateDifficultyDisplay();
-        selectedChallengeType = 'math';
-        startGame();
+        updateDifficultyAndOperationDisplay();
+        setMessage(`Difficulty set to ${currentDifficulty.toUpperCase()}. Press "Start Game" to begin.`);
     });
 });
 
-function updateDifficultyDisplay() {
+operationButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        selectedOperationType = button.dataset.operationType;
+        updateDifficultyAndOperationDisplay();
+        setMessage(`Problem type set to ${button.textContent.toUpperCase()}. Press "Start Game" to begin.`);
+    });
+});
+
+function updateDifficultyAndOperationDisplay() {
     difficultyButtons.forEach(btn => {
         if (btn.dataset.difficulty === currentDifficulty) {
+            btn.classList.add('selected');
+        } else {
+            btn.classList.remove('selected');
+        }
+    });
+
+    operationButtons.forEach(btn => {
+        if (btn.dataset.operationType === selectedOperationType) {
             btn.classList.add('selected');
         } else {
             btn.classList.remove('selected');
@@ -794,6 +911,7 @@ function updateDifficultyDisplay() {
 
 function setMessage(msg) {
     messageArea.textContent = msg;
+    messageArea.style.display = 'block';
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -821,5 +939,6 @@ installButton.addEventListener('click', () => {
 
 window.onload = function() {
     initializeGame();
-    setMessage('Welcome! Select difficulty and press "Start Game" or "Evaluate Function".');
+    updateDifficultyAndOperationDisplay();
+    setMessage('Welcome! Choose your problem type and difficulty, then press "Start Game" to begin.');
 };
