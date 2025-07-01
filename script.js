@@ -50,7 +50,7 @@ const minSwipeDistance = 30;
 let pauseCountdownInterval = null;
 let pauseTimeLeft = 0;
 
-let selectedChallengeCategory = 'math';
+let selectedChallengeCategory = 'pos-whole-arithmetic';
 let currentChallengeMode = 'snake-game';
 
 const difficultyTimes = {
@@ -81,12 +81,13 @@ function initializeGame() {
     gameOverModal.style.display = 'none';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
+    mathAnswerInput.value = '';
 
     clearInterval(gameInterval);
     clearInterval(mathTimerInterval);
     clearInterval(pauseCountdownInterval);
 
-    selectedChallengeCategory = 'math';
+    selectedChallengeCategory = 'pos-whole-arithmetic';
     currentChallengeMode = 'snake-game';
     pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'inline-block';
@@ -263,7 +264,6 @@ function startGame() {
     gameInterval = setInterval(moveSnake, GAME_SPEED);
     messageArea.style.display = 'none';
 
-
     if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
     } else if (document.documentElement.mozRequestFullScreen) {
@@ -336,7 +336,7 @@ function endGame() {
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
     
-    selectedChallengeCategory = 'math';
+    selectedChallengeCategory = 'pos-whole-arithmetic';
     currentChallengeMode = 'snake-game';
     pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'inline-block';
@@ -378,71 +378,8 @@ function generateRandomNum(min, max, isDecimal = false) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function generateBasicArithmeticProblem() {
-    const operators = ['+', '-', '*', '/'];
-    let op = operators[Math.floor(Math.random() * operators.length)];
-
-    let num1, num2, answer;
-    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
-
-    const MAX_ATTEMPTS = 500;
-    let attempts = 0;
-    let problemGenerated = false;
-
-    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
-        attempts++;
-
-        num1 = generateRandomNum(minVal, maxVal);
-        num2 = generateRandomNum(minVal, maxVal);
-
-        switch (op) {
-            case '+':
-                answer = num1 + num2;
-                problemGenerated = true;
-                break;
-            case '-':
-                answer = num1 - num2;
-                problemGenerated = true;
-                break;
-            case '*':
-                num1 = generateRandomNum(getDigitRange(currentDifficulty).min, getDigitRange(currentDifficulty).max);
-                num2 = generateRandomNum(1, 9);
-                answer = num1 * num2;
-                if (Math.abs(answer) > 9999999) { problemGenerated = false; continue; }
-                problemGenerated = true;
-                break;
-            case '/':
-                let divisorCandidate = generateRandomNum(1, 9);
-                let quotientCandidate = generateRandomNum(getDigitRange(currentDifficulty).min, getDigitRange(currentDifficulty).max);
-                num1 = divisorCandidate * quotientCandidate;
-                num2 = divisorCandidate;
-                answer = quotientCandidate;
-                if (num2 === 0 || num1 % num2 !== 0) { problemGenerated = false; continue; }
-                if (Math.abs(answer) > 9999999) { problemGenerated = false; continue; }
-                problemGenerated = true;
-                break;
-        }
-    }
-
-    if (!problemGenerated) {
-        num1 = 5; num2 = 3; op = '+'; answer = 8;
-        setMessage('Problem generation fallback. Please continue.');
-    }
-
-    let displayOp = op;
-    if (op === '*') {
-        displayOp = 'x';
-    } else if (op === '/') {
-        displayOp = '÷';
-    }
-
-    mathProblemDisplay.textContent = `${num1} ${displayOp} ${num2} = ?`;
-    correctMathAnswer = Math.round(answer);
-}
-
 function generateFunctionProblem() {
-    let a, b, c, x, answer;
-    let problemString;
+    let a, b, c, x, problemString;
     const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
@@ -751,6 +688,270 @@ function generateBinaryDivisionProblem() {
     mathProblemDisplay.textContent = `Binary Division: ${bin1} ÷ ${bin2} = ?`;
 }
 
+function generateExponentiationProblem() {
+    let base, exponent;
+    if (currentDifficulty === 'easy') {
+        base = generateRandomNum(2, 5);
+        exponent = generateRandomNum(2, 3);
+    } else if (currentDifficulty === 'medium') {
+        base = generateRandomNum(2, 7);
+        exponent = generateRandomNum(2, 4);
+    } else {
+        base = generateRandomNum(2, 10);
+        exponent = generateRandomNum(2, 5);
+    }
+    correctMathAnswer = Math.pow(base, exponent);
+    mathProblemDisplay.textContent = `${base}^${exponent} = ?`;
+}
+
+function generateRootsProblem() {
+    let num, root, answer;
+    if (currentDifficulty === 'easy') {
+        root = 2;
+        answer = generateRandomNum(2, 5);
+    } else if (currentDifficulty === 'medium') {
+        root = Math.random() < 0.5 ? 2 : 3;
+        answer = generateRandomNum(2, 7);
+    } else {
+        root = generateRandomNum(2, 4);
+        answer = generateRandomNum(2, 10);
+    }
+    num = Math.pow(answer, root);
+    correctMathAnswer = answer;
+    mathProblemDisplay.textContent = `Find the ${root}${root === 2 ? 'nd' : root === 3 ? 'rd' : 'th'} root of ${num} = ?`;
+}
+
+function generateModulusProblem() {
+    let num1, num2;
+    if (currentDifficulty === 'easy') {
+        num1 = generateRandomNum(10, 50);
+        num2 = generateRandomNum(2, 9);
+    } else {
+        num1 = generateRandomNum(50, 200);
+        num2 = generateRandomNum(10, 25);
+    }
+    correctMathAnswer = num1 % num2;
+    mathProblemDisplay.textContent = `${num1} mod ${num2} = ?`;
+}
+
+function generateSolvingForUnknownsProblem() {
+    let a, b, c, x, problemString;
+    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
+    const getNum = (min, max) => generateRandomNum(min, max);
+
+    a = getNum(1, 10);
+    b = getNum(1, 20);
+    x = getNum(1, 10);
+    c = a * x + b;
+
+    problemString = `${a}x + ${b} = ${c}`;
+    correctMathAnswer = x;
+    mathProblemDisplay.textContent = `Solve for x: ${problemString}`;
+}
+
+function generateFactoringProblem() {
+    let p = generateRandomNum(1, 5);
+    let q = generateRandomNum(1, 5);
+    if (Math.random() < 0.5) p *= -1;
+    if (Math.random() < 0.5) q *= -1;
+
+    let b = p + q;
+    let c = p * q;
+    let problemString = `x^2 ${b > 0 ? '+' : '-'} ${Math.abs(b)}x ${c > 0 ? '+' : '-'} ${Math.abs(c)}`;
+    correctMathAnswer = `(x${p > 0 ? '+' : ''}${p})(x${q > 0 ? '+' : ''}${q})`;
+    mathProblemDisplay.textContent = `Factor: ${problemString} = ? (e.g., (x+a)(x+b))`;
+}
+
+function generateExpandingProblem() {
+    let a = generateRandomNum(1, 5);
+    let b = generateRandomNum(1, 5);
+    if (Math.random() < 0.5) a *= -1;
+    if (Math.random() < 0.5) b *= -1;
+
+    let problemString = `(x${a > 0 ? '+' : ''}${a})(x${b > 0 ? '+' : ''}${b})`;
+    let x_coeff = a + b;
+    let constant = a * b;
+    let answer = `x^2 ${x_coeff > 0 ? '+' : '-'} ${Math.abs(x_coeff)}x ${constant > 0 ? '+' : '-'} ${Math.abs(constant)}`;
+    correctMathAnswer = answer;
+    mathProblemDisplay.textContent = `Expand: ${problemString} = ?`;
+}
+
+function generateMeanProblem() {
+    let count = generateRandomNum(3, 5);
+    let numbers = [];
+    let sum = 0;
+    for (let i = 0; i < count; i++) {
+        let num = generateRandomNum(1, 20);
+        numbers.push(num);
+        sum += num;
+    }
+    correctMathAnswer = parseFloat((sum / count).toFixed(2));
+    mathProblemDisplay.textContent = `Find the mean of [${numbers.join(', ')}] = ?`;
+}
+
+function generateMedianProblem() {
+    let count = generateRandomNum(3, 7);
+    let numbers = [];
+    for (let i = 0; i < count; i++) {
+        numbers.push(generateRandomNum(1, 30));
+    }
+    numbers.sort((a, b) => a - b);
+    let median;
+    if (count % 2 === 1) {
+        median = numbers[Math.floor(count / 2)];
+    } else {
+        median = (numbers[count / 2 - 1] + numbers[count / 2]) / 2;
+    }
+    correctMathAnswer = median;
+    mathProblemDisplay.textContent = `Find the median of [${numbers.join(', ')}] = ?`;
+}
+
+function generateModeProblem() {
+    let numbers = [];
+    let numCount = generateRandomNum(5, 10);
+    let possibleNums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    for (let i = 0; i < numCount; i++) {
+        numbers.push(possibleNums[generateRandomNum(0, possibleNums.length - 1)]);
+    }
+    
+    let counts = {};
+    numbers.forEach(num => {
+        counts[num] = (counts[num] || 0) + 1;
+    });
+
+    let mode = [];
+    let maxCount = 0;
+    for (let num in counts) {
+        if (counts[num] > maxCount) {
+            mode = [parseInt(num)];
+            maxCount = counts[num];
+        } else if (counts[num] === maxCount) {
+            mode.push(parseInt(num));
+        }
+    }
+    mode.sort((a, b) => a - b);
+    correctMathAnswer = mode.join(', ');
+    mathProblemDisplay.textContent = `Find the mode of [${numbers.join(', ')}] = ? (comma-separated if multiple)`;
+}
+
+function generateRangeProblem() {
+    let count = generateRandomNum(4, 8);
+    let numbers = [];
+    for (let i = 0; i < count; i++) {
+        numbers.push(generateRandomNum(1, 50));
+    }
+    let min = Math.min(...numbers);
+    let max = Math.max(...numbers);
+    correctMathAnswer = max - min;
+    mathProblemDisplay.textContent = `Find the range of [${numbers.join(', ')}] = ?`;
+}
+
+function generateDifferentiationProblem() {
+    let coeff = generateRandomNum(1, 10);
+    let power = generateRandomNum(1, 5);
+    let problemString;
+    let answerString;
+
+    if (power === 1) {
+        problemString = `${coeff}x`;
+        answerString = `${coeff}`;
+    } else {
+        problemString = `${coeff}x^${power}`;
+        answerString = `${coeff * power}x^${power - 1}`;
+    }
+    correctMathAnswer = answerString;
+    mathProblemDisplay.textContent = `Differentiate: ${problemString} = ?`;
+}
+
+function generateIntegrationProblem() {
+    let coeff = generateRandomNum(1, 10);
+    let power = generateRandomNum(0, 4);
+    let problemString;
+    let answerString;
+
+    if (power === 0) {
+        problemString = `${coeff}`;
+        answerString = `${coeff}x + C`;
+    } else {
+        problemString = `${coeff}x^${power}`;
+        answerString = `${coeff}/${power + 1}x^${power + 1} + C`;
+    }
+    correctMathAnswer = answerString;
+    mathProblemDisplay.textContent = `Integrate: ${problemString} dx = ? (e.g., 2x^2 + C)`;
+}
+
+function generateSet(size, maxVal) {
+    let set = new Set();
+    while (set.size < size) {
+        set.add(generateRandomNum(1, maxVal));
+    }
+    return Array.from(set).sort((a, b) => a - b);
+}
+
+function formatSet(arr) {
+    return `{${arr.join(', ')}}`;
+}
+
+function generateSetUnionProblem() {
+    let setA = generateSet(generateRandomNum(2, 4), 10);
+    let setB = generateSet(generateRandomNum(2, 4), 10);
+    let union = new Set([...setA, ...setB]);
+    correctMathAnswer = formatSet(Array.from(union).sort((a, b) => a - b));
+    mathProblemDisplay.textContent = `A = ${formatSet(setA)}, B = ${formatSet(setB)}. Find A U B = ?`;
+}
+
+function generateSetIntersectionProblem() {
+    let setA = generateSet(generateRandomNum(3, 5), 10);
+    let setB = generateSet(generateRandomNum(3, 5), 10);
+    let intersection = setA.filter(value => setB.includes(value));
+    correctMathAnswer = formatSet(intersection.sort((a, b) => a - b));
+    mathProblemDisplay.textContent = `A = ${formatSet(setA)}, B = ${formatSet(setB)}. Find A ∩ B = ?`;
+}
+
+function generateSetComplementProblem() {
+    let universalSet = generateSet(generateRandomNum(6, 10), 15);
+    let setA = generateSet(generateRandomNum(2, 5), 15);
+    setA = setA.filter(val => universalSet.includes(val));
+    let complement = universalSet.filter(value => !setA.includes(value));
+    correctMathAnswer = formatSet(complement.sort((a, b) => a - b));
+    mathProblemDisplay.textContent = `U = ${formatSet(universalSet)}, A = ${formatSet(setA)}. Find A' (complement of A) = ?`;
+}
+
+function generateSetDifferenceProblem() {
+    let setA = generateSet(generateRandomNum(3, 5), 10);
+    let setB = generateSet(generateRandomNum(3, 5), 10);
+    let difference = setA.filter(value => !setB.includes(value));
+    correctMathAnswer = formatSet(difference.sort((a, b) => a - b));
+    mathProblemDisplay.textContent = `A = ${formatSet(setA)}, B = ${formatSet(setB)}. Find A - B = ?`;
+}
+
+function generateLogicANDProblem() {
+    let A = Math.random() < 0.5;
+    let B = Math.random() < 0.5;
+    correctMathAnswer = (A && B) ? 'True' : 'False';
+    mathProblemDisplay.textContent = `If A is ${A} and B is ${B}, what is A AND B?`;
+}
+
+function generateLogicORProblem() {
+    let A = Math.random() < 0.5;
+    let B = Math.random() < 0.5;
+    correctMathAnswer = (A || B) ? 'True' : 'False';
+    mathProblemDisplay.textContent = `If A is ${A} and B is ${B}, what is A OR B?`;
+}
+
+function generateLogicNOTProblem() {
+    let A = Math.random() < 0.5;
+    correctMathAnswer = (!A) ? 'True' : 'False';
+    mathProblemDisplay.textContent = `If A is ${A}, what is NOT A?`;
+}
+
+function generateLogicXORProblem() {
+    let A = Math.random() < 0.5;
+    let B = Math.random() < 0.5;
+    correctMathAnswer = (A !== B) ? 'True' : 'False';
+    mathProblemDisplay.textContent = `If A is ${A} and B is ${B}, what is A XOR B?`;
+}
+
 function startChallenge() {
     awaitingMathAnswer = true;
     clearInterval(gameInterval);
@@ -759,11 +960,9 @@ function startChallenge() {
     mathChallengeArea.style.display = 'block';
     customKeyboard.style.display = 'flex';
     canvas.style.display = 'none';
+    mathAnswerInput.value = '';
     
     switch (selectedChallengeCategory) {
-        case 'math':
-            generateBasicArithmeticProblem();
-            break;
         case 'function-evaluation':
             generateFunctionProblem();
             break;
@@ -815,8 +1014,68 @@ function startChallenge() {
         case 'binary-division':
             generateBinaryDivisionProblem();
             break;
+        case 'exponentiation':
+            generateExponentiationProblem();
+            break;
+        case 'roots':
+            generateRootsProblem();
+            break;
+        case 'modulus':
+            generateModulusProblem();
+            break;
+        case 'solve-unknown':
+            generateSolvingForUnknownsProblem();
+            break;
+        case 'factoring':
+            generateFactoringProblem();
+            break;
+        case 'expanding':
+            generateExpandingProblem();
+            break;
+        case 'mean':
+            generateMeanProblem();
+            break;
+        case 'median':
+            generateMedianProblem();
+            break;
+        case 'mode':
+            generateModeProblem();
+            break;
+        case 'range':
+            generateRangeProblem();
+            break;
+        case 'differentiation':
+            generateDifferentiationProblem();
+            break;
+        case 'integration':
+            generateIntegrationProblem();
+            break;
+        case 'set-union':
+            generateSetUnionProblem();
+            break;
+        case 'set-intersection':
+            generateSetIntersectionProblem();
+            break;
+        case 'set-complement':
+            generateSetComplementProblem();
+            break;
+        case 'set-difference':
+            generateSetDifferenceProblem();
+            break;
+        case 'logic-and':
+            generateLogicANDProblem();
+            break;
+        case 'logic-or':
+            generateLogicORProblem();
+            break;
+        case 'logic-not':
+            generateLogicNOTProblem();
+            break;
+        case 'logic-xor':
+            generateLogicXORProblem();
+            break;
         default:
-            generateBasicArithmeticProblem();
+            generateArithmeticProblem(false, false);
     }
     
     timeLeftForMath = initialTimeForCurrentChallenge;
