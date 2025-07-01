@@ -686,6 +686,55 @@ function generateBinaryToDecimalProblem() {
     mathAnswerInput.value = '';
 }
 
+function generateLinearEquationProblem() {
+    let a, b, c, answer;
+    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
+    const MAX_ATTEMPTS = 200;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+
+        a = generateRandomNum(1, Math.floor(maxVal / 5));
+        if (Math.random() < 0.5) a *= -1;
+        if (a === 0) a = 1;
+
+        b = generateRandomNum(-Math.floor(maxVal / 2), Math.floor(maxVal / 2));
+        c = generateRandomNum(-Math.floor(maxVal / 2), Math.floor(maxVal / 2));
+
+        let numerator = c - b;
+        if (numerator % a === 0) {
+            answer = numerator / a;
+            if (Math.abs(answer) <= maxVal * 2 && Math.abs(answer) > 0 || (answer === 0 && attempts > MAX_ATTEMPTS/2)) {
+                problemGenerated = true;
+            }
+        }
+    }
+
+    if (!problemGenerated) {
+        a = 2; b = 3; c = 7; answer = 2;
+        setMessage('Linear Equation problem generation fallback. Please continue.');
+    }
+
+    let bSign = b >= 0 ? '+' : '';
+    let bDisplay = b === 0 ? '' : `${bSign} ${Math.abs(b)}`;
+    if (b < 0) bDisplay = `- ${Math.abs(b)}`;
+    if (b === 0) bDisplay = '';
+
+    let problemString;
+    if (b === 0) {
+        problemString = `${a}x = ${c}`;
+    } else {
+        problemString = `${a}x ${bDisplay} = ${c}`;
+    }
+
+    mathProblemDisplay.textContent = `Solve for x: ${problemString}`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+}
+
+
 function generateArithmeticMeanProblem() {
     let numCount;
     let numbers = [];
@@ -878,6 +927,10 @@ function startChallenge() {
             break;
         case 'decimal-binary':
             generateDecimalToBinaryProblem();
+            pauseGameBtn.style.display = 'none';
+            break;
+        case 'linear-equation':
+            generateLinearEquationProblem();
             pauseGameBtn.style.display = 'none';
             break;
         case 'arithmetic-mean':
@@ -1127,11 +1180,8 @@ restartGameBtn.addEventListener('click', resetGame);
 
 difficultyButtons.forEach(button => {
     button.addEventListener('click', () => {
-        // Remove 'selected' from all other difficulty buttons
         difficultyButtons.forEach(btn => btn.classList.remove('selected'));
-        // Add 'selected' to the clicked button
         button.classList.add('selected');
-        // Update the currentDifficulty variable
         currentDifficulty = button.dataset.difficulty;
         checkAndEnableStartGame();
         setMessage(`Difficulty set to **${currentDifficulty.toUpperCase()}**. Now choose a **problem type**.`);
@@ -1140,11 +1190,8 @@ difficultyButtons.forEach(button => {
 
 operationButtons.forEach(button => {
     button.addEventListener('click', () => {
-        // Remove 'selected' from all other operation buttons
         operationButtons.forEach(btn => btn.classList.remove('selected'));
-        // Add 'selected' to the clicked button
         button.classList.add('selected');
-        // Update the selectedOperationType variable
         selectedOperationType = button.dataset.operationType;
         checkAndEnableStartGame();
         setMessage(`Problem type set to **${button.textContent.toUpperCase()}**. Now choose a **difficulty**.`);
@@ -1172,7 +1219,8 @@ function updateDifficultyAndOperationDisplay() {
 function checkAndEnableStartGame() {
     if (currentDifficulty && selectedOperationType) {
         startGameBtn.disabled = false;
-        setMessage(`Ready to play! Selected: **${document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent}** at **${currentDifficulty.toUpperCase()}** difficulty. Click **Start Game**.`);
+        const selectedProblemText = document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent;
+        setMessage(`Ready to play! Selected: **${selectedProblemText}** at **${currentDifficulty.toUpperCase()}** difficulty. Click **Start Game**.`);
     } else {
         startGameBtn.disabled = true;
     }
