@@ -659,6 +659,40 @@ function generateBinaryToDecimalProblem() {
     mathAnswerInput.value = '';
 }
 
+function generateAbsoluteValueProblem() {
+    let number, answer;
+    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty); // Use for number range
+
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+
+        number = generateRandomNum(minVal, maxVal);
+        if (Math.random() < 0.5) number *= -1; // Make it potentially negative
+
+        if (number === 0) continue; // Avoid |0| = 0, less interesting
+
+        answer = Math.abs(number);
+
+        // Ensure answer is within a reasonable range for display
+        if (answer > 0 && answer < 10000) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        number = -5; answer = 5;
+        setMessage('Absolute Value problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `|${number}| = ?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+}
+
 function startChallenge() {
     awaitingMathAnswer = true;
     clearInterval(gameInterval);
@@ -689,6 +723,10 @@ function startChallenge() {
             break;
         case 'binary-decimal':
             generateBinaryToDecimalProblem();
+            pauseGameBtn.style.display = 'none';
+            break;
+        case 'absolute-value': // New case for absolute value
+            generateAbsoluteValueProblem();
             pauseGameBtn.style.display = 'none';
             break;
         default:
