@@ -10,90 +10,116 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-    <div class="main-content-wrapper">
-        <div class="game-panel">
-            <div class="header">
-                <h1>SnakeMeetsMath</h1>
-                <p class="text-gray-400">Answer math problems to keep your snake alive!</p>
-            </div>
+    <div class="main-wrapper"> <div class="main-content-wrapper">
+            <div class="game-panel">
+                <div class="header">
+                    <h1>SnakeMeetsMath</h1>
+                    <p class="text-gray-400">Answer math problems to keep your snake alive!</p>
+                </div>
 
-            <div class="stats-panel">
-                <span>Score: <span id="score">0</span></span>
-                <span>High Score: <span id="high-score">0</span></span>
-            </div>
+                <div class="stats-panel">
+                    <span>Score: <span id="score">0</span></span>
+                    <span>High Score: <span id="high-score">0</span></span>
+                </div>
 
-            <canvas id="gameCanvas" width="400" height="400" style="display:none;"></canvas>
+                <canvas id="gameCanvas" width="400" height="400" style="display:none;"></canvas>
 
-            <div class="control-panel" id="control-panel">
-                <button id="start-game-btn" class="btn">Start Game (Current Selection)</button>
-                <button id="pause-game-btn" class="btn" style="display:none;">Pause</button>
-                <button id="reset-game-btn" class="btn btn-red">Reset Game</button>
-                <button id="install-button" class="btn" style="display:none;">Install Game</button>
-            </div>
+                <div class="control-panel" id="control-panel">
+                    <button id="start-game-btn" class="btn">Start Game (Current Selection)</button>
+                    <button id="pause-game-btn" class="btn" style="display:none;">Pause</button>
+                    <button id="reset-game-btn" class="btn btn-red">Reset Game</button>
+                    <button id="install-button" class="btn" style="display:none;">Install Game</button>
+                </div>
 
-            <div class="operation-selection-panel" id="operation-selection-panel">
-                <h2>Choose Problem Type:</h2>
-                <div class="operation-buttons">
-                    <button class="btn operation-btn selected" data-operation-type="arithmetic">Decimal Arithmetic</button>
-                    <button class="btn operation-btn" data-operation-type="binary-decimal">Binary to Decimal</button>
-                    <button class="btn operation-btn" data-operation-type="decimal-binary">Decimal to Binary</button>
-                    <button class="btn operation-btn" data-operation-type="binary-addition">Binary Addition (Dec. Result)</button>
-                    <button class="btn operation-btn" data-operation-type="binary-subtraction">Binary Subtraction (Dec. Result)</button>
-                    <button class="btn operation-btn" data-operation-type="binary-multiplication">Binary Multiplication (Dec. Result)</button>
-                    <button class="btn operation-btn" data-operation-type="binary-division">Binary Division (Dec. Result)</button>
-                    <button class="btn operation-btn" data-operation-type="exponentiation">Exponentiation (xⁿ)</button>
-                    <button class="btn operation-btn" data-operation-type="modulus">Modulus (X mod Y)</button>
-                    <button class="btn operation-btn" data-operation-type="absolute-value">Absolute Value (|x|)</button>
-                    <button class="btn operation-btn" data-operation-type="arithmetic-mean">Arithmetic Mean</button>
-                    <button class="btn operation-btn" data-operation-type="fraction-decimal">Fraction to Decimal</button>
-                    <button class="btn operation-btn" data-operation-type="simple-interest">Simple Interest</button>
-                    <button class="btn operation-btn" data-operation-type="compound-interest">Compound Interest</button>
+                <div class="operation-selection-panel" id="operation-selection-panel">
+                    <h2>Choose Problem Type:</h2>
+
+                    <details open>
+                        <summary class="operation-category-summary">Basic & Advanced Arithmetic</summary>
+                        <div class="operation-buttons">
+                            <button class="btn operation-btn selected" data-operation-type="arithmetic">Decimal Arithmetic</button>
+                            <button class="btn operation-btn" data-operation-type="exponentiation">Exponentiation (xⁿ)</button>
+                            <button class="btn operation-btn" data-operation-type="modulus">Modulus (X mod Y)</button>
+                            <button class="btn operation-btn" data-operation-type="absolute-value">Absolute Value (|x|)</button>
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary class="operation-category-summary">Binary Operations</summary>
+                        <div class="operation-buttons">
+                            <button class="btn operation-btn" data-operation-type="binary-decimal">Binary to Decimal</button>
+                            <button class="btn operation-btn" data-operation-type="decimal-binary">Decimal to Binary</button>
+                            <button class="btn operation-btn" data-operation-type="binary-addition">Binary Addition (Dec. Result)</button>
+                            <button class="btn operation-btn" data-operation-type="binary-subtraction">Binary Subtraction (Dec. Result)</button>
+                            <button class="btn operation-btn" data-operation-type="binary-multiplication">Binary Multiplication (Dec. Result)</button>
+                            <button class="btn operation-btn" data-operation-type="binary-division">Binary Division (Dec. Result)</button>
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary class="operation-category-summary">Algebra & Conversions</summary>
+                        <div class="operation-buttons">
+                            <button class="btn operation-btn" data-operation-type="linear-equation">Solve Linear Eq.</button>
+                            <button class="btn operation-btn" data-operation-type="arithmetic-mean">Arithmetic Mean</button>
+                            <button class="btn operation-btn" data-operation-type="fraction-decimal">Fraction to Decimal</button>
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary class="operation-category-summary">Financial Math</summary>
+                        <div class="operation-buttons">
+                            <button class="btn operation-btn" data-operation-type="simple-interest">Simple Interest</button>
+                            <button class="btn operation-btn" data-operation-type="compound-interest">Compound Interest</button>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="difficulty-panel" id="difficulty-panel">
+                    <h2>Choose Difficulty:</h2>
+                    <div class="difficulty-buttons-container">
+                        <button class="btn difficulty-btn" data-difficulty="easy">Easy (60s)</button>
+                        <button class="btn difficulty-btn" data-difficulty="medium">Medium (120s)</button>
+                        <button class="btn difficulty-btn" data-difficulty="hard">Hard (180s)</button>
+                        <button class="btn difficulty-btn" data-difficulty="expert">Expert (240s)</button>
                     </div>
+                </div>
+
+                <p id="message-area" class="text-center text-sm mt-4 p-2 rounded-md bg-opacity-20 bg-yellow-500 text-yellow-100 border border-yellow-400" style="display:none;"></p>
             </div>
 
-            <div class="difficulty-panel" id="difficulty-panel">
-                <h2>Choose Difficulty:</h2>
-                <button class="btn difficulty-btn" data-difficulty="easy">Easy (60s)</button>
-                <button class="btn difficulty-btn" data-difficulty="medium">Medium (120s)</button>
-                <button class="btn difficulty-btn" data-difficulty="hard">Hard (180s)</button>
-                <button class="btn difficulty-btn" data-difficulty="expert">Expert (240s)</button>
-            </div>
+            <div class="right-panel">
+                <div class="math-challenge" id="math-challenge-area" style="display:none;">
+                    <p id="math-problem">5 + 3 = ?</p>
+                    <input type="text" id="math-answer-input" placeholder="Your Answer" autocomplete="off" inputmode="none" readonly />
+                    <button id="submit-answer-btn" class="btn">Submit Answer</button>
+                    <p id="timer-display" class="mt-2 text-sm text-yellow-300">Time left: 10s</p>
+                </div>
 
-            <p id="message-area" class="text-center text-sm mt-4 p-2 rounded-md bg-opacity-20 bg-yellow-500 text-yellow-100 border border-yellow-400" style="display:none;"></p>
-        </div>
-
-        <div class="right-panel">
-            <div class="math-challenge" id="math-challenge-area" style="display:none;">
-                <p id="math-problem">5 + 3 = ?</p>
-                <input type="text" id="math-answer-input" placeholder="Your Answer" autocomplete="off" inputmode="none" readonly />
-                <button id="submit-answer-btn" class="btn">Submit Answer</button>
-                <p id="timer-display" class="mt-2 text-sm text-yellow-300">Time left: 10s</p>
-            </div>
-
-            <div class="custom-keyboard" id="custom-keyboard" style="display:none;">
-                <div class="keyboard-row">
-                    <button class="key-btn" data-value="1">1</button>
-                    <button class="key-btn" data-value="2">2</button>
-                    <button class="key-btn" data-value="3">3</button>
-                </div>
-                <div class="keyboard-row">
-                    <button class="key-btn" data-value="4">4</button>
-                    <button class="key-btn" data-value="5">5</button>
-                    <button class="key-btn" data-value="6">6</button>
-                </div>
-                <div class="keyboard-row">
-                    <button class="key-btn" data-value="7">7</button>
-                    <button class="key-btn" data-value="8">8</button>
-                    <button class="key-btn" data-value="9">9</button>
-                </div>
-                <div class="keyboard-row">
-                    <button class="key-btn" data-value="-">-</button>
-                    <button class="key-btn" data-value="0">0</button>
-                    <button class="key-btn" data-value=".">.</button>
-                </div>
-                <div class="keyboard-row">
-                    <button class="key-btn wide utility-key" data-value="backspace">&#x232B; Back</button>
-                    <button class="key-btn wide utility-key" data-value="clear">C</button>
+                <div class="custom-keyboard" id="custom-keyboard" style="display:none;">
+                    <div class="keyboard-row">
+                        <button class="key-btn" data-value="1">1</button>
+                        <button class="key-btn" data-value="2">2</button>
+                        <button class="key-btn" data-value="3">3</button>
+                    </div>
+                    <div class="keyboard-row">
+                        <button class="key-btn" data-value="4">4</button>
+                        <button class="key-btn" data-value="5">5</button>
+                        <button class="key-btn" data-value="6">6</button>
+                    </div>
+                    <div class="keyboard-row">
+                        <button class="key-btn" data-value="7">7</button>
+                        <button class="key-btn" data-value="8">8</button>
+                        <button class="key-btn" data-value="9">9</button>
+                    </div>
+                    <div class="keyboard-row">
+                        <button class="key-btn" data-value="-">-</button>
+                        <button class="key-btn" data-value="0">0</button>
+                        <button class="key-btn" data-value=".">.</button>
+                    </div>
+                    <div class="keyboard-row">
+                        <button class="key-btn wide utility-key" data-value="backspace">&#x232B; Back</button>
+                        <button class="key-btn wide utility-key" data-value="clear">C</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -107,7 +133,7 @@
         </div>
     </div>
 
-    <footer style="text-align: center; padding: 20px; background-color: #f2f2f2;">
+    <footer>
         <p id="footer-text"></p>
         <script>
             const startYear = 2024;
