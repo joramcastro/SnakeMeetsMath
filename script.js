@@ -1342,13 +1342,13 @@ function startChallenge() {
     initialTimeForCurrentChallenge = difficultyTimes[currentDifficulty];
 
     mathChallengeArea.style.display = 'block';
-    customKeyboard.style.display = 'flex';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
 
     // Determine input format and if decimal input is allowed based on problem type
     let inputFormat = 'decimal'; // 'decimal', 'binary', 'octal', 'hex'
     let allowDecimalInput = false;
+    let customMessageForProblem = ''; // To display specific instructions
 
     switch (selectedOperationType) {
         case 'arithmetic':
@@ -1397,7 +1397,7 @@ function startChallenge() {
         case 'octal-binary':
             generateOctalToBinaryProblem();
             pauseGameBtn.style.display = 'none';
-            inputFormat = 'octal'; // User types octal string
+            inputFormat = 'binary'; // User types binary string
             break;
         case 'decimal-octal':
             generateDecimalToOctalProblem();
@@ -1407,34 +1407,36 @@ function startChallenge() {
         case 'octal-decimal':
             generateOctalToDecimalProblem();
             pauseGameBtn.style.display = 'none';
-            inputFormat = 'octal'; // User types octal string
+            inputFormat = 'decimal'; // User types decimal
             break;
         case 'binary-hex':
             generateBinaryToHexadecimalProblem();
             pauseGameBtn.style.display = 'none';
             inputFormat = 'hex'; // User types hex string
+            customMessageForProblem = 'For Hexadecimal answers (A-F), please use your physical keyboard (type uppercase).';
             break;
         case 'decimal-hex':
             generateDecimalToHexadecimalProblem();
             pauseGameBtn.style.display = 'none';
             inputFormat = 'hex'; // User types hex string
+            customMessageForProblem = 'For Hexadecimal answers (A-F), please use your physical keyboard (type uppercase).';
             break;
         case 'hex-decimal':
             generateHexToDecimalProblem();
             pauseGameBtn.style.display = 'none';
-            inputFormat = 'decimal'; // User types decimal, problem shows Hex input
+            inputFormat = 'decimal'; // User types decimal
+            customMessageForProblem = 'The question contains hexadecimal characters (A-F).';
             break;
         case 'hex-binary':
-            generateHexToBinaryProblem();
+            generateHexadecimalToBinaryProblem();
             pauseGameBtn.style.display = 'none';
-            inputFormat = 'hex'; // User types hex string
+            inputFormat = 'binary'; // User types binary
+            customMessageForProblem = 'The question contains hexadecimal characters (A-F).';
             break;
         case 'linear-equation': 
-            // Re-adding this for completeness based on previous discussions.
-            // Ensure generateLinearEquationProblem() is indeed implemented in script.js
             generateLinearEquationProblem(); 
             pauseGameBtn.style.display = 'none';
-            inputFormat = 'decimal'; // Linear equation answers are typically decimal integers
+            inputFormat = 'decimal'; 
             break;
         case 'arithmetic-mean':
             generateArithmeticMeanProblem();
@@ -1467,6 +1469,20 @@ function startChallenge() {
             setMessage('Unknown problem type selected, defaulting to Decimal Arithmetic.');
     }
 
+    // Adjust keyboard visibility and input attributes
+    if (inputFormat === 'hex' && (selectedOperationType === 'binary-hex' || selectedOperationType === 'decimal-hex')) {
+        customKeyboard.style.display = 'none'; // Hide custom keyboard as it cannot type A-F
+        setMessage(customMessageForProblem || 'Answer the problem to proceed!');
+    } else if (inputFormat === 'hex' && (selectedOperationType === 'hex-decimal' || selectedOperationType === 'hex-binary')) {
+        // Problem shows hex, answer is decimal/binary. Custom keyboard *can* be used for answer.
+        customKeyboard.style.display = 'flex';
+        setMessage(customMessageForProblem || 'Answer the problem to proceed!');
+    }
+     else {
+        customKeyboard.style.display = 'flex';
+        setMessage('Answer the problem to proceed!');
+    }
+
     mathAnswerInput.setAttribute('data-input-format', inputFormat);
     mathAnswerInput.setAttribute('data-allow-decimal', allowDecimalInput ? 'true' : 'false');
 
@@ -1474,7 +1490,8 @@ function startChallenge() {
     timeLeftForMath = initialTimeForCurrentChallenge;
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
     startMathTimer();
-    setMessage('Answer the problem to proceed!');
+    // Re-set message here to ensure any specific instructions are visible
+    setMessage(customMessageForProblem || 'Answer the problem to proceed!');
 }
 
 function startMathTimer() {
