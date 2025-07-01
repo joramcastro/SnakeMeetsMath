@@ -26,6 +26,7 @@
 
                 <div class="control-panel" id="control-panel">
                     <button id="pause-game-btn" class="btn" style="display:none;">Pause</button>
+                    <button id="reset-game-btn" class="btn btn-red" style="display:none;">Reset Game</button>
                     <button id="install-button" class="btn" style="display:none;">Install Game</button>
                 </div>
 
@@ -34,7 +35,7 @@
 
                     <details open> <summary class="operation-category-summary">Basic & Advanced Arithmetic</summary>
                         <div class="operation-buttons">
-                            <button class="btn operation-btn selected" data-operation-type="arithmetic">Decimal Arithmetic</button>
+                            <button class="btn operation-btn" data-operation-type="arithmetic">Decimal Arithmetic</button>
                             <button class="btn operation-btn" data-operation-type="exponentiation">Exponentiation (xⁿ)</button>
                             <button class="btn operation-btn" data-operation-type="modulus">Modulus (X mod Y)</button>
                             <button class="btn operation-btn" data-operation-type="absolute-value">Absolute Value (|x|)</button>
@@ -46,6 +47,7 @@
                         <div class="operation-buttons">
                             <button class="btn operation-btn" data-operation-type="binary-decimal">Binary to Decimal</button>
                             <button class="btn operation-btn" data-operation-type="decimal-binary">Decimal to Binary</button>
+                            
                         </div>
                     </details>
 
@@ -77,7 +79,7 @@
                     </div>
                 </div>
                 <p id="message-area" class="text-center text-sm mt-4 p-2 rounded-md bg-opacity-20 bg-yellow-500 text-yellow-100 border border-yellow-400" style="display:none;"></p>
-                <button id="start-game-btn" class="btn">Start Game (Current Selection)</button>
+                <button id="start-game-btn" class="btn btn-dark-blue">Start Game (Current Selection)</button>
             </div>
 
             <div class="right-panel">
