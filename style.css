@@ -90,11 +90,11 @@ h1 {
     text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
     letter-spacing: 2px;
 }
-
+/* New styling for H2 in panels */
 .game-panel h2 {
     font-family: 'Press Start 2P', cursive;
     font-size: 1rem;
-    color: #4c5a75;
+    color: #4c5a75; /* Darker blue-gray for panel headers */
     margin-top: 15px;
     margin-bottom: 10px;
     text-align: center;
@@ -123,19 +123,20 @@ h1 {
 
 .control-panel, .difficulty-panel, .operation-selection-panel {
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Stack header and buttons */
     align-items: center;
     gap: 10px;
     width: 100%;
     flex-shrink: 0;
 }
 
+/* Style for the actual button containers inside the new panels */
 .operation-selection-panel .operation-buttons,
 .difficulty-panel {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 8px;
+    gap: 8px; /* Slightly smaller gap for more buttons */
     width: 100%;
 }
 
@@ -269,15 +270,15 @@ h1 {
     transform: scale(1.05);
 }
 
-
+/* New styles for operation type buttons */
 .operation-btn {
-    background-color: #06b6d4;
+    background-color: #06b6d4; /* A distinct blue-green color */
 }
 .operation-btn:hover {
     background-color: #0891b2;
 }
 .operation-btn.selected {
-    background-color: #67e8f9;
+    background-color: #67e8f9; /* Lighter selected state */
     border: 3px solid #06b6d4;
     transform: scale(1.05);
 }
@@ -360,6 +361,7 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
+/* Responsive styles */
 @media (min-width: 768px) {
     .main-content-wrapper {
         flex-direction: row;
@@ -398,14 +400,14 @@ input[type="number"] {
     .key-btn.wide {
         font-size: 0.8rem;
     }
-
+    /* Adjust control/operation/difficulty panel arrangement for desktop */
     .control-panel, .operation-selection-panel, .difficulty-panel {
-        flex-direction: column;
+        flex-direction: column; /* Keep column layout for header + buttons */
         gap: 10px;
     }
     .operation-selection-panel .operation-buttons,
     .difficulty-panel {
-        gap: 10px;
+        gap: 10px; /* Adjust gap for wider screens */
     }
 }
 
@@ -481,11 +483,11 @@ input[type="number"] {
 
 
     .control-panel, .operation-selection-panel, .difficulty-panel {
-        flex-direction: column;
-        gap: 8px;
+        flex-direction: column; /* Stack header and buttons */
+        gap: 8px; 
     }
     .operation-selection-panel .operation-buttons,
     .difficulty-panel {
-        gap: 6px;
+        gap: 6px; /* Reduce gap for more buttons in smaller screens */
     }
 }
