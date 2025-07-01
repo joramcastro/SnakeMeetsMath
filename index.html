@@ -10,7 +10,8 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-    <div class="main-wrapper"> <div class="main-content-wrapper">
+    <div class="main-wrapper">
+        <div class="main-content-wrapper">
             <div class="game-panel">
                 <div class="header">
                     <h1>SnakeMeetsMath</h1>
@@ -34,7 +35,8 @@
                 <div class="operation-selection-panel" id="operation-selection-panel">
                     <h2>Choose Problem Type:</h2>
 
-                    <details open> <summary class="operation-category-summary">Basic & Advanced Arithmetic</summary>
+                    <details open>
+                        <summary class="operation-category-summary">Basic & Advanced Decimal Arithmetic</summary>
                         <div class="operation-buttons">
                             <button class="btn operation-btn selected" data-operation-type="arithmetic">Decimal Arithmetic</button>
                             <button class="btn operation-btn" data-operation-type="exponentiation">Exponentiation (xⁿ)</button>
@@ -44,14 +46,20 @@
                     </details>
 
                     <details>
-                        <summary class="operation-category-summary">Binary Operations</summary>
+                        <summary class="operation-category-summary">Binary & Number System Operations</summary>
                         <div class="operation-buttons">
-                            <button class="btn operation-btn" data-operation-type="binary-decimal">Binary to Decimal</button>
-                            <button class="btn operation-btn" data-operation-type="decimal-binary">Decimal to Binary</button>
-                            <button class="btn operation-btn" data-operation-type="binary-addition">Binary Addition (Dec. Result)</button>
-                            <button class="btn operation-btn" data-operation-type="binary-subtraction">Binary Subtraction (Dec. Result)</button>
-                            <button class="btn operation-btn" data-operation-type="binary-multiplication">Binary Multiplication (Dec. Result)</button>
-                            <button class="btn operation-btn" data-operation-type="binary-division">Binary Division (Dec. Result)</button>
+                            <button class="btn operation-btn" data-operation-type="binary-addition">Binary Addition</button>
+                            <button class="btn operation-btn" data-operation-type="binary-subtraction">Binary Subtraction</button>
+                            <button class="btn operation-btn" data-operation-type="binary-multiplication">Binary Multiplication</button>
+                            <button class="btn operation-btn" data-operation-type="binary-division">Binary Division</button>
+                            <button class="btn operation-btn" data-operation-type="binary-decimal">Binary ↔ Decimal</button>
+                            <button class="btn operation-btn" data-operation-type="decimal-binary">Decimal ↔ Binary</button>
+                            <button class="btn operation-btn" data-operation-type="binary-hex">Binary ↔ Hexadecimal</button>
+                            <button class="btn operation-btn" data-operation-type="hex-binary">Hexadecimal ↔ Binary</button>
+                            <button class="btn operation-btn" data-operation-type="binary-octal">Binary ↔ Octal</button>
+                            <button class="btn operation-btn" data-operation-type="octal-binary">Octal ↔ Binary</button>
+                            <button class="btn operation-btn" data-operation-type="decimal-hex">Decimal ↔ Hexadecimal</button>
+                            <button class="btn operation-btn" data-operation-type="decimal-octal">Decimal ↔ Octal</button>
                         </div>
                     </details>
 
