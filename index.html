@@ -139,9 +139,16 @@
         </div>
     </div>
 
-    <footer class="text-center text-gray-500 text-sm mt-8">
-        Developed by Joram V. Castro
-    </footer>
+       <footer style="text-align: center; padding: 20px; background-color: #f2f2f2;">
+  <p id="footer-text"></p>
+
+  <script>
+    const startYear = 2024;
+    const currentYear = new Date().getFullYear();
+    const yearText = startYear === currentYear ? `${startYear}` : `${startYear}-${currentYear}`;
+    document.getElementById("footer-text").textContent = `${yearText} ©SnakeMeetsMath`;
+  </script>
+</footer>
 
     <script src="script.js"></script>
     <script>
