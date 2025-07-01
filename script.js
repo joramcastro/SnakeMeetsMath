@@ -262,6 +262,17 @@ function startGame() {
     scoreDisplay.parentElement.style.display = 'flex';
     gameInterval = setInterval(moveSnake, GAME_SPEED);
     messageArea.style.display = 'none';
+
+
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    } else if (document.documentElement.mozRequestFullScreen) {
+        document.documentElement.mozRequestFullScreen();
+    } else if (document.documentElement.webkitRequestFullscreen) {
+        document.documentElement.webkitRequestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) {
+        document.documentElement.msRequestFullscreen();
+    }
 }
 
 function pauseGame() {
@@ -332,6 +343,16 @@ function endGame() {
     difficultyPanel.style.display = 'flex';
     categorySelectionPanel.style.display = 'block';
     messageArea.style.display = 'block';
+
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+    }
 }
 
 function resetGame() {
@@ -517,8 +538,8 @@ function generateBinaryToDecimalProblem() {
     for (let i = 0; i < bits; i++) {
         binaryString += Math.round(Math.random());
     }
-    if (binaryString.startsWith('0') && binaryString.length > 1) binaryString = '1' + binaryString.substring(1); // Avoid leading zeros for non-zero numbers
-    if (binaryString === '0') binaryString = '1'; // Ensure it's not just "0"
+    if (binaryString.startsWith('0') && binaryString.length > 1) binaryString = '1' + binaryString.substring(1);
+    if (binaryString === '0') binaryString = '1';
 
     correctMathAnswer = parseInt(binaryString, 2);
     mathProblemDisplay.textContent = `Convert binary ${binaryString} to decimal: ?`;
@@ -549,7 +570,7 @@ function generateCompoundInterestProblem() {
     const P = generateRandomNum(100, 5000);
     const R = generateRandomNum(1, 8) / 100;
     const T = generateRandomNum(1, 5);
-    const N = Math.random() < 0.5 ? 1 : 2; // Annually or Semi-annually
+    const N = Math.random() < 0.5 ? 1 : 2;
     const A = P * Math.pow((1 + R / N), N * T);
     correctMathAnswer = parseFloat(A.toFixed(2));
     mathProblemDisplay.textContent = `Principal: $${P}, Rate: ${R * 100}%, Time: ${T} years, Compounded: ${N === 1 ? 'Annually' : 'Semi-annually'}. Amount = ?`;
@@ -567,9 +588,9 @@ function generateArithmeticSequenceProblem() {
 function generateArithmeticMeansProblem() {
     const a1 = generateRandomNum(1, 20);
     const an = generateRandomNum(a1 + 10, a1 + 50);
-    const k = generateRandomNum(1, 4); // number of means
+    const k = generateRandomNum(1, 4);
     const d = (an - a1) / (k + 1);
-    if (d % 1 !== 0) { // Ensure integer common difference for simpler problems
+    if (d % 1 !== 0) {
         generateArithmeticMeansProblem();
         return;
     }
@@ -590,7 +611,7 @@ function generateFractionToDecimalProblem() {
         numerator = generateRandomNum(1, 20);
         denominator = generateRandomNum(2, 20);
         decimalAnswer = parseFloat((numerator / denominator).toFixed(4));
-        if (decimalAnswer.toString().length <= 8) { // Limit length for easier input
+        if (decimalAnswer.toString().length <= 8) {
             break;
         }
     }
@@ -720,7 +741,7 @@ function generateBinaryDivisionProblem() {
     let num2Dec = generateRandomNum(1, 5);
     let quotientDec = generateRandomNum(1, 5);
     let num1Dec = num2Dec * quotientDec;
-    if (num1Dec === 0) { // Avoid division by zero or trivial cases
+    if (num1Dec === 0) {
         generateBinaryDivisionProblem();
         return;
     }
@@ -826,7 +847,7 @@ function submitMathAnswer() {
     if (typeof correctMathAnswer === 'number') {
         const userAnswerNum = parseFloat(userAnswerRaw);
         if (!isNaN(userAnswerNum)) {
-            const tolerance = 0.01; // For floating point comparisons
+            const tolerance = 0.01;
             isCorrect = Math.abs(userAnswerNum - correctMathAnswer) < tolerance;
         }
     } else if (typeof correctMathAnswer === 'string') {
