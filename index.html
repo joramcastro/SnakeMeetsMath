@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnakeMeetsMath</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="main-content-wrapper">
+        <div class="game-panel">
+            <div class="header">
+                <h1>SnakeMeetsMath</h1>
+                <p class="text-gray-400">Answer math problems to keep your snake alive!</p>
+            </div>
+
+            <div class="stats-panel">
+                <span>Score: <span id="score">0</span></span>
+                <span>High Score: <span id="high-score">0</span></span>
+            </div>
+
+            <canvas id="gameCanvas" width="400" height="400" style="display:none;"></canvas>
+
+            <div class="control-panel" id="control-panel">
+                <button id="start-game-btn" class="btn">Start Game</button>
+                <button id="pause-game-btn" class="btn" style="display:none;">Pause</button>
+                <button id="reset-game-btn" class="btn btn-red">Reset Game</button>
+                <button id="install-button" class="btn" style="display:none;">Install Game</button>
+                <button id="evaluate-function-btn" class="btn">Evaluate Function (240s)</button>
+            </div>
+
+            <div class="difficulty-panel" id="difficulty-panel">
+                <button class="btn difficulty-btn" data-difficulty="easy">Easy (60s)</button>
+                <button class="btn difficulty-btn" data-difficulty="medium">Medium (120s)</button>
+                <button class="btn difficulty-btn" data-difficulty="hard">Hard (180s)</button>
+                <button class="btn difficulty-btn" data-difficulty="expert">Expert (240s)</button>
+            </div>
+
+            <p id="message-area" class="text-center text-sm mt-4 p-2 rounded-md bg-opacity-20 bg-yellow-500 text-yellow-100 border border-yellow-400" style="display:none;"></p>
+        </div>
+
+        <div class="right-panel">
+            <div class="math-challenge" id="math-challenge-area" style="display:none;">
+                <p id="math-problem">5 + 3 = ?</p>
+                <input type="text" id="math-answer-input" placeholder="Your Answer" autocomplete="off" inputmode="none" readonly />
+                <button id="submit-answer-btn" class="btn">Submit Answer</button>
+                <p id="timer-display" class="mt-2 text-sm text-yellow-300">Time left: 10s</p>
+            </div>
+
+            <div class="custom-keyboard" id="custom-keyboard" style="display:none;">
+                <div class="keyboard-row">
+                    <button class="key-btn" data-value="1">1</button>
+                    <button class="key-btn" data-value="2">2</button>
+                    <button class="key-btn" data-value="3">3</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key-btn" data-value="4">4</button>
+                    <button class="key-btn" data-value="5">5</button>
+                    <button class="key-btn" data-value="6">6</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key-btn" data-value="7">7</button>
+                    <button class="key-btn" data-value="8">8</button>
+                    <button class="key-btn" data-value="9">9</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key-btn" data-value="-">-</button>
+                    <button class="key-btn" data-value="0">0</button>
+                    <button class="key-btn" data-value=".">.</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key-btn wide utility-key" data-value="backspace">&#x232B; Back</button>
+                    <button class="key-btn wide utility-key" data-value="clear">C</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameOverModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2 class="font-press-start-2p">Game Over!</h2>
+            <p>Your final score: <span id="finalScore">0</span></p>
+            <button id="restartGameBtn" class="btn">Play Again</button>
+        </div>
+    </div>
+
+    <footer class="text-center text-gray-500 text-sm mt-8">
+        Developed by Joram V. Castro
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered:', registration);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
