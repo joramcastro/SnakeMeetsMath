@@ -25,7 +25,7 @@ const customKeyboard = document.getElementById('custom-keyboard');
 const messageArea = document.getElementById('message-area');
 
 const operationSelectionPanel = document.getElementById('operation-selection-panel');
-const operationButtons = document.querySelectorAll('.operation-btn'); // Select all operation buttons
+const operationButtons = document.querySelectorAll('.operation-btn');
 
 let snake = [];
 let food = {};
@@ -275,7 +275,7 @@ function pauseGame() {
         if (!isArithmeticLike) {
             currentMessage = `Pause is not available for ${selectedOperationType.replace('-', ' ')} challenges.`;
         }
-        setMessage(currentMessage);
+        setMessage(currentMessage); // Display initial error message
         return;
     }
 
@@ -289,14 +289,16 @@ function pauseGame() {
     clearInterval(mathTimerInterval);
     score = Math.max(0, score - 1);
     scoreDisplay.textContent = score;
-    setMessage(`Game Paused. 1 point deducted. Pause fuel: ${score} points`);
-
-    pauseTimeLeft = 20;
-    pauseGameBtn.textContent = `Resuming in ${pauseTimeLeft}s`;
-
+    
+    // Start real-time pause countdown display in message area
+    pauseTimeLeft = 20; // Set initial pause time
+    setMessage(`Game Paused. 1 point deducted. Resuming in ${pauseTimeLeft}s. Pause fuel: ${score} points`);
+    
     pauseCountdownInterval = setInterval(() => {
         pauseTimeLeft--;
-        pauseGameBtn.textContent = `Resuming in ${pauseTimeLeft}s`;
+        // Update messageArea with real-time countdown
+        setMessage(`Game Paused. 1 point deducted. Resuming in ${pauseTimeLeft}s. Pause fuel: ${score} points`);
+        
         if (pauseTimeLeft <= 0) {
             clearInterval(pauseCountdownInterval);
             resumeGame();
@@ -313,8 +315,8 @@ function resumeGame() {
     if (awaitingMathAnswer) {
         startMathTimer();
     }
-    pauseGameBtn.textContent = 'Pause';
-    messageArea.style.display = 'none';
+    // Remove specific pause message when resuming
+    messageArea.style.display = 'none'; 
 }
 
 function endGame() {
@@ -805,11 +807,8 @@ function generateFractionToDecimalProblem() {
         } else if (currentDifficulty === 'medium') {
             numerator = generateRandomNum(1, 15);
             denominator = generateRandomNum(2, 10);
-        } else if (currentDifficulty === 'hard') {
+        } else { // Hard/Expert
             numerator = generateRandomNum(1, 25);
-            denominator = generateRandomNum(2, 20);
-        } else {
-            numerator = generateRandomNum(1, 50);
             denominator = generateRandomNum(2, 25);
         }
 
@@ -1228,7 +1227,6 @@ difficultyButtons.forEach(button => {
     });
 });
 
-// Attach event listeners to all operation buttons
 operationButtons.forEach(button => {
     button.addEventListener('click', () => {
         selectedOperationType = button.dataset.operationType;
@@ -1286,5 +1284,14 @@ installButton.addEventListener('click', () => {
 window.onload = function() {
     initializeGame();
     updateDifficultyAndOperationDisplay();
+    // Ensure only the first accordion is open on load
+    const allDetails = document.querySelectorAll('.operation-selection-panel details');
+    allDetails.forEach((detail, index) => {
+        if (index === 0) {
+            detail.open = true;
+        } else {
+            detail.open = false;
+        }
+    });
     setMessage('Welcome! Choose your problem type and difficulty, then press "Start Game" to begin.');
 };
