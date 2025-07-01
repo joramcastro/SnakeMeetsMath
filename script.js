@@ -80,7 +80,8 @@ function initializeGame() {
     customKeyboard.style.display = 'none';
     gameOverModal.style.display = 'none';
     canvas.style.display = 'none';
-    scoreDisplay.parentElement.style.display = 'none';
+
+    scoreDisplay.parentElement.style.display = 'flex'; 
     mathAnswerInput.value = '';
 
     clearInterval(gameInterval);
@@ -351,7 +352,7 @@ function endGame() {
     } else if (document.webkitExitFullscreen) {
         document.webkitExitFullscreen();
     } else if (document.msExitFullscreen) {
-        document.msExitFullscreen();
+        document.documentElement.msExitFullscreen();
     }
 }
 
@@ -408,11 +409,6 @@ function generateFunctionProblem() {
             bRangeMin = 1; bRangeMax = 10;
             cRangeMin = 1; cRangeMax = 10;
             xRangeMin = 1; xRangeMax = 5;
-        } else if (currentDifficulty === 'hard') {
-            aRangeMin = 1; aRangeMax = 10;
-            bRangeMin = 1; bRangeMax = 20;
-            cRangeMin = 1; cRangeMax = 20;
-            xRangeMin = 1; xRangeMax = 10;
         } else {
             aRangeMin = 1; aRangeMax = 15;
             bRangeMin = 1; bRangeMax = 30;
