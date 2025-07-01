@@ -25,9 +25,7 @@
                 <canvas id="gameCanvas" width="400" height="400" style="display:none;"></canvas>
 
                 <div class="control-panel" id="control-panel">
-                    <button id="start-game-btn" class="btn">Start Game (Current Selection)</button>
                     <button id="pause-game-btn" class="btn" style="display:none;">Pause</button>
-                    <button id="reset-game-btn" class="btn btn-red">Reset Game</button>
                     <button id="install-button" class="btn" style="display:none;">Install Game</button>
                 </div>
 
@@ -48,7 +46,6 @@
                         <div class="operation-buttons">
                             <button class="btn operation-btn" data-operation-type="binary-decimal">Binary to Decimal</button>
                             <button class="btn operation-btn" data-operation-type="decimal-binary">Decimal to Binary</button>
-                            
                         </div>
                     </details>
 
@@ -79,8 +76,8 @@
                         <button class="btn difficulty-btn" data-difficulty="expert">Expert (240s)</button>
                     </div>
                 </div>
-
                 <p id="message-area" class="text-center text-sm mt-4 p-2 rounded-md bg-opacity-20 bg-yellow-500 text-yellow-100 border border-yellow-400" style="display:none;"></p>
+                <button id="start-game-btn" class="btn">Start Game (Current Selection)</button>
             </div>
 
             <div class="right-panel">
