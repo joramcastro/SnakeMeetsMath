@@ -36,12 +36,12 @@ let gameInterval;
 let isGameRunning = false;
 let isPaused = false;
 let awaitingMathAnswer = false;
-let correctMathAnswer = 0; // Can be number or string (for binary)
+let correctMathAnswer = 0; // Can be number or string (for binary, octal, hex conversions)
 let mathTimerInterval;
 let timeLeftForMath = 0;
 let initialTimeForCurrentChallenge = 0;
 let currentDifficulty = 'medium';
-let selectedOperationType = 'arithmetic'; // Default to basic arithmetic
+let selectedOperationType = 'arithmetic';
 let deferredInstallPrompt = null;
 
 let touchStartX = 0;
@@ -90,12 +90,12 @@ function initializeGame() {
     pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'flex';
-    operationSelectionPanel.style.display = 'flex'; // Show operation panel
+    operationSelectionPanel.style.display = 'flex';
     messageArea.style.display = 'block';
 
     generateFood();
     drawGame();
-    updateDifficultyAndOperationDisplay(); // Call unified update to set initial button states
+    updateDifficultyAndOperationDisplay();
 }
 
 function drawGame() {
@@ -357,10 +357,52 @@ function getDigitRange(difficulty) {
 
 const generateRandomNum = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-// --- Helper for binary conversion ---
+// --- Helper for number system conversions ---
 function decToBin(dec, minLength = 0) {
     let bin = (dec >>> 0).toString(2);
     while (bin.length < minLength) {
+        bin = '0' + bin;
+    }
+    return bin;
+}
+
+function binToOct(bin) {
+    return parseInt(bin, 2).toString(8);
+}
+
+function octToBin(oct, minLength = 0) {
+    let dec = parseInt(oct, 8);
+    let bin = (dec >>> 0).toString(2);
+     while (bin.length < minLength) {
+        bin = '0' + bin;
+    }
+    return bin;
+}
+
+function decToOct(dec) {
+    return dec.toString(8);
+}
+
+function octToDec(oct) {
+    return parseInt(oct, 8);
+}
+
+function binToHex(bin) {
+    return parseInt(bin, 2).toString(16).toUpperCase();
+}
+
+function decToHex(dec) {
+    return dec.toString(16).toUpperCase();
+}
+
+function hexToDec(hex) {
+    return parseInt(hex, 16);
+}
+
+function hexToBin(hex, minLength = 0) {
+    let dec = parseInt(hex, 16);
+    let bin = (dec >>> 0).toString(2);
+     while (bin.length < minLength) {
         bin = '0' + bin;
     }
     return bin;
@@ -629,11 +671,8 @@ function generateDecimalToBinaryProblem() {
     }
 
     mathProblemDisplay.textContent = `Convert decimal ${decimalNum} to binary: ?`;
-    correctMathAnswer = binaryAnswer; // Store as string for comparison
+    correctMathAnswer = binaryAnswer;
     mathAnswerInput.value = '';
-    // This problem requires string input, but our keyboard is numeric.
-    // User must type '0' and '1'.
-    // The submitMathAnswer will handle string comparison for this type.
 }
 
 function generateBinaryToDecimalProblem() {
@@ -681,10 +720,11 @@ function generateBinaryToDecimalProblem() {
     mathAnswerInput.value = '';
 }
 
+// --- New Binary Arithmetic Problem Generators (Binary Output) ---
 function generateBinaryArithmeticProblem(operation) {
     let num1Dec, num2Dec;
     let bin1, bin2;
-    let answerDec;
+    let answerBin;
     const maxLengthBits = (currentDifficulty === 'easy' ? 4 :
                           currentDifficulty === 'medium' ? 6 :
                           currentDifficulty === 'hard' ? 8 : 10);
@@ -699,51 +739,433 @@ function generateBinaryArithmeticProblem(operation) {
         num1Dec = generateRandomNum(1, Math.pow(2, maxLengthBits) - 1);
         num2Dec = generateRandomNum(1, Math.pow(2, maxLengthBits) - 1);
 
-        // Ensure num1 >= num2 for subtraction to avoid negative binary result concepts for now
-        if (operation === '-') {
+        // Ensure num1 >= num2 for subtraction to avoid negative results (for simplicity in binary display)
+        if (operation === 'subtraction' || operation === '-') {
             if (num1Dec < num2Dec) {
                 [num1Dec, num2Dec] = [num2Dec, num1Dec]; // Swap them
             }
         }
 
         // For division, ensure num1 is a multiple of num2 and num2 is not zero
-        if (operation === '/') {
+        if (operation === 'division' || operation === '/') {
             if (num2Dec === 0) continue;
-            let possibleQuotients = [];
-            for (let i = 1; i <= 5; i++) { // Keep quotients small
-                if ((num1Dec * i) / num2Dec === Math.floor((num1Dec * i) / num2Dec)) {
-                    possibleQuotients.push(i);
-                }
-            }
-            if (possibleQuotients.length === 0) continue; // No good quotient, try again
-            let tempQuotient = possibleQuotients[Math.floor(Math.random() * possibleQuotients.length)];
+            let tempQuotient = generateRandomNum(1, 5); // Keep quotient small
             num1Dec = num2Dec * tempQuotient;
+            if (num1Dec === 0) { continue; } // Avoid 0/X
         }
         
-        bin1 = decToBin(num1Dec, Math.floor(maxLengthBits / 2) + 1); // Pad with leading zeros for display
-        bin2 = decToBin(num2Dec, Math.floor(maxLengthBits / 2) + 1);
+        // Pad binary strings to similar length for cleaner display
+        const displayLength = Math.max(bin1 ? bin1.length : 0, bin2 ? bin2.length : 0, Math.floor(maxLengthBits / 2) + 1);
+        bin1 = decToBin(num1Dec, displayLength);
+        bin2 = decToBin(num2Dec, displayLength);
 
-
+        let answerDec;
         let opSymbol;
         switch (operation) {
+            case 'addition':
             case '+': answerDec = num1Dec + num2Dec; opSymbol = '+'; break;
+            case 'subtraction':
             case '-': answerDec = num1Dec - num2Dec; opSymbol = '-'; break;
+            case 'multiplication':
             case '*': answerDec = num1Dec * num2Dec; opSymbol = 'x'; break;
+            case 'division':
             case '/': answerDec = num1Dec / num2Dec; opSymbol = '÷'; break;
+            default: continue; // Should not happen
         }
+        answerBin = decToBin(answerDec);
 
-        if (Math.abs(answerDec) < 10000000 && Math.abs(answerDec) >= 0) {
+        // Ensure binary answer is not too long or is non-negative for this simplified context
+        if (answerBin.length <= maxLengthBits + 2 && answerDec >= 0) { // +2 for slightly longer results
             problemGenerated = true;
         }
     }
 
     if (!problemGenerated) {
-        bin1 = '101'; bin2 = '10'; opSymbol = '+'; answerDec = 7;
+        bin1 = '101'; bin2 = '011'; opSymbol = '+'; answerBin = '1000'; // Fallback to 5+3=8
         setMessage(`Binary ${operation} fallback. Please continue.`);
     }
 
-    mathProblemDisplay.textContent = `Binary ${bin1} ${opSymbol} ${bin2} = ? (Decimal Answer)`;
-    correctMathAnswer = Math.round(answerDec);
+    mathProblemDisplay.textContent = `Binary ${bin1} ${opSymbol} ${bin2} = ?`;
+    correctMathAnswer = answerBin; // Binary string answer expected
+    mathAnswerInput.value = '';
+}
+
+// Separate functions for explicit button types
+function generateBinaryAdditionProblem() { generateBinaryArithmeticProblem('addition'); }
+function generateBinarySubtractionProblem() { generateBinaryArithmeticProblem('subtraction'); }
+function generateBinaryMultiplicationProblem() { generateBinaryArithmeticProblem('multiplication'); }
+function generateBinaryDivisionProblem() { generateBinaryArithmeticProblem('division'); }
+
+
+function generateBinaryToOctalProblem() {
+    let binaryString;
+    let octalAnswer;
+    const maxLength = (currentDifficulty === 'easy' ? 6 : // Up to 6 bits (2 octal digits)
+                      currentDifficulty === 'medium' ? 9 : // Up to 9 bits (3 octal digits)
+                      currentDifficulty === 'hard' ? 12 : // Up to 12 bits (4 octal digits)
+                      15); // Up to 15 bits (5 octal digits)
+
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        binaryString = '';
+        let numBits = generateRandomNum(3, maxLength); // Min 3 bits to ensure at least one full octal group
+        // Ensure the number of bits is a multiple of 3 for cleaner grouping
+        numBits = Math.ceil(numBits / 3) * 3;
+        if (numBits === 0) numBits = 3;
+
+        for (let i = 0; i < numBits; i++) {
+            binaryString += Math.random() < 0.5 ? '0' : '1';
+        }
+        if (parseInt(binaryString, 2) === 0) { // Avoid all zeros
+            const randomIndex = generateRandomNum(0, binaryString.length - 1);
+            binaryString = binaryString.substring(0, randomIndex) + '1' + binaryString.substring(randomIndex + 1);
+        }
+
+        octalAnswer = binToOct(binaryString);
+
+        if (octalAnswer.length <= Math.ceil(maxLength / 3) + 1) { // Keep octal answer length reasonable
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        binaryString = '110101'; octalAnswer = '65';
+        setMessage('Binary to Octal problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Convert binary ${binaryString} to octal: ?`;
+    correctMathAnswer = octalAnswer;
+    mathAnswerInput.value = '';
+}
+
+function generateOctalToBinaryProblem() {
+    let octalString;
+    let binaryAnswer;
+    const maxOctalLength = (currentDifficulty === 'easy' ? 2 : // Up to 2 octal digits
+                            currentDifficulty === 'medium' ? 3 : // Up to 3 octal digits
+                            currentDifficulty === 'hard' ? 4 : // Up to 4 octal digits
+                            5); // Up to 5 octal digits
+
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        octalString = '';
+        let firstDigit = generateRandomNum(1, 7); // Ensure first digit is not zero
+        octalString += firstDigit.toString();
+        for (let i = 1; i < maxOctalLength; i++) {
+            octalString += generateRandomNum(0, 7).toString();
+        }
+
+        binaryAnswer = octToBin(octalString);
+
+        if (binaryAnswer.length <= maxOctalLength * 3) { // Max 3 bits per octal digit
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        octalString = '75'; binaryAnswer = '111101';
+        setMessage('Octal to Binary problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Convert octal ${octalString} to binary: ?`;
+    correctMathAnswer = binaryAnswer;
+    mathAnswerInput.value = '';
+}
+
+function generateDecimalToOctalProblem() {
+    let decimalNum;
+    let octalAnswer;
+    const maxDecimal = (currentDifficulty === 'easy' ? 63 : // Max for 2 octal digits
+                        currentDifficulty === 'medium' ? 511 : // Max for 3 octal digits
+                        currentDifficulty === 'hard' ? 4095 : // Max for 4 octal digits
+                        32767); // Max for 5 octal digits
+
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        decimalNum = generateRandomNum(1, maxDecimal);
+        octalAnswer = decToOct(decimalNum);
+
+        if (decimalNum > 0) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        decimalNum = 25; octalAnswer = '31';
+        setMessage('Decimal to Octal problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Convert decimal ${decimalNum} to octal: ?`;
+    correctMathAnswer = octalAnswer;
+    mathAnswerInput.value = '';
+}
+
+function generateOctalToDecimalProblem() {
+    let octalString;
+    let decimalAnswer;
+    const maxOctalLength = (currentDifficulty === 'easy' ? 2 :
+                            currentDifficulty === 'medium' ? 3 :
+                            currentDifficulty === 'hard' ? 4 :
+                            5);
+
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        octalString = '';
+        let firstDigit = generateRandomNum(1, 7);
+        octalString += firstDigit.toString();
+        for (let i = 1; i < maxOctalLength; i++) {
+            octalString += generateRandomNum(0, 7).toString();
+        }
+
+        decimalAnswer = octToDec(octalString);
+
+        if (decimalAnswer > 0) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        octalString = '31'; decimalAnswer = 25;
+        setMessage('Octal to Decimal problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Convert octal ${octalString} to decimal: ?`;
+    correctMathAnswer = decimalAnswer;
+    mathAnswerInput.value = '';
+}
+
+function generateBinaryToHexadecimalProblem() {
+    let binaryString;
+    let hexAnswer;
+    const maxLength = (currentDifficulty === 'easy' ? 8 : // Up to 8 bits (2 hex digits)
+                      currentDifficulty === 'medium' ? 12 : // Up to 12 bits (3 hex digits)
+                      currentDifficulty === 'hard' ? 16 : // Up to 16 bits (4 hex digits)
+                      20); // Up to 20 bits (5 hex digits)
+
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        binaryString = '';
+        let numBits = generateRandomNum(4, maxLength); // Min 4 bits for at least one hex digit
+        numBits = Math.ceil(numBits / 4) * 4; // Ensure multiple of 4
+        if (numBits === 0) numBits = 4;
+
+        for (let i = 0; i < numBits; i++) {
+            binaryString += Math.random() < 0.5 ? '0' : '1';
+        }
+        if (parseInt(binaryString, 2) === 0) {
+            const randomIndex = generateRandomNum(0, binaryString.length - 1);
+            binaryString = binaryString.substring(0, randomIndex) + '1' + binaryString.substring(randomIndex + 1);
+        }
+
+        hexAnswer = binToHex(binaryString);
+
+        if (hexAnswer.length <= Math.ceil(maxLength / 4) + 1) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        binaryString = '10101100'; hexAnswer = 'AC';
+        setMessage('Binary to Hexadecimal problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Convert binary ${binaryString} to hexadecimal: ?`;
+    correctMathAnswer = hexAnswer;
+    mathAnswerInput.value = '';
+    setMessage('For Hexadecimal answers (A-F), you may need a physical keyboard. Please type uppercase.');
+}
+
+function generateDecimalToHexadecimalProblem() {
+    let decimalNum;
+    let hexAnswer;
+    const maxDecimal = (currentDifficulty === 'easy' ? 255 : // Max for 2 hex digits
+                        currentDifficulty === 'medium' ? 4095 : // Max for 3 hex digits
+                        currentDifficulty === 'hard' ? 65535 : // Max for 4 hex digits
+                        1048575); // Max for 5 hex digits
+
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        decimalNum = generateRandomNum(1, maxDecimal);
+        hexAnswer = decToHex(decimalNum);
+
+        if (decimalNum > 0) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        decimalNum = 172; hexAnswer = 'AC';
+        setMessage('Decimal to Hexadecimal problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Convert decimal ${decimalNum} to hexadecimal: ?`;
+    correctMathAnswer = hexAnswer;
+    mathAnswerInput.value = '';
+    setMessage('For Hexadecimal answers (A-F), you may need a physical keyboard. Please type uppercase.');
+}
+
+function generateHexToDecimalProblem() {
+    let hexString;
+    let decimalAnswer;
+    const maxHexLength = (currentDifficulty === 'easy' ? 1 :
+                          currentDifficulty === 'medium' ? 2 :
+                          currentDifficulty === 'hard' ? 3 :
+                          4);
+
+    const hexChars = '0123456789ABCDEF';
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        hexString = '';
+        let firstCharIndex = generateRandomNum(1, 15);
+        hexString += hexChars[firstCharIndex];
+        for (let i = 1; i < maxHexLength; i++) {
+            hexString += hexChars[generateRandomNum(0, 15)];
+        }
+
+        decimalAnswer = hexToDec(hexString);
+
+        if (decimalAnswer > 0) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        hexString = 'A'; decimalAnswer = 10;
+        setMessage('Hexadecimal to Decimal problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Convert hexadecimal ${hexString} to decimal: ?`;
+    correctMathAnswer = decimalAnswer;
+    mathAnswerInput.value = '';
+    setMessage('For Hexadecimal problem inputs, you may need a physical keyboard for A-F.');
+}
+
+function generateHexadecimalToBinaryProblem() {
+    let hexString;
+    let binaryAnswer;
+    const maxHexLength = (currentDifficulty === 'easy' ? 1 :
+                          currentDifficulty === 'medium' ? 2 :
+                          currentDifficulty === 'hard' ? 3 :
+                          4);
+
+    const hexChars = '0123456789ABCDEF';
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        hexString = '';
+        let firstCharIndex = generateRandomNum(1, 15);
+        hexString += hexChars[firstCharIndex];
+        for (let i = 1; i < maxHexLength; i++) {
+            hexString += hexChars[generateRandomNum(0, 15)];
+        }
+
+        binaryAnswer = hexToBin(hexString);
+
+        if (binaryAnswer.length <= maxHexLength * 4) { // Max 4 bits per hex digit
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        hexString = 'A'; binaryAnswer = '1010';
+        setMessage('Hexadecimal to Binary problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Convert hexadecimal ${hexString} to binary: ?`;
+    correctMathAnswer = binaryAnswer;
+    mathAnswerInput.value = '';
+    setMessage('For Hexadecimal problem inputs, you need to type the hex characters (A-F) with your physical keyboard.');
+}
+
+
+function generateLinearEquationProblem() {
+    let a, b, c, x, problemString, answer;
+    const MAX_ATTEMPTS = 200;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    const getNumForEq = (min, max) => {
+        let val = generateRandomNum(min, max);
+        if (['medium', 'hard', 'expert'].includes(currentDifficulty) && Math.random() < 0.5) val *= -1;
+        return val;
+    };
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+
+        if (currentDifficulty === 'easy') {
+            a = getNumForEq(1, 3);
+            b = getNumForEq(1, 5);
+            x = getNumForEq(1, 5);
+            c = (a * x) + b;
+            if (x <= 0) { problemGenerated = false; continue; }
+        } else if (currentDifficulty === 'medium') {
+            a = getNumForEq(1, 5);
+            b = getNumForEq(-10, 10);
+            x = getNumForEq(-7, 7);
+            c = (a * x) + b;
+        } else if (currentDifficulty === 'hard') {
+            a = getNumForEq(1, 10);
+            b = getNumForEq(-20, 20);
+            x = getNumForEq(-10, 10);
+            c = (a * x) + b;
+        } else {
+            a = getNumForEq(1, 15);
+            b = getNumForEq(-30, 30);
+            x = getNumForEq(-15, 15);
+            c = (a * x) + b;
+        }
+
+        if (a === 0) { problemGenerated = false; continue; }
+        if (Math.abs(c) > 999999 || Math.abs(x) > 99999 || Math.abs(b) > 99999) { problemGenerated = false; continue; }
+        if (x % 1 !== 0) { problemGenerated = false; continue; }
+
+        let aStr = a === 1 ? '' : (a === -1 ? '-' : a.toString());
+        let bStr = b === 0 ? '' : (b > 0 ? ` + ${b}` : ` - ${Math.abs(b)}`);
+        problemString = `${aStr}x${bStr} = ${c}`;
+        answer = x;
+        problemGenerated = true;
+    }
+
+    if (!problemGenerated) {
+        problemString = `2x + 3 = 7 (Fallback)`;
+        answer = 2;
+        setMessage('Linear equation problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Solve for x: ${problemString}`;
+    correctMathAnswer = Math.round(answer);
     mathAnswerInput.value = '';
 }
 
@@ -924,78 +1346,130 @@ function startChallenge() {
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
 
-    // Set flag for decimal input based on problem type
+    // Determine input format and if decimal input is allowed based on problem type
+    let inputFormat = 'decimal'; // 'decimal', 'binary', 'octal', 'hex'
     let allowDecimalInput = false;
 
     switch (selectedOperationType) {
         case 'arithmetic':
             generateArithmeticProblem();
             pauseGameBtn.style.display = 'inline-block';
+            inputFormat = 'decimal';
             break;
         case 'exponentiation':
             generateExponentiationProblem();
             pauseGameBtn.style.display = 'none';
+            inputFormat = 'decimal';
             break;
         case 'modulus':
             generateModulusProblem();
             pauseGameBtn.style.display = 'none';
+            inputFormat = 'decimal';
             break;
         case 'absolute-value':
             generateAbsoluteValueProblem();
             pauseGameBtn.style.display = 'none';
+            inputFormat = 'decimal';
             break;
-        case 'binary-decimal':
+        case 'binary-decimal': // User inputs binary string, answer is decimal number
             generateBinaryToDecimalProblem();
             pauseGameBtn.style.display = 'none';
+            inputFormat = 'binary'; // User types binary
             break;
-        case 'decimal-binary':
+        case 'decimal-binary': // User inputs binary string, answer is binary string
             generateDecimalToBinaryProblem();
             pauseGameBtn.style.display = 'none';
+            inputFormat = 'binary'; // User types binary
             break;
         case 'binary-addition':
-            generateBinaryArithmeticProblem('+');
-            pauseGameBtn.style.display = 'none';
-            break;
         case 'binary-subtraction':
-            generateBinaryArithmeticProblem('-');
-            pauseGameBtn.style.display = 'none';
-            break;
         case 'binary-multiplication':
-            generateBinaryArithmeticProblem('*');
-            pauseGameBtn.style.display = 'none';
-            break;
         case 'binary-division':
-            generateBinaryArithmeticProblem('/');
+            generateBinaryArithmeticProblem(selectedOperationType.split('-')[1]); // Pass operation symbol
             pauseGameBtn.style.display = 'none';
+            inputFormat = 'binary'; // User types binary string for answer
+            break;
+        case 'binary-octal':
+            generateBinaryToOctalProblem();
+            pauseGameBtn.style.display = 'none';
+            inputFormat = 'octal'; // User types octal string
+            break;
+        case 'octal-binary':
+            generateOctalToBinaryProblem();
+            pauseGameBtn.style.display = 'none';
+            inputFormat = 'octal'; // User types octal string
+            break;
+        case 'decimal-octal':
+            generateDecimalToOctalProblem();
+            pauseGameBtn.style.display = 'none';
+            inputFormat = 'octal'; // User types octal string
+            break;
+        case 'octal-decimal':
+            generateOctalToDecimalProblem();
+            pauseGameBtn.style.display = 'none';
+            inputFormat = 'octal'; // User types octal string
+            break;
+        case 'binary-hex':
+            generateBinaryToHexadecimalProblem();
+            pauseGameBtn.style.display = 'none';
+            inputFormat = 'hex'; // User types hex string
+            break;
+        case 'decimal-hex':
+            generateDecimalToHexadecimalProblem();
+            pauseGameBtn.style.display = 'none';
+            inputFormat = 'hex'; // User types hex string
+            break;
+        case 'hex-decimal':
+            generateHexToDecimalProblem();
+            pauseGameBtn.style.display = 'none';
+            inputFormat = 'decimal'; // User types decimal, problem shows Hex input
+            break;
+        case 'hex-binary':
+            generateHexToBinaryProblem();
+            pauseGameBtn.style.display = 'none';
+            inputFormat = 'hex'; // User types hex string
+            break;
+        case 'linear-equation': 
+            // Re-adding this for completeness based on previous discussions.
+            // Ensure generateLinearEquationProblem() is indeed implemented in script.js
+            generateLinearEquationProblem(); 
+            pauseGameBtn.style.display = 'none';
+            inputFormat = 'decimal'; // Linear equation answers are typically decimal integers
             break;
         case 'arithmetic-mean':
             generateArithmeticMeanProblem();
             pauseGameBtn.style.display = 'none';
             allowDecimalInput = true;
+            inputFormat = 'decimal';
             break;
         case 'fraction-decimal':
             generateFractionToDecimalProblem();
             pauseGameBtn.style.display = 'none';
             allowDecimalInput = true;
+            inputFormat = 'decimal';
             break;
         case 'simple-interest':
             generateSimpleInterestProblem();
             pauseGameBtn.style.display = 'none';
             allowDecimalInput = true;
+            inputFormat = 'decimal';
             break;
         case 'compound-interest':
             generateCompoundInterestProblem();
             pauseGameBtn.style.display = 'none';
             allowDecimalInput = true;
+            inputFormat = 'decimal';
             break;
         default:
             generateArithmeticProblem();
             pauseGameBtn.style.display = 'inline-block';
+            inputFormat = 'decimal';
             setMessage('Unknown problem type selected, defaulting to Decimal Arithmetic.');
     }
 
-    // Set a data attribute on the input field to indicate if decimal input is allowed
+    mathAnswerInput.setAttribute('data-input-format', inputFormat);
     mathAnswerInput.setAttribute('data-allow-decimal', allowDecimalInput ? 'true' : 'false');
+
 
     timeLeftForMath = initialTimeForCurrentChallenge;
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
@@ -1019,6 +1493,7 @@ function startMathTimer() {
 function submitMathAnswer() {
     if (!awaitingMathAnswer) return;
 
+    const inputFormat = mathAnswerInput.getAttribute('data-input-format');
     const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
     const userAnswerRaw = mathAnswerInput.value.trim();
     let userAnswer;
@@ -1030,30 +1505,56 @@ function submitMathAnswer() {
         return;
     }
 
-    // Special handling for Decimal to Binary problem where answer is a string
-    if (selectedOperationType === 'decimal-binary') {
-        userAnswer = userAnswerRaw; // Keep as string
-        if (!/^[01]+$/.test(userAnswer)) { // Validate if it's a binary string
-            setMessage('For Binary conversion, please enter only 0s and 1s!');
-            mathAnswerInput.value = '';
-            mathAnswerInput.focus();
-            return;
-        }
-    } else {
-        userAnswer = isDecimalAllowed ? parseFloat(userAnswerRaw) : parseInt(userAnswerRaw);
-        if (isNaN(userAnswer)) {
-            setMessage('Please enter a valid number!');
-            mathAnswerInput.value = '';
-            mathAnswerInput.focus();
-            return;
-        }
+    let isValidInput = true;
+
+    // Validate input format based on current problem type
+    switch (inputFormat) {
+        case 'binary':
+            if (!/^[01]+$/.test(userAnswerRaw)) {
+                isValidInput = false;
+                setMessage('Please enter only 0s and 1s for binary answers!');
+            }
+            userAnswer = userAnswerRaw; // Keep as string for comparison
+            break;
+        case 'octal':
+            if (!/^[0-7]+$/.test(userAnswerRaw)) {
+                isValidInput = false;
+                setMessage('Please enter only 0-7 for octal answers!');
+            }
+            userAnswer = userAnswerRaw; // Keep as string for octal comparison
+            break;
+        case 'hex':
+            if (!/^[0-9A-F]+$/i.test(userAnswerRaw)) { // Case-insensitive for validation
+                isValidInput = false;
+                setMessage('Please enter valid hexadecimal digits (0-9, A-F)!');
+            }
+            userAnswer = userAnswerRaw.toUpperCase(); // Convert to uppercase for consistent comparison
+            break;
+        case 'decimal': // Includes standard numbers, floats
+        default:
+            userAnswer = isDecimalAllowed ? parseFloat(userAnswerRaw) : parseInt(userAnswerRaw);
+            if (isNaN(userAnswer)) {
+                isValidInput = false;
+                setMessage('Please enter a valid number!');
+            }
+            break;
+    }
+
+    if (!isValidInput) {
+        mathAnswerInput.value = '';
+        mathAnswerInput.focus();
+        return;
     }
     
-    // Compare based on type: string for binary conversion, number for others.
-    // For number comparisons, use toFixed(2) for floating-point accuracy.
-    const isCorrect = (selectedOperationType === 'decimal-binary') ? 
-                      userAnswer === correctMathAnswer : 
-                      userAnswer === parseFloat(correctMathAnswer.toFixed(2));
+    // Compare based on stored correct answer type and input format
+    let isCorrect = false;
+    // For string comparisons (binary, octal, hex), direct equality
+    // For number comparisons, use toFixed(2) for floating-point accuracy if allowed decimal
+    if (inputFormat === 'binary' || inputFormat === 'octal' || inputFormat === 'hex') {
+        isCorrect = (userAnswer === correctMathAnswer);
+    } else { // 'decimal' format
+        isCorrect = (userAnswer === parseFloat(correctMathAnswer.toFixed(2))); 
+    }
 
     if (isCorrect) {
         let pointsEarned = 0;
@@ -1097,61 +1598,119 @@ function submitMathAnswer() {
 function handleKeyboardInput(value) {
     if (!awaitingMathAnswer) return;
 
-    if (selectedOperationType === 'decimal-binary') {
-        // Only allow '0', '1', 'backspace', 'clear' for binary input
-        if (value === 'clear') {
-            mathAnswerInput.value = '';
-        } else if (value === 'backspace') {
-            mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
-        } else if (value === '0' || value === '1') {
-            mathAnswerInput.value += value;
-        }
-    } else {
-        // Normal numeric input handling
-        if (value === 'clear') {
-            mathAnswerInput.value = '';
-        } else if (value === 'backspace') {
-            mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
-        } else if (value === '.') {
-            const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
-            if (!mathAnswerInput.value.includes('.') && isDecimalAllowed) {
+    const inputFormat = mathAnswerInput.getAttribute('data-input-format');
+    const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
+
+    // Handle utility keys regardless of input format
+    if (value === 'clear') {
+        mathAnswerInput.value = '';
+        mathAnswerInput.focus();
+        return;
+    } else if (value === 'backspace') {
+        mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
+        mathAnswerInput.focus();
+        return;
+    }
+
+    // Handle number/symbol keys based on input format
+    switch (inputFormat) {
+        case 'binary':
+            if (value === '0' || value === '1') {
                 mathAnswerInput.value += value;
             }
-        } else if (value === '-') {
-            if (mathAnswerInput.value === '') {
-                mathAnswerInput.value = '-';
-            } else if (mathAnswerInput.value === '-') {
-                mathAnswerInput.value = '';
-            } else if (mathAnswerInput.value.startsWith('-')) {
-                mathAnswerInput.value = mathAnswerInput.value.substring(1);
-            } else {
-                mathAnswerInput.value = '-' + mathAnswerInput.value;
+            break;
+        case 'octal':
+            if (value >= '0' && value <= '7') {
+                mathAnswerInput.value += value;
             }
-        } else {
-            mathAnswerInput.value += value;
-        }
+            break;
+        case 'hex': // Custom keyboard does NOT have A-F keys
+            // Only allow 0-9 from the custom keyboard for hex.
+            // A-F must be typed via physical keyboard.
+            if (value >= '0' && value <= '9') {
+                mathAnswerInput.value += value;
+            }
+            // Cannot handle A-F from custom keyboard here.
+            break;
+        case 'decimal':
+        default:
+            if (value >= '0' && value <= '9') {
+                mathAnswerInput.value += value;
+            } else if (value === '.') {
+                if (!mathAnswerInput.value.includes('.') && isDecimalAllowed) {
+                    mathAnswerInput.value += value;
+                }
+            } else if (value === '-') {
+                if (mathAnswerInput.value === '') {
+                    mathAnswerInput.value = '-';
+                } else if (mathAnswerInput.value === '-') {
+                    mathAnswerInput.value = '';
+                } else if (mathAnswerInput.value.startsWith('-')) {
+                    mathAnswerInput.value = mathAnswerInput.value.substring(1);
+                } else {
+                    mathAnswerInput.value = '-' + mathAnswerInput.value;
+                }
+            }
+            break;
     }
     mathAnswerInput.focus();
 }
 
 document.addEventListener('keydown', e => {
     if (awaitingMathAnswer) {
+        const inputFormat = mathAnswerInput.getAttribute('data-input-format');
+        const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
+
         if (e.key === 'Enter') {
             submitMathAnswer();
+            e.preventDefault();
+            return;
         } else if (e.key === 'Backspace') {
             handleKeyboardInput('backspace');
+            e.preventDefault();
+            return;
         } else if (e.key === 'Delete') {
             handleKeyboardInput('clear');
-        } else if ((e.key >= '0' && e.key <= '9')) {
-            handleKeyboardInput(e.key);
-        } else if (e.key === '.') {
-            const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
-            if (isDecimalAllowed) {
-                handleKeyboardInput(e.key);
-            }
-        } else if (e.key === '-') {
-             handleKeyboardInput(e.key);
+            e.preventDefault();
+            return;
         }
+
+        // Handle numeric/symbol keys based on input format
+        switch (inputFormat) {
+            case 'binary':
+                if (e.key === '0' || e.key === '1') {
+                    handleKeyboardInput(e.key);
+                }
+                break;
+            case 'octal':
+                if (e.key >= '0' && e.key <= '7') {
+                    handleKeyboardInput(e.key);
+                }
+                break;
+            case 'hex':
+                // Allow 0-9, A-F (case-insensitive)
+                if ((e.key >= '0' && e.key <= '9') || (e.key >= 'a' && e.key <= 'f') || (e.key >= 'A' && e.key <= 'F')) {
+                    // Directly append to input field as handleKeyboardInput doesn't process A-F from value
+                    // Also, ensure non-A-F keys from custom keyboard are not double-handled.
+                    if (e.key.length === 1) { // Only single characters
+                        mathAnswerInput.value += e.key.toUpperCase();
+                    }
+                }
+                break;
+            case 'decimal':
+            default:
+                if (e.key >= '0' && e.key <= '9') {
+                    handleKeyboardInput(e.key);
+                } else if (e.key === '.') {
+                    if (isDecimalAllowed) {
+                        handleKeyboardInput(e.key);
+                    }
+                } else if (e.key === '-') {
+                    handleKeyboardInput(e.key);
+                }
+                break;
+        }
+        e.preventDefault();
         return;
     }
 
@@ -1284,7 +1843,6 @@ installButton.addEventListener('click', () => {
 window.onload = function() {
     initializeGame();
     updateDifficultyAndOperationDisplay();
-    // Ensure only the first accordion is open on load
     const allDetails = document.querySelectorAll('.operation-selection-panel details');
     allDetails.forEach((detail, index) => {
         if (index === 0) {
