@@ -18,7 +18,7 @@ const resetGameBtn = document.getElementById('reset-game-btn');
 const difficultyPanel = document.getElementById('difficulty-panel');
 const difficultyButtons = document.querySelectorAll('.difficulty-btn');
 const gameOverModal = document.getElementById('gameOverModal');
-const finalScoreDisplay = document('finalScore');
+const finalScoreDisplay = document.getElementById('finalScore');
 const restartGameBtn = document.getElementById('restartGameBtn');
 const installButton = document.getElementById('install-button');
 const customKeyboard = document.getElementById('custom-keyboard');
@@ -93,6 +93,9 @@ function initializeGame() {
     difficultyPanel.style.display = 'flex';
     operationSelectionPanel.style.display = 'flex';
     messageArea.style.display = 'block';
+
+    currentDifficulty = null;
+    selectedOperationType = null;
 
     generateFood();
     drawGame();
@@ -1124,8 +1127,12 @@ restartGameBtn.addEventListener('click', resetGame);
 
 difficultyButtons.forEach(button => {
     button.addEventListener('click', () => {
+        // Remove 'selected' from all other difficulty buttons
+        difficultyButtons.forEach(btn => btn.classList.remove('selected'));
+        // Add 'selected' to the clicked button
+        button.classList.add('selected');
+        // Update the currentDifficulty variable
         currentDifficulty = button.dataset.difficulty;
-        updateDifficultyAndOperationDisplay();
         checkAndEnableStartGame();
         setMessage(`Difficulty set to **${currentDifficulty.toUpperCase()}**. Now choose a **problem type**.`);
     });
@@ -1133,8 +1140,12 @@ difficultyButtons.forEach(button => {
 
 operationButtons.forEach(button => {
     button.addEventListener('click', () => {
+        // Remove 'selected' from all other operation buttons
+        operationButtons.forEach(btn => btn.classList.remove('selected'));
+        // Add 'selected' to the clicked button
+        button.classList.add('selected');
+        // Update the selectedOperationType variable
         selectedOperationType = button.dataset.operationType;
-        updateDifficultyAndOperationDisplay();
         checkAndEnableStartGame();
         setMessage(`Problem type set to **${button.textContent.toUpperCase()}**. Now choose a **difficulty**.`);
     });
