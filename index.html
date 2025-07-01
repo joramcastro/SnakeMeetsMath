@@ -25,11 +25,9 @@
             <canvas id="gameCanvas" width="400" height="400" style="display:none;"></canvas>
 
             <div class="control-panel" id="control-panel">
-                <button id="start-game-btn" class="btn">Start Game</button>
                 <button id="pause-game-btn" class="btn" style="display:none;">Pause</button>
                 <button id="reset-game-btn" class="btn btn-red">Reset Game</button>
                 <button id="install-button" class="btn" style="display:none;">Install Game</button>
-                <button id="evaluate-function-btn" class="btn">Evaluate Function (240s)</button>
             </div>
 
             <div class="difficulty-panel" id="difficulty-panel">
@@ -37,6 +35,30 @@
                 <button class="btn difficulty-btn" data-difficulty="medium">Medium (120s)</button>
                 <button class="btn difficulty-btn" data-difficulty="hard">Hard (180s)</button>
                 <button class="btn difficulty-btn" data-difficulty="expert">Expert (240s)</button>
+            </div>
+
+            <div class="category-selection-panel" id="category-selection-panel">
+                <h2 class="text-xl font-bold mb-4 text-white">Select Category</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                    <button class="btn category-btn" data-category="math">Basic Arithmetic</button>
+                    <button class="btn category-btn" data-category="function-evaluation">Function Evaluation</button>
+                    <button class="btn category-btn" data-category="binary-to-decimal">Binary to Decimal</button>
+                    <button class="btn category-btn" data-category="decimal-to-binary">Decimal to Binary</button>
+                    <button class="btn category-btn" data-category="simple-interest">Simple Interest</button>
+                    <button class="btn category-btn" data-category="compound-interest">Compound Interest</button>
+                    <button class="btn category-btn" data-category="arithmetic-sequence">Arithmetic Sequence</button>
+                    <button class="btn category-btn" data-category="arithmetic-means">Arithmetic Means</button>
+                    <button class="btn category-btn" data-category="fraction-to-decimal">Fraction to Decimal</button>
+                    <button class="btn category-btn" data-category="decimal-to-fraction">Decimal to Fraction</button>
+                    <button class="btn category-btn" data-category="pos-whole-arithmetic">Pos. Whole Arithmetic</button>
+                    <button class="btn category-btn" data-category="neg-whole-arithmetic">Neg. Whole Arithmetic</button>
+                    <button class="btn category-btn" data-category="pos-decimal-arithmetic">Pos. Decimal Arithmetic</button>
+                    <button class="btn category-btn" data-category="neg-decimal-arithmetic">Neg. Decimal Arithmetic</button>
+                    <button class="btn category-btn" data-category="binary-addition">Binary Addition</button>
+                    <button class="btn category-btn" data-category="binary-subtraction">Binary Subtraction</button>
+                    <button class="btn category-btn" data-category="binary-multiplication">Binary Multiplication</button>
+                    <button class="btn category-btn" data-category="binary-division">Binary Division</button>
+                </div>
             </div>
 
             <p id="message-area" class="text-center text-sm mt-4 p-2 rounded-md bg-opacity-20 bg-yellow-500 text-yellow-100 border border-yellow-400" style="display:none;"></p>
