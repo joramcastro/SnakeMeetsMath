@@ -20,10 +20,16 @@ const categorySelectionPanel = document.getElementById('category-selection-panel
 const categoryButtons = document.querySelectorAll('.category-btn');
 const gameOverModal = document.getElementById('gameOverModal');
 const finalScoreDisplay = document.getElementById('finalScore');
-const restartGameBtn = document.getElementById('restartGameBtn');
 const installButton = document.getElementById('install-button');
 const customKeyboard = document.getElementById('custom-keyboard');
 const messageArea = document.getElementById('message-area');
+const installPromptOverlay = document.getElementById('installPromptOverlay');
+const installAppBtn = document.getElementById('installAppBtn');
+const installMessage = document.getElementById('installMessage');
+const iosInstallInstructions = document.getElementById('iosInstallInstructions');
+const mainContentWrapper = document.querySelector('.main-content-wrapper');
+const restartGameBtn = document.getElementById('restartGameBtn');
+
 
 let snake = [];
 let food = {};
@@ -80,8 +86,7 @@ function initializeGame() {
     customKeyboard.style.display = 'none';
     gameOverModal.style.display = 'none';
     canvas.style.display = 'none';
-
-    scoreDisplay.parentElement.style.display = 'flex'; 
+    scoreDisplay.parentElement.style.display = 'flex';
     mathAnswerInput.value = '';
 
     clearInterval(gameInterval);
@@ -409,6 +414,11 @@ function generateFunctionProblem() {
             bRangeMin = 1; bRangeMax = 10;
             cRangeMin = 1; cRangeMax = 10;
             xRangeMin = 1; xRangeMax = 5;
+        } else if (currentDifficulty === 'hard') {
+            aRangeMin = 1; aRangeMax = 10;
+            bRangeMin = 1; bRangeMax = 20;
+            cRangeMin = 1; cRangeMax = 20;
+            xRangeMin = 1; xRangeMax = 10;
         } else {
             aRangeMin = 1; aRangeMax = 15;
             bRangeMin = 1; bRangeMax = 30;
@@ -1302,27 +1312,65 @@ function setMessage(msg) {
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
-    installButton.style.display = 'inline-block';
+    installAppBtn.style.display = 'inline-block';
+    installMessage.textContent = 'Install this app for the best experience!';
+    iosInstallInstructions.style.display = 'none';
 });
 
-installButton.addEventListener('click', () => {
+installAppBtn.addEventListener('click', () => {
     if (deferredInstallPrompt) {
         deferredInstallPrompt.prompt();
         deferredInstallPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
-                setMessage('Game installed successfully!');
-                installButton.style.display = 'none';
+                console.log('User accepted the install prompt');
+                installPromptOverlay.style.display = 'none';
+                mainContentWrapper.style.display = 'flex';
+                setMessage('Game installed successfully! Welcome.');
             } else {
-                setMessage('Installation cancelled.');
+                console.log('User dismissed the install prompt');
+                installMessage.textContent = 'Installation cancelled. Please install to play.';
+                installAppBtn.style.display = 'none';
             }
             deferredInstallPrompt = null;
         });
     } else {
         setMessage('Install prompt not available. Use your browser menu to install.');
+        installAppBtn.style.display = 'none';
     }
 });
 
+function isPWAInstalled() {
+    return (window.matchMedia('(display-mode: standalone)').matches) || (navigator.standalone);
+}
+
 window.onload = function() {
-    initializeGame();
-    setMessage('Welcome! Select difficulty and a category to start!');
+    if (isPWAInstalled()) {
+        installPromptOverlay.style.display = 'none';
+        mainContentWrapper.style.display = 'flex';
+        initializeGame();
+        setMessage('Welcome back! Select difficulty and a category to start!');
+    } else {
+        installPromptOverlay.style.display = 'flex';
+        mainContentWrapper.style.display = 'none';
+
+        if (!deferredInstallPrompt) {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+                installMessage.textContent = 'To play, please install the app to your Home Screen.';
+                installAppBtn.style.display = 'none';
+                iosInstallInstructions.style.display = 'block';
+            } else {
+                installMessage.textContent = 'This app is best experienced as an installed application. Please check your browser settings for installation options.';
+                installAppBtn.style.display = 'none';
+            }
+        }
+    }
 };
+
+window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    installPromptOverlay.style.display = 'none';
+    mainContentWrapper.style.display = 'flex';
+    initializeGame();
+    setMessage('Game installed successfully! Welcome.');
+});
