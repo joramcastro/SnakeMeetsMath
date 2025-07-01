@@ -27,25 +27,27 @@ body {
     background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Align to top instead of center */
+    justify-content: center; /* Center content vertically */
     align-items: center;
     min-height: 100vh;
+    height: 100vh; /* Occupy full viewport height */
     color: var(--text-primary);
     margin: 0;
     padding: 10px;
     box-sizing: border-box;
-    overflow-y: auto; /* Allow scrolling on the body */
-    padding-top: 20px; /* Give some space at the top */
-    padding-bottom: 20px; /* Give some space at the bottom */
+    overflow: hidden; /* Crucial for non-scrollable landing page */
 }
 
-.main-wrapper { /* New wrapper to ensure content fits and scrolls */
+.main-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
     max-width: 1200px;
-    flex-grow: 1; /* Allow it to grow and take available space */
+    flex-grow: 1; /* Allows it to take available height */
+    overflow-y: auto; /* Allows internal scrolling if accordions make content too tall */
+    padding-top: 10px; /* Small padding top/bottom for content inside wrapper */
+    padding-bottom: 10px;
 }
 
 .main-content-wrapper {
@@ -56,7 +58,6 @@ body {
     width: 100%;
     box-sizing: border-box;
     padding: 10px;
-    flex-grow: 1; /* Allow content to push footer down */
 }
 
 .game-panel {
@@ -159,8 +160,8 @@ h1 {
     width: 100%;
 }
 
-.difficulty-panel .difficulty-buttons-container, /* Specific container for difficulty buttons */
-.operation-selection-panel .operation-buttons { /* Target operation buttons inside details */
+.difficulty-panel .difficulty-buttons-container,
+.operation-selection-panel .operation-buttons {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
