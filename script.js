@@ -25,7 +25,7 @@ const customKeyboard = document.getElementById('custom-keyboard');
 const messageArea = document.getElementById('message-area');
 
 const operationSelectionPanel = document.getElementById('operation-selection-panel');
-const operationButtons = document.querySelectorAll('.operation-btn');
+const operationButtons = document.querySelectorAll('.operation-btn'); // Select all operation buttons
 
 let snake = [];
 let food = {};
@@ -36,7 +36,7 @@ let gameInterval;
 let isGameRunning = false;
 let isPaused = false;
 let awaitingMathAnswer = false;
-let correctMathAnswer = 0;
+let correctMathAnswer = 0; // Can be number or string (for binary)
 let mathTimerInterval;
 let timeLeftForMath = 0;
 let initialTimeForCurrentChallenge = 0;
@@ -90,12 +90,12 @@ function initializeGame() {
     pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'flex';
-    operationSelectionPanel.style.display = 'flex';
+    operationSelectionPanel.style.display = 'flex'; // Show operation panel
     messageArea.style.display = 'block';
 
     generateFood();
     drawGame();
-    updateDifficultyAndOperationDisplay();
+    updateDifficultyAndOperationDisplay(); // Call unified update to set initial button states
 }
 
 function drawGame() {
@@ -253,7 +253,7 @@ function startGame() {
     pauseGameBtn.style.display = 'inline-block';
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'none';
-    operationSelectionPanel.style.display = 'none';
+    operationSelectionPanel.style.display = 'none'; // Hide operation panel
     canvas.style.display = 'block';
     scoreDisplay.parentElement.style.display = 'flex';
     gameInterval = setInterval(moveSnake, GAME_SPEED);
@@ -268,9 +268,11 @@ function pauseGame() {
         return;
     }
 
-    if (!awaitingMathAnswer || (selectedOperationType !== 'arithmetic') || timeLeftForMath > 10) {
-        let currentMessage = `The pause button currently works only during Basic Arithmetic challenges, AND when time left is 10s or less. Current time left: ${timeLeftForMath}s.`;
-        if (selectedOperationType !== 'arithmetic') {
+    // Pause is primarily for arithmetic challenges when timer is low.
+    const isArithmeticLike = ['arithmetic'].includes(selectedOperationType);
+    if (!awaitingMathAnswer || (!isArithmeticLike) || timeLeftForMath > 10) {
+        let currentMessage = `The pause button currently works only during Decimal Arithmetic challenges, AND when time left is 10s or less. Current time left: ${timeLeftForMath}s.`;
+        if (!isArithmeticLike) {
             currentMessage = `Pause is not available for ${selectedOperationType.replace('-', ' ')} challenges.`;
         }
         setMessage(currentMessage);
@@ -331,7 +333,7 @@ function endGame() {
     pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'flex';
-    operationSelectionPanel.style.display = 'flex';
+    operationSelectionPanel.style.display = 'flex'; // Show operation panel
     messageArea.style.display = 'block';
 }
 
@@ -354,9 +356,9 @@ function getDigitRange(difficulty) {
 const generateRandomNum = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 // --- Helper for binary conversion ---
-function decToBin(dec, padLength) {
+function decToBin(dec, minLength = 0) {
     let bin = (dec >>> 0).toString(2);
-    while (bin.length < padLength) {
+    while (bin.length < minLength) {
         bin = '0' + bin;
     }
     return bin;
@@ -471,7 +473,7 @@ function generateArithmeticProblem() {
 
     if (!problemGenerated) {
         num1 = 5; num2 = 3; op = '+'; answer = 8;
-        setMessage('Arithmetic problem generation fallback. Please continue.');
+        setMessage('Decimal Arithmetic problem generation fallback. Please continue.');
     }
 
     let displayOp = op;
@@ -600,9 +602,10 @@ function generateAbsoluteValueProblem() {
 function generateDecimalToBinaryProblem() {
     let decimalNum;
     let binaryAnswer;
-    const maxLength = (currentDifficulty === 'easy' ? 15 :
-                      currentDifficulty === 'medium' ? 63 :
-                      currentDifficulty === 'hard' ? 255 : 1023); // Max decimal value for 4, 6, 8, 10 bits
+    const maxLength = (currentDifficulty === 'easy' ? 15 : // Max decimal value for 4 bits
+                      currentDifficulty === 'medium' ? 63 : // Max for 6 bits
+                      currentDifficulty === 'hard' ? 255 : // Max for 8 bits
+                      1023); // Max for 10 bits
 
     const MAX_ATTEMPTS = 100;
     let attempts = 0;
@@ -611,9 +614,9 @@ function generateDecimalToBinaryProblem() {
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
         decimalNum = generateRandomNum(1, maxLength);
-        binaryAnswer = decToBin(decimalNum, 0); // Convert to binary string
+        binaryAnswer = decToBin(decimalNum, 0);
 
-        if (decimalNum > 0) { // Ensure it's not 0
+        if (decimalNum > 0) {
             problemGenerated = true;
         }
     }
@@ -682,7 +685,7 @@ function generateBinaryArithmeticProblem(operation) {
     let answerDec;
     const maxLengthBits = (currentDifficulty === 'easy' ? 4 :
                           currentDifficulty === 'medium' ? 6 :
-                          currentDifficulty === 'hard' ? 8 : 10); // Max bits for numbers
+                          currentDifficulty === 'hard' ? 8 : 10);
 
     const MAX_ATTEMPTS = 200;
     let attempts = 0;
@@ -694,33 +697,46 @@ function generateBinaryArithmeticProblem(operation) {
         num1Dec = generateRandomNum(1, Math.pow(2, maxLengthBits) - 1);
         num2Dec = generateRandomNum(1, Math.pow(2, maxLengthBits) - 1);
 
-        // For division, ensure num1 is a multiple of num2 and num2 is not too large
-        if (operation === '/' && num2Dec !== 0) {
-            let tempQuotient = generateRandomNum(1, 5); // Keep quotient small
-            num1Dec = num2Dec * tempQuotient;
+        // Ensure num1 >= num2 for subtraction to avoid negative binary result concepts for now
+        if (operation === '-') {
+            if (num1Dec < num2Dec) {
+                [num1Dec, num2Dec] = [num2Dec, num1Dec]; // Swap them
+            }
         }
 
-        bin1 = decToBin(num1Dec, 0);
-        bin2 = decToBin(num2Dec, 0);
+        // For division, ensure num1 is a multiple of num2 and num2 is not zero
+        if (operation === '/') {
+            if (num2Dec === 0) continue;
+            let possibleQuotients = [];
+            for (let i = 1; i <= 5; i++) { // Keep quotients small
+                if ((num1Dec * i) / num2Dec === Math.floor((num1Dec * i) / num2Dec)) {
+                    possibleQuotients.push(i);
+                }
+            }
+            if (possibleQuotients.length === 0) continue; // No good quotient, try again
+            let tempQuotient = possibleQuotients[Math.floor(Math.random() * possibleQuotients.length)];
+            num1Dec = num2Dec * tempQuotient;
+        }
+        
+        bin1 = decToBin(num1Dec, Math.floor(maxLengthBits / 2) + 1); // Pad with leading zeros for display
+        bin2 = decToBin(num2Dec, Math.floor(maxLengthBits / 2) + 1);
+
 
         let opSymbol;
         switch (operation) {
             case '+': answerDec = num1Dec + num2Dec; opSymbol = '+'; break;
             case '-': answerDec = num1Dec - num2Dec; opSymbol = '-'; break;
             case '*': answerDec = num1Dec * num2Dec; opSymbol = 'x'; break;
-            case '/': answerDec = num1Dec / num2Dec; opSymbol = '÷';
-                if (num2Dec === 0 || num1Dec % num2Dec !== 0) { problemGenerated = false; continue; } // Ensure integer division
-                break;
+            case '/': answerDec = num1Dec / num2Dec; opSymbol = '÷'; break;
         }
 
-        // Keep answers within a reasonable range
         if (Math.abs(answerDec) < 10000000 && Math.abs(answerDec) >= 0) {
             problemGenerated = true;
         }
     }
 
     if (!problemGenerated) {
-        bin1 = '101'; bin2 = '10'; opSymbol = '+'; answerDec = 7; // Fallback
+        bin1 = '101'; bin2 = '10'; opSymbol = '+'; answerDec = 7;
         setMessage(`Binary ${operation} fallback. Please continue.`);
     }
 
@@ -731,7 +747,6 @@ function generateBinaryArithmeticProblem(operation) {
 
 function generateArithmeticMeanProblem() {
     let numCount;
-    let sum = 0;
     let numbers = [];
     let answer;
 
@@ -755,12 +770,12 @@ function generateArithmeticMeanProblem() {
             numbers = Array.from({ length: numCount }, () => generateRandomNum(-20, 50));
         }
 
-        sum = numbers.reduce((acc, curr) => acc + curr, 0);
+        const sum = numbers.reduce((acc, curr) => acc + curr, 0);
         answer = sum / numbers.length;
 
         // Aim for integer or simple decimal answers for mean
         if (answer % 1 === 0 || (answer * 10) % 1 === 0 || (answer * 100) % 1 === 0) {
-             if (Math.abs(answer) < 10000) { // Keep answer reasonable
+             if (Math.abs(answer) < 10000) {
                 problemGenerated = true;
              }
         }
@@ -772,7 +787,7 @@ function generateArithmeticMeanProblem() {
     }
 
     mathProblemDisplay.textContent = `What is the mean of ${numbers.join(', ')}?`;
-    correctMathAnswer = answer; // Keep as float if needed
+    correctMathAnswer = answer;
     mathAnswerInput.value = '';
 }
 
@@ -786,25 +801,25 @@ function generateFractionToDecimalProblem() {
         attempts++;
         if (currentDifficulty === 'easy') {
             numerator = generateRandomNum(1, 9);
-            denominator = generateRandomNum(2, 5); // Easy denominators: 2, 4, 5
+            denominator = generateRandomNum(2, 5);
         } else if (currentDifficulty === 'medium') {
             numerator = generateRandomNum(1, 15);
-            denominator = generateRandomNum(2, 10); // Denominators up to 10
+            denominator = generateRandomNum(2, 10);
         } else if (currentDifficulty === 'hard') {
             numerator = generateRandomNum(1, 25);
-            denominator = generateRandomNum(2, 20); // Denominators up to 20
-        } else { // Expert
+            denominator = generateRandomNum(2, 20);
+        } else {
             numerator = generateRandomNum(1, 50);
-            denominator = generateRandomNum(2, 25); // Denominators up to 25
+            denominator = generateRandomNum(2, 25);
         }
 
-        if (denominator === 0) continue; // Avoid division by zero
+        if (denominator === 0) continue;
         answer = numerator / denominator;
 
-        // Ensure terminating decimal or short repeating decimal
-        // This is a simplification; a truly robust check is complex.
         const decimalStr = answer.toString();
-        if (decimalStr.length < 10 && Math.abs(answer) < 1000) { // Keep decimals short
+        // Allow terminating decimals or those with up to a few places.
+        // For simplicity, we'll check length.
+        if (decimalStr.length < 10 && Math.abs(answer) < 1000) {
             problemGenerated = true;
         }
     }
@@ -815,7 +830,7 @@ function generateFractionToDecimalProblem() {
     }
 
     mathProblemDisplay.textContent = `Convert ${numerator}/${denominator} to decimal: ?`;
-    correctMathAnswer = answer; // Can be float
+    correctMathAnswer = answer;
     mathAnswerInput.value = '';
 }
 
@@ -827,32 +842,19 @@ function generateSimpleInterestProblem() {
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
-        principal = generateRandomNum(100, 1000) * 10; // $1000 - $10000
-        rate = generateRandomNum(2, 10); // 2-10%
-        time = generateRandomNum(1, 5); // 1-5 years
-
-        if (currentDifficulty === 'medium') {
-            principal = generateRandomNum(1000, 5000) * 10;
-            rate = generateRandomNum(5, 15);
-            time = generateRandomNum(3, 7);
-        } else if (currentDifficulty === 'hard') {
-            principal = generateRandomNum(5000, 10000) * 10;
-            rate = generateRandomNum(8, 20);
-            time = generateRandomNum(5, 10);
-        } else if (currentDifficulty === 'expert') {
-            principal = generateRandomNum(10000, 20000) * 10;
-            rate = generateRandomNum(10, 25);
-            time = generateRandomNum(8, 15);
-        }
+        // Principal in hundreds
+        principal = generateRandomNum(1, currentDifficulty === 'easy' ? 5 : currentDifficulty === 'medium' ? 20 : currentDifficulty === 'hard' ? 50 : 100) * 100;
+        // Rate as whole percentage
+        rate = generateRandomNum(1, currentDifficulty === 'easy' ? 5 : currentDifficulty === 'medium' ? 10 : currentDifficulty === 'hard' ? 15 : 20);
+        // Time in years
+        time = generateRandomNum(1, currentDifficulty === 'easy' ? 3 : currentDifficulty === 'medium' ? 5 : currentDifficulty === 'hard' ? 7 : 10);
 
         interest = (principal * rate * time) / 100;
         totalAmount = principal + interest;
 
-        // Check if answer is manageable and has reasonable decimals
-        if (totalAmount % 1 === 0 || (totalAmount * 100) % 1 === 0) { // Integer or 2 decimal places
-            if (Math.abs(totalAmount) < 1000000) { // Keep within a reasonable value
-                problemGenerated = true;
-            }
+        // Ensure integer or 2 decimal places answer
+        if (Math.abs(totalAmount) < 1000000 && (totalAmount * 100) % 1 === 0) {
+            problemGenerated = true;
         }
     }
 
@@ -862,7 +864,7 @@ function generateSimpleInterestProblem() {
     }
 
     mathProblemDisplay.textContent = `P=$${principal}, R=${rate}%, T=${time} yrs. Simple Interest Total?`;
-    correctMathAnswer = parseFloat(totalAmount.toFixed(2)); // Round to 2 decimal places
+    correctMathAnswer = parseFloat(totalAmount.toFixed(2));
     mathAnswerInput.value = '';
 }
 
@@ -872,34 +874,24 @@ function generateCompoundInterestProblem() {
     let attempts = 0;
     let problemGenerated = false;
 
+    const getRate = (min, max) => generateRandomNum(min * 10, max * 10) / 10; // Allow .5 rates
+    const getPeriods = (diff) => {
+        if (diff === 'easy') return 1; // Annually
+        if (diff === 'medium') return Math.random() < 0.5 ? 2 : 4; // Semi or Quarterly
+        return Math.random() < 0.5 ? 4 : 12; // Quarterly or Monthly
+    };
+
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
-        principal = generateRandomNum(50, 500) * 100; // $5000 - $50000
-        rate = generateRandomNum(3, 12); // 3-12%
-        time = generateRandomNum(2, 7); // 2-7 years
-        periods = generateRandomNum(1, 4); // 1 (annually), 2 (semi), 4 (quarterly)
-
-        if (currentDifficulty === 'medium') {
-            principal = generateRandomNum(100, 1000) * 100;
-            rate = generateRandomNum(5, 15);
-            time = generateRandomNum(3, 8);
-            periods = Math.random() < 0.5 ? 2 : 4;
-        } else if (currentDifficulty === 'hard') {
-            principal = generateRandomNum(200, 1500) * 100;
-            rate = generateRandomNum(7, 18);
-            time = generateRandomNum(5, 10);
-            periods = generateRandomNum(2, 4) * 2; // 4 (quarterly), 6 (monthly) if you want
-        } else if (currentDifficulty === 'expert') {
-            principal = generateRandomNum(500, 2000) * 100;
-            rate = generateRandomNum(10, 25);
-            time = generateRandomNum(8, 12);
-            periods = generateRandomNum(2, 4) * 3; // 6 (monthly), 12 (monthly)
-        }
+        principal = generateRandomNum(1, currentDifficulty === 'easy' ? 5 : currentDifficulty === 'medium' ? 10 : currentDifficulty === 'hard' ? 20 : 50) * 1000; // $1000 - $50000
+        rate = getRate(currentDifficulty === 'easy' ? 2 : currentDifficulty === 'medium' ? 4 : currentDifficulty === 'hard' ? 6 : 8,
+                       currentDifficulty === 'easy' ? 8 : currentDifficulty === 'medium' ? 12 : currentDifficulty === 'hard' ? 18 : 25);
+        time = generateRandomNum(1, currentDifficulty === 'easy' ? 3 : currentDifficulty === 'medium' ? 6 : currentDifficulty === 'hard' ? 10 : 15);
+        periods = getPeriods(currentDifficulty);
 
         totalAmount = principal * Math.pow((1 + (rate / 100) / periods), (periods * time));
 
-        // Check if answer is manageable and has reasonable decimals
-        if (totalAmount > principal && totalAmount < 10000000 && (totalAmount * 100) % 1 === 0) { // Ensure growth and 2 decimal places
+        if (totalAmount > principal && totalAmount < 10000000 && (totalAmount * 100) % 1 === 0) {
             problemGenerated = true;
         }
     }
@@ -915,7 +907,7 @@ function generateCompoundInterestProblem() {
     else if (periods === 12) periodsText = 'monthly';
 
     mathProblemDisplay.textContent = `P=$${principal}, R=${rate}%, T=${time} yrs, ${periodsText}. Comp. Int. Total?`;
-    correctMathAnswer = parseFloat(totalAmount.toFixed(2)); // Round to 2 decimal places
+    correctMathAnswer = parseFloat(totalAmount.toFixed(2));
     mathAnswerInput.value = '';
 }
 
@@ -933,7 +925,7 @@ function startChallenge() {
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
 
-    // Temporary flag to check if decimal input should be allowed for this problem
+    // Set flag for decimal input based on problem type
     let allowDecimalInput = false;
 
     switch (selectedOperationType) {
@@ -980,22 +972,22 @@ function startChallenge() {
         case 'arithmetic-mean':
             generateArithmeticMeanProblem();
             pauseGameBtn.style.display = 'none';
-            allowDecimalInput = true; // Mean can be decimal
+            allowDecimalInput = true;
             break;
         case 'fraction-decimal':
             generateFractionToDecimalProblem();
             pauseGameBtn.style.display = 'none';
-            allowDecimalInput = true; // Answer is decimal
+            allowDecimalInput = true;
             break;
         case 'simple-interest':
             generateSimpleInterestProblem();
             pauseGameBtn.style.display = 'none';
-            allowDecimalInput = true; // Answer is decimal
+            allowDecimalInput = true;
             break;
         case 'compound-interest':
             generateCompoundInterestProblem();
             pauseGameBtn.style.display = 'none';
-            allowDecimalInput = true; // Answer is decimal
+            allowDecimalInput = true;
             break;
         default:
             generateArithmeticProblem();
@@ -1003,10 +995,8 @@ function startChallenge() {
             setMessage('Unknown problem type selected, defaulting to Decimal Arithmetic.');
     }
 
-    // Adjust the `submitMathAnswer` parsing based on `allowDecimalInput`
-    // This requires a small adjustment in `submitMathAnswer`
+    // Set a data attribute on the input field to indicate if decimal input is allowed
     mathAnswerInput.setAttribute('data-allow-decimal', allowDecimalInput ? 'true' : 'false');
-
 
     timeLeftForMath = initialTimeForCurrentChallenge;
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
@@ -1044,8 +1034,7 @@ function submitMathAnswer() {
     // Special handling for Decimal to Binary problem where answer is a string
     if (selectedOperationType === 'decimal-binary') {
         userAnswer = userAnswerRaw; // Keep as string
-        // Check if input is valid binary
-        if (!/^[01]+$/.test(userAnswer)) {
+        if (!/^[01]+$/.test(userAnswer)) { // Validate if it's a binary string
             setMessage('For Binary conversion, please enter only 0s and 1s!');
             mathAnswerInput.value = '';
             mathAnswerInput.focus();
@@ -1061,10 +1050,11 @@ function submitMathAnswer() {
         }
     }
     
-    // Compare based on type: string for binary conversion, number for others
+    // Compare based on type: string for binary conversion, number for others.
+    // For number comparisons, use toFixed(2) for floating-point accuracy.
     const isCorrect = (selectedOperationType === 'decimal-binary') ? 
                       userAnswer === correctMathAnswer : 
-                      userAnswer === parseFloat(correctMathAnswer.toFixed(2)); // Compare floats with fixed precision
+                      userAnswer === parseFloat(correctMathAnswer.toFixed(2));
 
     if (isCorrect) {
         let pointsEarned = 0;
@@ -1108,8 +1098,8 @@ function submitMathAnswer() {
 function handleKeyboardInput(value) {
     if (!awaitingMathAnswer) return;
 
-    // Special handling for decimal-binary to allow only 0s and 1s
     if (selectedOperationType === 'decimal-binary') {
+        // Only allow '0', '1', 'backspace', 'clear' for binary input
         if (value === 'clear') {
             mathAnswerInput.value = '';
         } else if (value === 'backspace') {
@@ -1117,14 +1107,13 @@ function handleKeyboardInput(value) {
         } else if (value === '0' || value === '1') {
             mathAnswerInput.value += value;
         }
-        // Other keys like '-', '.' are ignored for binary input
-    } else { // Normal numeric input
+    } else {
+        // Normal numeric input handling
         if (value === 'clear') {
             mathAnswerInput.value = '';
         } else if (value === 'backspace') {
             mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
         } else if (value === '.') {
-            // Only allow decimal if the problem type allows it
             const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
             if (!mathAnswerInput.value.includes('.') && isDecimalAllowed) {
                 mathAnswerInput.value += value;
@@ -1157,7 +1146,6 @@ document.addEventListener('keydown', e => {
         } else if ((e.key >= '0' && e.key <= '9')) {
             handleKeyboardInput(e.key);
         } else if (e.key === '.') {
-            // Allow '.' based on data attribute for the input field
             const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
             if (isDecimalAllowed) {
                 handleKeyboardInput(e.key);
@@ -1240,6 +1228,7 @@ difficultyButtons.forEach(button => {
     });
 });
 
+// Attach event listeners to all operation buttons
 operationButtons.forEach(button => {
     button.addEventListener('click', () => {
         selectedOperationType = button.dataset.operationType;
