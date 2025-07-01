@@ -1,16 +1,16 @@
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #f0f4f8;
+    background-color: #e0f7fa;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     min-height: 100vh;
     height: 100vh;
-    color: #334155;
+    color: #263238;
     margin: 0;
     overflow: hidden;
-    background: linear-gradient(135deg, #a7e4e1, #c7ecec);
+    background: linear-gradient(135deg, #b2ebf2, #e0f7fa);
     box-sizing: border-box;
     padding: 10px;
 }
@@ -21,50 +21,53 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     align-items: flex-start;
-    gap: 20px;
+    gap: 25px;
     flex-grow: 1;
     max-width: 1200px;
     width: 100%;
     box-sizing: border-box;
-    padding: 10px;
+    padding: 15px;
     overflow-y: auto;
+    padding-bottom: 20px;
 }
 
 .game-panel {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    padding: 15px;
+    gap: 15px;
+    padding: 25px;
     background-color: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-    max-width: 450px;
+    border-radius: 25px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    max-width: 480px;
     width: 100%;
     flex-shrink: 0;
     box-sizing: border-box;
-    border: 2px solid #a7e4e1;
+    border: 2px solid #80deea;
+    position: relative;
 }
 
 .right-panel {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
     flex-shrink: 0;
     box-sizing: border-box;
     width: 100%;
-    max-width: 180px;
+    max-width: 200px;
+    padding-top: 0;
 }
 
 canvas {
-    background-color: #e0f2f7;
-    border: 6px solid #81e6d9;
+    background-color: #e0f7fa;
+    border: 6px solid #4dd0e1;
     display: block;
     margin: 0 auto;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
     height: auto;
     max-width: 400px;
@@ -73,134 +76,161 @@ canvas {
     flex-shrink: 0;
 }
 canvas:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
 }
 
 .header {
     text-align: center;
     width: 100%;
     flex-shrink: 0;
+    margin-bottom: 10px;
 }
 
 h1 {
     font-family: 'Press Start 2P', cursive;
-    font-size: 1.5rem;
-    color: #f6ad55;
-    margin-bottom: 0.5rem;
-    text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-    letter-spacing: 2px;
+    font-size: 1.8rem;
+    color: #ffb300;
+    margin-bottom: 0.75rem;
+    text-shadow: 4px 4px 8px rgba(0,0,0,0.4);
+    letter-spacing: 3px;
 }
 .game-panel p {
-    color: #64748b;
-    font-size: 1rem;
+    color: #455a64;
+    font-size: 1.05rem;
+    line-height: 1.5;
 }
 
 .stats-panel {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     width: 100%;
-    background-color: #f7fafc;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-size: 1.1rem;
+    background-color: #fce4ec;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 1.2rem;
     font-weight: bold;
-    color: #5b21b6;
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.1);
-    border: 1px solid #d1d8df;
+    color: #880e4f;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
+    border: 1px solid #f8bbd0;
     flex-shrink: 0;
+    margin-bottom: 15px;
 }
 
-.control-panel, .difficulty-panel {
+.control-panel, .difficulty-panel, .category-selection-panel {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
     width: 100%;
     flex-shrink: 0;
+    margin-bottom: 15px;
+}
+
+.category-selection-panel h2 {
+    width: 100%;
+    text-align: center;
+    color: #424242;
+    margin-bottom: 15px;
+    font-size: 1.6rem;
+    font-family: 'Press Start 2P', cursive;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.category-selection-panel .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    width: 100%;
 }
 
 .math-challenge {
-    background-color: #e0f2f7;
-    padding: 15px 10px;
-    border-radius: 12px;
+    background-color: #e3f2fd;
+    padding: 20px 15px;
+    border-radius: 15px;
     text-align: center;
     width: 100%;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: bold;
-    color: #0d9488;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-    border: 2px dashed #64748b;
+    color: #01579b;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    border: 3px dashed #64b5f6;
     flex-shrink: 0;
 }
 
 .math-challenge input {
     background-color: #ffffff;
-    border: 3px solid #63b3ed;
+    border: 3px solid #2196f3;
     color: #334155;
-    padding: 8px 12px;
-    border-radius: 8px;
-    width: calc(100% - 24px);
-    margin-top: 10px;
-    font-size: 1.1rem;
+    padding: 10px 15px;
+    border-radius: 10px;
+    width: calc(100% - 30px);
+    margin-top: 15px;
+    font-size: 1.2rem;
     text-align: center;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.15);
 }
 .math-challenge input::placeholder {
-    color: #94a3b8;
+    color: #90a4ae;
 }
 
 .math-challenge button {
-    background-color: #10b981;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    margin-top: 10px;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-.math-challenge button:hover {
-    background-color: #059669;
-    transform: translateY(-2px);
-}
-.math-challenge button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-.math-challenge #timer-display {
-    color: #ef4444;
-    font-weight: bold;
-    font-size: 1rem;
-}
-
-.btn {
-    background-color: #3b82f6;
+    background-color: #43a047;
     color: white;
     padding: 10px 20px;
     border-radius: 10px;
     border: none;
     cursor: pointer;
     font-weight: bold;
-    font-size: 1rem;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    margin-top: 15px;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+.math-challenge button:hover {
+    background-color: #388e3c;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
+.math-challenge button:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+}
+.math-challenge #timer-display {
+    color: #d32f2f;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-top: 10px;
+}
+
+.btn {
+    background-color: #1976d2;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.05rem;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    flex-grow: 1;
+    min-width: 120px;
 }
 .btn:hover {
-    background-color: #2563eb;
-    transform: translateY(-3px);
+    background-color: #1565c0;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.35);
 }
 .btn:active {
     transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
 .btn-red {
-    background-color: #ef4444;
+    background-color: #d32f2f;
 }
 .btn-red:hover {
-    background-color: #dc2626;
+    background-color: #c62828;
 }
 
 .modal {
@@ -209,111 +239,126 @@ h1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    backdrop-filter: blur(5px);
 }
 .modal-content {
     background-color: #ffffff;
-    padding: 30px;
-    border-radius: 15px;
+    padding: 40px;
+    border-radius: 20px;
     text-align: center;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-    max-width: 400px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+    max-width: 450px;
     width: 90%;
     color: #334155;
+    border: 3px solid #ff8f00;
 }
 .modal-content h2 {
     font-family: 'Press Start 2P', cursive;
-    font-size: 2.25rem;
-    color: #f6ad55;
-    margin-bottom: 15px;
+    font-size: 2.5rem;
+    color: #ff6f00;
+    margin-bottom: 20px;
+    text-shadow: 4px 4px 8px rgba(0,0,0,0.4);
 }
 .modal-content p {
-    font-size: 1.1rem;
-    margin-bottom: 20px;
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+    color: #424242;
 }
 
-.difficulty-btn {
-    background-color: #9333ea;
+.difficulty-btn, .category-btn {
+    background-color: #673ab7;
 }
-.difficulty-btn:hover {
-    background-color: #7e22ce;
+.difficulty-btn:hover, .category-btn:hover {
+    background-color: #512da8;
 }
-.difficulty-btn.selected {
-    background-color: #c084fc;
-    border: 3px solid #8b5cf6;
-    transform: scale(1.05);
+.difficulty-btn.selected, .category-btn.selected {
+    background-color: #9575cd;
+    border: 3px solid #7e57c2;
+    transform: scale(1.08);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
 }
 
 #message-area {
     font-weight: bold;
-    padding: 10px 15px;
-    border-radius: 8px;
-    margin-top: 15px;
-    background-color: #fffbeb;
-    color: #a16207;
-    border: 1px solid #fde68a;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    background-color: #fff8e1;
+    color: #ff8f00;
+    border: 1px solid #ffe082;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     flex-shrink: 0;
+    text-align: center;
 }
 
 footer {
     flex-shrink: 0;
-    margin-top: 15px;
-    padding-bottom: 5px;
+    margin-top: 25px;
+    padding: 15px 10px;
+    background-color: #263238;
+    color: #b0bec5;
+    width: 100%;
+    text-align: center;
+    font-size: 0.9rem;
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
+    border-top: 1px solid #37474f;
 }
 
 .custom-keyboard {
-    background-color: #334155;
-    padding: 5px;
-    border-radius: 10px;
-    box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.3);
+    background-color: #37474f;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.4);
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     width: 100%;
-    max-width: 160px;
-    margin-top: 0;
+    max-width: 180px;
+    margin-top: 15px;
 }
 
 .keyboard-row {
     display: flex;
-    gap: 4px;
+    gap: 6px;
     justify-content: center;
 }
 
 .key-btn {
     flex: 1;
-    padding: 7px 0;
-    font-size: 0.8rem;
+    padding: 10px 0;
+    font-size: 1rem;
     font-weight: bold;
     color: white;
-    background-color: #475569;
+    background-color: #546e7a;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.1s ease, transform 0.05s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    min-width: 25px;
+    transition: background-color 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+    min-width: 30px;
 }
 .key-btn:hover {
-    background-color: #64748b;
+    background-color: #78909c;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.35);
 }
 .key-btn:active {
-    transform: translateY(0.5px);
-    box-shadow: 0 0.5px 1.5px rgba(0, 0, 0, 0.2);
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
 .key-btn.wide {
     flex: 2;
-    font-size: 0.6rem;
-    background-color: #94a3b8;
+    font-size: 0.9rem;
+    background-color: #90a4ae;
 }
 .key-btn.wide:hover {
-    background-color: #cbd5e1;
+    background-color: #b0bec5;
 }
 
 input[type="number"]::-webkit-outer-spin-button,
@@ -329,109 +374,139 @@ input[type="number"] {
     .main-content-wrapper {
         flex-direction: row;
         align-items: flex-start;
+        padding: 20px;
     }
     
     .game-panel {
-        max-width: 450px;
+        max-width: 480px;
         width: auto;
         flex-shrink: 1;
     }
 
     .right-panel {
-        max-width: 180px;
+        max-width: 200px;
         width: auto;
         flex-shrink: 0;
-        padding-top: 15px;
+        padding-top: 25px;
     }
 
     .math-challenge {
         width: 100%;
-        margin-bottom: 10px;
-        padding: 10px;
+        margin-bottom: 15px;
+        padding: 15px;
     }
 
     .custom-keyboard {
         width: 100%;
-        padding: 8px;
-        gap: 6px;
+        padding: 10px;
+        gap: 8px;
+        max-width: 180px;
     }
     .key-btn {
-        padding: 10px 0;
-        font-size: 1rem;
-        min-width: 40px;
+        padding: 12px 0;
+        font-size: 1.1rem;
+        min-width: 45px;
     }
     .key-btn.wide {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
     }
 }
 
 @media (max-width: 767px) {
-    .main-content-wrapper {
-        flex-direction: column;
-        gap: 15px;
+    body {
         padding: 5px;
     }
-    .game-panel {
+    .main-content-wrapper {
+        flex-direction: column;
+        gap: 20px;
         padding: 10px;
+        overflow-y: auto;
+        padding-bottom: 10px;
+    }
+    .game-panel {
+        padding: 15px;
         gap: 10px;
+        border-radius: 20px;
     }
     .right-panel {
         width: 100%;
-        max-width: 320px;
+        max-width: 300px;
         margin: 0 auto;
+        gap: 10px;
     }
     h1 {
-        font-size: 1rem;
+        font-size: 1.2rem;
+        letter-spacing: 1px;
     }
     .game-panel p {
         font-size: 0.9rem;
     }
     .stats-panel {
-        font-size: 0.9rem;
-        padding: 6px 8px;
+        font-size: 1rem;
+        padding: 8px 12px;
+    }
+    .category-selection-panel h2 {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+    .category-selection-panel .grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 8px;
     }
     .math-challenge {
-        font-size: 1rem;
-        padding: 10px 12px;
+        font-size: 1.1rem;
+        padding: 15px 10px;
     }
     .math-challenge input {
-        font-size: 1rem;
-        padding: 5px 8px;
-        width: calc(100% - 16px);
+        font-size: 1.1rem;
+        padding: 8px 10px;
+        width: calc(100% - 20px);
     }
     .math-challenge button {
-        padding: 5px 10px;
-        font-size: 0.8rem;
+        padding: 8px 15px;
+        font-size: 0.9rem;
     }
     .math-challenge #timer-display {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
     }
     .btn {
-        padding: 7px 12px;
-        font-size: 0.8rem;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+        border-radius: 10px;
+        min-width: unset;
     }
     .modal-content {
-        padding: 15px;
+        padding: 20px;
+        border-radius: 15px;
     }
     .modal-content h2 {
-        font-size: 1.8rem;
+        font-size: 2rem;
     }
     .modal-content p {
-        font-size: 0.9rem;
+        font-size: 1rem;
     }
     .custom-keyboard {
         max-width: 100%;
-        padding: 5px;
-        gap: 4px;
-        border-radius: 8px;
+        padding: 6px;
+        gap: 5px;
+        border-radius: 10px;
     }
     .key-btn {
-        padding: 10px 0;
-        font-size: 1.1rem;
+        padding: 8px 0;
+        font-size: 1rem;
         border-radius: 6px;
-        min-width: 35px;
+        min-width: 30px;
     }
     .key-btn.wide {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
+    }
+    #message-area {
+        padding: 10px 15px;
+        margin-top: 15px;
+    }
+    footer {
+        margin-top: 20px;
+        padding: 10px;
+        font-size: 0.8rem;
     }
 }
