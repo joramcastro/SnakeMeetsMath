@@ -9,7 +9,7 @@ body {
     height: 100vh;
     color: #263238;
     margin: 0;
-    overflow: hidden;
+    overflow-y: auto;
     background: linear-gradient(135deg, #b2ebf2, #e0f7fa);
     box-sizing: border-box;
     padding: 10px;
