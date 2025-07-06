@@ -463,14 +463,14 @@ input[type="number"] {
         padding: 20px;
         height: 100%;
         width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
+        max-width: none; /* Allow it to stretch across the full width */
+        margin: 0; /* Remove auto margin to allow full width */
     }
 
     .game-panel {
         flex-grow: 2;
         flex-basis: 0;
-        max-width: 800px;
+        max-width: none; /* Allow it to grow */
         width: auto;
         gap: 15px;
         max-height: calc(100vh - 90px);
@@ -496,7 +496,7 @@ input[type="number"] {
     .right-panel {
         flex-grow: 1;
         flex-basis: 0;
-        max-width: 400px;
+        max-width: none; /* Allow it to grow */
         width: auto;
         padding-top: 0;
         gap: 15px;
