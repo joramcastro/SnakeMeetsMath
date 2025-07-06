@@ -369,6 +369,7 @@ details[open] > summary.operation-category-summary::after {
 .welcome-modal-content h2 {
     color: #0d9488;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    font-size: 1.25rem; /* 50% smaller than 2.5rem */
 }
 .welcome-modal-content p {
     color: #475569;
