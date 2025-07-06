@@ -258,7 +258,7 @@ function startGame() {
 
     isGameRunning = true;
     startGameBtn.style.display = 'none';
-    pauseGameBtn.style.display = 'none'; // Initially hide pause button
+    pauseGameBtn.style.display = 'none'; 
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'none';
     operationSelectionPanel.style.display = 'none';
@@ -276,9 +276,6 @@ function pauseGame() {
         return;
     }
 
-    // Pause button is only visible when timeLeftForMath <= 10, so no need to check that here
-    // Also, it's only visible if score > 0, so no need to check score here either.
-    // The check for `selectedOperationType !== 'arithmetic'` is removed to allow pause for all categories.
     if (timeLeftForMath > 10 || score < 1) {
         let currentMessage = `Pause is only available when time left is 10s or less and you have points to fuel it. Current time left: ${timeLeftForMath}s, Current points: ${score}.`;
         setMessage(currentMessage);
@@ -329,7 +326,6 @@ function endGame() {
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
 
-    // Display correct answer and encouraging message
     if (lastProblemText && lastCorrectAnswerDisplay) {
         setMessage(`Game Over! The correct answer for "${lastProblemText}" was **${lastCorrectAnswerDisplay}**. Keep practicing, you'll get it next time!`);
     } else {
@@ -341,8 +337,6 @@ function endGame() {
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'flex';
     operationSelectionPanel.style.display = 'flex';
-    // No need for a setTimeout here, as the message is already set above
-    // and the modal will be displayed.
 
     startGameBtn.disabled = true;
     currentDifficulty = null;
@@ -1069,7 +1063,6 @@ function startMathTimer() {
         timeLeftForMath--;
         timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
 
-        // Manage pause button visibility
         if (timeLeftForMath <= 10 && !isPaused && score > 0) {
             pauseGameBtn.style.display = 'inline-block';
         } else {
@@ -1078,7 +1071,7 @@ function startMathTimer() {
 
         if (timeLeftForMath <= 0) {
             clearInterval(mathTimerInterval);
-            endGame(); // endGame will now display the correct answer
+            endGame();
         }
     }, 1000);
 }
@@ -1123,13 +1116,13 @@ function submitMathAnswer() {
         let pointsEarned = 0;
         const timeTaken = initialTimeForCurrentChallenge - timeLeftForMath;
 
-        if (timeTaken <= 0.25 * initialTimeForCurrentChallenge) { // Fastest 25%
+        if (timeTaken <= 0.25 * initialTimeForCurrentChallenge) {
             pointsEarned = 7;
-        } else if (timeTaken <= 0.50 * initialTimeForCurrentChallenge) { // Next 25%
+        } else if (timeTaken <= 0.50 * initialTimeForCurrentChallenge) {
             pointsEarned = 5;
-        } else if (timeTaken <= 0.75 * initialTimeForCurrentChallenge) { // Next 25%
+        } else if (timeTaken <= 0.75 * initialTimeForCurrentChallenge) {
             pointsEarned = 3;
-        } else { // Last 25%
+        } else {
             pointsEarned = 2;
         }
 
