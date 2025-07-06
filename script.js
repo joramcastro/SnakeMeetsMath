@@ -53,6 +53,9 @@ const minSwipeDistance = 30;
 let pauseCountdownInterval = null;
 let pauseTimeLeft = 0;
 
+let lastProblemText = '';
+let lastCorrectAnswerDisplay = '';
+
 const difficultyTimes = {
     easy: 60,
     medium: 120,
@@ -255,7 +258,7 @@ function startGame() {
 
     isGameRunning = true;
     startGameBtn.style.display = 'none';
-    pauseGameBtn.style.display = 'inline-block';
+    pauseGameBtn.style.display = 'none'; // Initially hide pause button
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'none';
     operationSelectionPanel.style.display = 'none';
@@ -273,17 +276,12 @@ function pauseGame() {
         return;
     }
 
-    if (selectedOperationType !== 'arithmetic' || timeLeftForMath > 10) {
-        let currentMessage = `The pause button currently works only during Decimal Arithmetic challenges, AND when time left is 10s or less. Current time left: ${timeLeftForMath}s.`;
-        if (selectedOperationType !== 'arithmetic') {
-            currentMessage = `Pause is not available for ${document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent.toLowerCase()} challenges.`
-        }
+    // Pause button is only visible when timeLeftForMath <= 10, so no need to check that here
+    // Also, it's only visible if score > 0, so no need to check score here either.
+    // The check for `selectedOperationType !== 'arithmetic'` is removed to allow pause for all categories.
+    if (timeLeftForMath > 10 || score < 1) {
+        let currentMessage = `Pause is only available when time left is 10s or less and you have points to fuel it. Current time left: ${timeLeftForMath}s, Current points: ${score}.`;
         setMessage(currentMessage);
-        return;
-    }
-
-    if (score < 1) {
-        setMessage('A score of at least 1 is required to fuel the pause mechanism. Current points: ' + score);
         return;
     }
 
@@ -331,12 +329,20 @@ function endGame() {
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
 
+    // Display correct answer and encouraging message
+    if (lastProblemText && lastCorrectAnswerDisplay) {
+        setMessage(`Game Over! The correct answer for "${lastProblemText}" was **${lastCorrectAnswerDisplay}**. Keep practicing, you'll get it next time!`);
+    } else {
+        setMessage('Game Over! Better luck next time!');
+    }
+    
     startGameBtn.style.display = 'inline-block';
     pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'flex';
     operationSelectionPanel.style.display = 'flex';
-    messageArea.style.display = 'block';
+    // No need for a setTimeout here, as the message is already set above
+    // and the modal will be displayed.
 
     startGameBtn.disabled = true;
     currentDifficulty = null;
@@ -991,70 +997,57 @@ function startChallenge() {
     customKeyboard.style.display = 'flex';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
+    pauseGameBtn.style.display = 'none'; // Hide pause button initially for new challenge
 
     let allowDecimalInput = false;
 
     switch (selectedOperationType) {
         case 'arithmetic':
             generateArithmeticProblem();
-            pauseGameBtn.style.display = 'inline-block';
             break;
         case 'exponentiation':
             generateExponentiationProblem();
-            pauseGameBtn.style.display = 'none';
             break;
         case 'modulus':
             generateModulusProblem();
-            pauseGameBtn.style.display = 'none';
             break;
         case 'absolute-value':
             generateAbsoluteValueProblem();
-            pauseGameBtn.style.display = 'none';
             break;
         case 'binary-decimal':
             generateBinaryToDecimalProblem();
-            pauseGameBtn.style.display = 'none';
             break;
         case 'decimal-binary':
             generateDecimalToBinaryProblem();
-            pauseGameBtn.style.display = 'none';
             break;
         case 'linear-equation':
             generateLinearEquationProblem();
-            pauseGameBtn.style.display = 'none';
             break;
         case 'arithmetic-mean':
             generateArithmeticMeanProblem();
-            pauseGameBtn.style.display = 'none';
             allowDecimalInput = true;
             break;
         case 'standard-deviation':
             generateStandardDeviationProblem();
-            pauseGameBtn.style.display = 'none';
             allowDecimalInput = true;
             break;
         case 'evaluating-function':
             generateEvaluatingFunctionProblem();
-            pauseGameBtn.style.display = 'none';
             break;
         case 'fraction-decimal':
             generateFractionToDecimalProblem();
-            pauseGameBtn.style.display = 'none';
             allowDecimalInput = true;
             break;
         case 'simple-interest':
             generateSimpleInterestProblem();
-            pauseGameBtn.style.display = 'none';
             allowDecimalInput = true;
             break;
         case 'compound-interest':
             generateCompoundInterestProblem();
-            pauseGameBtn.style.display = 'none';
             allowDecimalInput = true;
             break;
         default:
             generateArithmeticProblem();
-            pauseGameBtn.style.display = 'inline-block';
             setMessage('Unknown problem type selected, defaulting to Decimal Arithmetic.');
     }
 
@@ -1062,6 +1055,10 @@ function startChallenge() {
 
     timeLeftForMath = initialTimeForCurrentChallenge;
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
+    
+    lastProblemText = mathProblemDisplay.textContent;
+    lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-decimal') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
+
     startMathTimer();
     setMessage('Answer the problem to proceed!');
 }
@@ -1071,14 +1068,17 @@ function startMathTimer() {
     mathTimerInterval = setInterval(() => {
         timeLeftForMath--;
         timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
+
+        // Manage pause button visibility
+        if (timeLeftForMath <= 10 && !isPaused && score > 0) {
+            pauseGameBtn.style.display = 'inline-block';
+        } else {
+            pauseGameBtn.style.display = 'none';
+        }
+
         if (timeLeftForMath <= 0) {
             clearInterval(mathTimerInterval);
-            const problemText = mathProblemDisplay.textContent;
-            const correctAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-decimal') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
-            setMessage(`Time ran out! The correct answer for "${problemText}" was **${correctAnswerDisplay}**. Keep practicing, you'll get it next time!`);
-            setTimeout(() => {
-                endGame();
-            }, 3000);
+            endGame(); // endGame will now display the correct answer
         }
     }, 1000);
 }
@@ -1123,11 +1123,13 @@ function submitMathAnswer() {
         let pointsEarned = 0;
         const timeTaken = initialTimeForCurrentChallenge - timeLeftForMath;
 
-        if (timeTaken <= 0.25 * initialTimeForCurrentChallenge) {
-            pointsEarned = 4;
-        } else if (timeTaken <= 0.50 * initialTimeForCurrentChallenge) {
+        if (timeTaken <= 0.25 * initialTimeForCurrentChallenge) { // Fastest 25%
+            pointsEarned = 7;
+        } else if (timeTaken <= 0.50 * initialTimeForCurrentChallenge) { // Next 25%
+            pointsEarned = 5;
+        } else if (timeTaken <= 0.75 * initialTimeForCurrentChallenge) { // Next 25%
             pointsEarned = 3;
-        } else {
+        } else { // Last 25%
             pointsEarned = 2;
         }
 
@@ -1148,6 +1150,7 @@ function submitMathAnswer() {
         customKeyboard.style.display = 'none';
         canvas.style.display = 'block';
         scoreDisplay.parentElement.style.display = 'flex';
+        pauseGameBtn.style.display = 'none'; // Hide pause button after answering
 
         gameInterval = setInterval(moveSnake, GAME_SPEED);
         generateFood();
