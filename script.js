@@ -76,8 +76,12 @@ function initializeGame() {
     direction = 'right';
     score = 0;
     scoreDisplay.textContent = score;
-    highScoreDisplay.textContent = 0;
-    highScoreContainer.style.display = 'none';
+    if (highScoreDisplay) { // Robustness check
+        highScoreDisplay.textContent = 0;
+    }
+    if (highScoreContainer) { // Robustness check
+        highScoreContainer.style.display = 'none';
+    }
     
     isGameRunning = false;
     isPaused = false;
@@ -267,7 +271,9 @@ function startGame() {
     operationSelectionPanel.style.display = 'none';
     canvas.style.display = 'block';
     scoreDisplay.parentElement.style.display = 'flex';
-    highScoreContainer.style.display = 'flex';
+    if (highScoreContainer) { // Robustness check
+        highScoreContainer.style.display = 'flex';
+    }
     gameInterval = setInterval(moveSnake, GAME_SPEED);
     messageArea.style.display = 'none';
 }
@@ -329,7 +335,9 @@ function endGame() {
     customKeyboard.style.display = 'none';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
-    highScoreContainer.style.display = 'none';
+    if (highScoreContainer) { // Robustness check
+        highScoreContainer.style.display = 'none';
+    }
 
     if (lastProblemText && lastCorrectAnswerDisplay) {
         setMessage(`Game Over! The correct answer for "${lastProblemText}" was **${lastCorrectAnswerDisplay}**. Keep practicing, you'll get it next time!`);
@@ -991,7 +999,9 @@ function startChallenge() {
     customKeyboard.style.display = 'flex';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
-    highScoreContainer.style.display = 'none';
+    if (highScoreContainer) { // Robustness check
+        highScoreContainer.style.display = 'none';
+    }
     pauseGameBtn.style.display = 'none';
 
     let allowDecimalInput = false;
@@ -1134,7 +1144,9 @@ function submitMathAnswer() {
         if (!highScores[highScoreKey] || score > highScores[highScoreKey]) {
             highScores[highScoreKey] = score;
             localStorage.setItem('mathSnakeHighScores', JSON.stringify(highScores));
-            highScoreDisplay.textContent = highScores[highScoreKey];
+            if (highScoreDisplay) { // Robustness check
+                highScoreDisplay.textContent = highScores[highScoreKey];
+            }
         }
 
         setMessage(`Correct! +${pointsEarned} points.`);
@@ -1144,7 +1156,9 @@ function submitMathAnswer() {
         customKeyboard.style.display = 'none';
         canvas.style.display = 'block';
         scoreDisplay.parentElement.style.display = 'flex';
-        highScoreContainer.style.display = 'flex';
+        if (highScoreContainer) { // Robustness check
+            highScoreContainer.style.display = 'flex';
+        }
         pauseGameBtn.style.display = 'none';
 
         gameInterval = setInterval(moveSnake, GAME_SPEED);
@@ -1285,8 +1299,7 @@ difficultyButtons.forEach(button => {
         difficultyButtons.forEach(btn => btn.classList.remove('selected'));
         button.classList.add('selected');
         currentDifficulty = button.dataset.difficulty;
-        checkAndEnableStartGame();
-        setMessage(`Difficulty set to **${currentDifficulty.toUpperCase()}**. Now choose a **problem type**.`);
+        checkAndEnableStartGame(); // This will now handle the message
     });
 });
 
@@ -1295,8 +1308,7 @@ operationButtons.forEach(button => {
         operationButtons.forEach(btn => btn.classList.remove('selected'));
         button.classList.add('selected');
         selectedOperationType = button.dataset.operationType;
-        checkAndEnableStartGame();
-        setMessage(`Problem type set to **${button.textContent.toUpperCase()}**. Now choose a **difficulty**.`);
+        checkAndEnableStartGame(); // This will now handle the message
     });
 });
 
@@ -1318,10 +1330,12 @@ function updateDifficultyAndOperationDisplay() {
     });
 
     const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
-    highScoreDisplay.textContent = highScores[highScoreKey] || 0;
-    if (currentDifficulty && selectedOperationType) {
+    if (highScoreDisplay) { // Robustness check
+        highScoreDisplay.textContent = highScores[highScoreKey] || 0;
+    }
+    if (currentDifficulty && selectedOperationType && highScoreContainer) { // Robustness check
         highScoreContainer.style.display = 'flex';
-    } else {
+    } else if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
     }
 }
@@ -1332,11 +1346,25 @@ function checkAndEnableStartGame() {
         const selectedProblemText = document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent;
         setMessage(`Ready to play! Selected: **${selectedProblemText}** at **${currentDifficulty.toUpperCase()}** difficulty. Click **Start Game**.`);
         const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
-        highScoreDisplay.textContent = highScores[highScoreKey] || 0;
-        highScoreContainer.style.display = 'flex';
+        if (highScoreDisplay) { // Robustness check
+            highScoreDisplay.textContent = highScores[highScoreKey] || 0;
+        }
+        if (highScoreContainer) { // Robustness check
+            highScoreContainer.style.display = 'flex';
+        }
     } else {
         startGameBtn.disabled = true;
-        highScoreContainer.style.display = 'none';
+        if (highScoreContainer) { // Robustness check
+            highScoreContainer.style.display = 'none';
+        }
+        // Keep the initial welcome message or prompt for remaining selection
+        if (!currentDifficulty && !selectedOperationType) {
+            setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
+        } else if (!currentDifficulty) {
+            setMessage(`Problem type set to **${document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent.toUpperCase()}**. Now choose a **difficulty**.`);
+        } else { // !selectedOperationType
+            setMessage(`Difficulty set to **${currentDifficulty.toUpperCase()}**. Now choose a **problem type**.`);
+        }
     }
 }
 
