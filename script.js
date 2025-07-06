@@ -31,7 +31,7 @@ let snake = [];
 let food = {};
 let direction = 'right';
 let score = 0;
-let highScore = localStorage.getItem('mathSnakeHighScore') || 0;
+let highScores = JSON.parse(localStorage.getItem('mathSnakeHighScores')) || {};
 let gameInterval;
 let isGameRunning = false;
 let isPaused = false;
@@ -72,7 +72,7 @@ function initializeGame() {
     direction = 'right';
     score = 0;
     scoreDisplay.textContent = score;
-    highScoreDisplay.textContent = highScore;
+    
     isGameRunning = false;
     isPaused = false;
     awaitingMathAnswer = false;
@@ -214,11 +214,6 @@ function moveSnake() {
     snake.unshift(head);
 
     if (head.x === food.x && head.y === food.y) {
-        if (score > highScore) {
-            highScore = score;
-            localStorage.setItem('mathSnakeHighScore', highScore);
-            highScoreDisplay.textContent = highScore;
-        }
         startChallenge();
     } else {
         snake.pop();
@@ -278,11 +273,10 @@ function pauseGame() {
         return;
     }
 
-    const isArithmeticLike = ['arithmetic'].includes(selectedOperationType);
-    if (!awaitingMathAnswer || (!isArithmeticLike) || timeLeftForMath > 10) {
+    if (selectedOperationType !== 'arithmetic' || timeLeftForMath > 10) {
         let currentMessage = `The pause button currently works only during Decimal Arithmetic challenges, AND when time left is 10s or less. Current time left: ${timeLeftForMath}s.`;
-        if (!isArithmeticLike) {
-            currentMessage = `Pause is not available for ${selectedOperationType.replace('-', ' ')} challenges.`
+        if (selectedOperationType !== 'arithmetic') {
+            currentMessage = `Pause is not available for ${document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent.toLowerCase()} challenges.`
         }
         setMessage(currentMessage);
         return;
@@ -612,9 +606,9 @@ function generateDecimalToBinaryProblem() {
     let decimalNum;
     let binaryAnswer;
     const maxLength = (currentDifficulty === 'easy' ? 15 :
-                        currentDifficulty === 'medium' ? 63 :
-                        currentDifficulty === 'hard' ? 255 :
-                        1023);
+                                 currentDifficulty === 'medium' ? 63 :
+                                 currentDifficulty === 'hard' ? 255 :
+                                 1023);
 
     const MAX_ATTEMPTS = 100;
     let attempts = 0;
@@ -645,8 +639,8 @@ function generateBinaryToDecimalProblem() {
     let binaryString;
     let decimalAnswer;
     const maxLength = (currentDifficulty === 'easy' ? 4 :
-                        currentDifficulty === 'medium' ? 6 :
-                        currentDifficulty === 'hard' ? 8 : 10);
+                                 currentDifficulty === 'medium' ? 6 :
+                                 currentDifficulty === 'hard' ? 8 : 10);
 
     const MAX_ATTEMPTS = 100;
     let attempts = 0;
@@ -780,6 +774,102 @@ function generateArithmeticMeanProblem() {
     mathAnswerInput.value = '';
 }
 
+function generateStandardDeviationProblem() {
+    let numCount;
+    let numbers = [];
+    let answer;
+
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        if (currentDifficulty === 'easy') {
+            numCount = generateRandomNum(3, 4);
+            numbers = Array.from({ length: numCount }, () => generateRandomNum(1, 10));
+        } else if (currentDifficulty === 'medium') {
+            numCount = generateRandomNum(4, 5);
+            numbers = Array.from({ length: numCount }, () => generateRandomNum(1, 15));
+        } else if (currentDifficulty === 'hard') {
+            numCount = generateRandomNum(5, 6);
+            numbers = Array.from({ length: numCount }, () => generateRandomNum(-5, 20));
+        } else {
+            numCount = generateRandomNum(6, 7);
+            numbers = Array.from({ length: numCount }, () => generateRandomNum(-10, 25));
+        }
+
+        const mean = numbers.reduce((sum, val) => sum + val, 0) / numbers.length;
+        const variance = numbers.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / numbers.length;
+        answer = Math.sqrt(variance);
+
+        if (answer > 0.1 && answer < 100 && (answer * 100) % 1 !== 0) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        numbers = [1, 2, 3, 4, 5]; answer = 1.41;
+        setMessage('Standard Deviation problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Std. Dev. of [${numbers.join(', ')}]? (2 dec places)`;
+    correctMathAnswer = parseFloat(answer.toFixed(2));
+    mathAnswerInput.value = '';
+}
+
+function generateEvaluatingFunctionProblem() {
+    let a, b, c, x, problemString, answer;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        if (currentDifficulty === 'easy') {
+            a = generateRandomNum(1, 5);
+            b = generateRandomNum(-5, 5);
+            x = generateRandomNum(1, 5);
+            problemString = `f(x) = ${a}x ${b >= 0 ? '+' : '-'} ${Math.abs(b)}`;
+            answer = a * x + b;
+        } else if (currentDifficulty === 'medium') {
+            a = generateRandomNum(1, 7);
+            b = generateRandomNum(-7, 7);
+            x = generateRandomNum(-5, 5);
+            problemString = `f(x) = ${a}x ${b >= 0 ? '+' : '-'} ${Math.abs(b)}`;
+            answer = a * x + b;
+        } else if (currentDifficulty === 'hard') {
+            a = generateRandomNum(1, 3);
+            b = generateRandomNum(-5, 5);
+            c = generateRandomNum(-5, 5);
+            x = generateRandomNum(-3, 3);
+            problemString = `f(x) = ${a}x² ${b >= 0 ? '+' : '-'} ${Math.abs(b)}x ${c >= 0 ? '+' : '-'} ${Math.abs(c)}`;
+            answer = a * Math.pow(x, 2) + b * x + c;
+        } else {
+            a = generateRandomNum(1, 2);
+            b = generateRandomNum(-7, 7);
+            c = generateRandomNum(-7, 7);
+            x = generateRandomNum(-5, 5);
+            problemString = `f(x) = ${a}x² ${b >= 0 ? '+' : '-'} ${Math.abs(b)}x ${c >= 0 ? '+' : '-'} ${Math.abs(c)}`;
+            answer = a * Math.pow(x, 2) + b * x + c;
+        }
+        
+        if (Math.abs(answer) < 1000) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        problemString = `f(x) = 2x + 3`; x = 2; answer = 7;
+        setMessage('Evaluating Function problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Evaluate ${problemString} for x = ${x}: ?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+}
+
+
 function generateFractionToDecimalProblem() {
     let numerator, denominator, answer;
     const MAX_ATTEMPTS = 200;
@@ -865,7 +955,7 @@ function generateCompoundInterestProblem() {
         attempts++;
         principal = generateRandomNum(1, currentDifficulty === 'easy' ? 5 : currentDifficulty === 'medium' ? 10 : currentDifficulty === 'hard' ? 20 : 50) * 1000;
         rate = getRate(currentDifficulty === 'easy' ? 2 : currentDifficulty === 'medium' ? 4 : currentDifficulty === 'hard' ? 6 : 8,
-                       currentDifficulty === 'easy' ? 8 : currentDifficulty === 'medium' ? 12 : currentDifficulty === 'hard' ? 18 : 25);
+                               currentDifficulty === 'easy' ? 8 : currentDifficulty === 'medium' ? 12 : currentDifficulty === 'hard' ? 18 : 25);
         time = generateRandomNum(1, currentDifficulty === 'easy' ? 3 : currentDifficulty === 'medium' ? 6 : currentDifficulty === 'hard' ? 10 : 15);
         periods = getPeriods(currentDifficulty);
 
@@ -938,6 +1028,15 @@ function startChallenge() {
             pauseGameBtn.style.display = 'none';
             allowDecimalInput = true;
             break;
+        case 'standard-deviation':
+            generateStandardDeviationProblem();
+            pauseGameBtn.style.display = 'none';
+            allowDecimalInput = true;
+            break;
+        case 'evaluating-function':
+            generateEvaluatingFunctionProblem();
+            pauseGameBtn.style.display = 'none';
+            break;
         case 'fraction-decimal':
             generateFractionToDecimalProblem();
             pauseGameBtn.style.display = 'none';
@@ -974,8 +1073,12 @@ function startMathTimer() {
         timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
         if (timeLeftForMath <= 0) {
             clearInterval(mathTimerInterval);
-            setMessage('Time ran out! Game Over.');
-            endGame();
+            const problemText = mathProblemDisplay.textContent;
+            const correctAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-decimal') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
+            setMessage(`Time ran out! The correct answer for "${problemText}" was **${correctAnswerDisplay}**. Keep practicing, you'll get it next time!`);
+            setTimeout(() => {
+                endGame();
+            }, 3000);
         }
     }, 1000);
 }
@@ -1013,8 +1116,8 @@ function submitMathAnswer() {
     }
     
     const isCorrect = (selectedOperationType === 'decimal-binary') ?
-                      userAnswer === correctMathAnswer :
-                      userAnswer === parseFloat(correctMathAnswer.toFixed(2));
+                        userAnswer === correctMathAnswer :
+                        userAnswer === parseFloat(correctMathAnswer.toFixed(2));
 
     if (isCorrect) {
         let pointsEarned = 0;
@@ -1031,10 +1134,11 @@ function submitMathAnswer() {
         score += pointsEarned;
         scoreDisplay.textContent = score;
 
-        if (score > highScore) {
-            highScore = score;
-            localStorage.setItem('mathSnakeHighScore', highScore);
-            highScoreDisplay.textContent = highScore;
+        const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
+        if (!highScores[highScoreKey] || score > highScores[highScoreKey]) {
+            highScores[highScoreKey] = score;
+            localStorage.setItem('mathSnakeHighScores', JSON.stringify(highScores));
+            highScoreDisplay.textContent = highScores[highScoreKey];
         }
 
         setMessage(`Correct! +${pointsEarned} points.`);
@@ -1214,6 +1318,9 @@ function updateDifficultyAndOperationDisplay() {
             btn.classList.remove('selected');
         }
     });
+
+    const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
+    highScoreDisplay.textContent = highScores[highScoreKey] || 0;
 }
 
 function checkAndEnableStartGame() {
@@ -1221,6 +1328,8 @@ function checkAndEnableStartGame() {
         startGameBtn.disabled = false;
         const selectedProblemText = document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent;
         setMessage(`Ready to play! Selected: **${selectedProblemText}** at **${currentDifficulty.toUpperCase()}** difficulty. Click **Start Game**.`);
+        const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
+        highScoreDisplay.textContent = highScores[highScoreKey] || 0;
     } else {
         startGameBtn.disabled = true;
     }
