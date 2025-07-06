@@ -28,6 +28,12 @@ const messageArea = document.getElementById('message-area');
 const operationSelectionPanel = document.getElementById('operation-selection-panel');
 const operationButtons = document.querySelectorAll('.operation-btn');
 
+const infoModal = document.getElementById('infoModal');
+const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
+
+const welcomeModal = document.getElementById('welcomeModal');
+const startPlayingBtn = document.getElementById('startPlayingBtn');
+
 let snake = [];
 let food = {};
 let direction = 'right';
@@ -64,7 +70,6 @@ const difficultyTimes = {
     expert: 240
 };
 
-// Moved resetGame and endGame functions to the top for explicit declaration order
 function resetGame() {
     endGame();
     initializeGame();
@@ -129,6 +134,7 @@ function initializeGame() {
     mathChallengeArea.style.display = 'none';
     customKeyboard.style.display = 'none';
     gameOverModal.style.display = 'none';
+    infoModal.style.display = 'none';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
 
@@ -150,7 +156,7 @@ function initializeGame() {
     generateFood();
     drawGame();
     updateDifficultyAndOperationDisplay();
-    setMessage('Welcome! Pamili ug 1 ka PROBLEM TYPE then unsa nga DIFFICULTY imong gusto.');
+    setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
 }
 
 function drawGame() {
@@ -854,13 +860,6 @@ function generateEvaluatingFunctionProblem() {
             x = generateRandomNum(-5, 5);
             problemString = `f(x) = ${a}x ${b >= 0 ? '+' : '-'} ${Math.abs(b)}`;
             answer = a * x + b;
-        } else if (currentDifficulty === 'hard') {
-            a = generateRandomNum(1, 3);
-            b = generateRandomNum(-5, 5);
-            c = generateRandomNum(-5, 5);
-            x = generateRandomNum(-3, 3);
-            problemString = `f(x) = ${a}x² ${b >= 0 ? '+' : '-'} ${Math.abs(b)}x ${c >= 0 ? '+' : '-'} ${Math.abs(c)}`;
-            answer = a * Math.pow(x, 2) + b * x + c;
         } else {
             a = generateRandomNum(1, 2);
             b = generateRandomNum(-7, 7);
@@ -1300,13 +1299,30 @@ resetGameBtn.addEventListener('click', resetGame);
 submitAnswerBtn.addEventListener('click', submitMathAnswer);
 restartGameBtn.addEventListener('click', resetGame);
 
+
+closeInfoModalBtn.addEventListener('click', () => {
+    infoModal.style.display = 'none';
+});
+
+infoModal.addEventListener('click', (e) => {
+    if (e.target === infoModal) {
+        infoModal.style.display = 'none';
+    }
+});
+
+startPlayingBtn.addEventListener('click', () => {
+    welcomeModal.style.display = 'none';
+    initializeGame();
+    checkAndEnableStartGame();
+});
+
 difficultyButtons.forEach(button => {
     button.addEventListener('click', () => {
         difficultyButtons.forEach(btn => btn.classList.remove('selected'));
         button.classList.add('selected');
         currentDifficulty = button.dataset.difficulty;
         console.log('Difficulty selected:', currentDifficulty);
-        updateDifficultyAndOperationDisplay(); // Call update before checkAndEnable
+        updateDifficultyAndOperationDisplay();
         checkAndEnableStartGame();
     });
 });
@@ -1317,7 +1333,7 @@ operationButtons.forEach(button => {
         button.classList.add('selected');
         selectedOperationType = button.dataset.operationType;
         console.log('Operation selected:', selectedOperationType);
-        updateDifficultyAndOperationDisplay(); // Call update before checkAndEnable
+        updateDifficultyAndOperationDisplay();
         checkAndEnableStartGame();
     });
 });
@@ -1371,11 +1387,9 @@ function checkAndEnableStartGame() {
         if (!currentDifficulty && !selectedOperationType) {
             setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
         } else if (!currentDifficulty) {
-            // Ensure selectedOperationType is not null before trying to get textContent
             const problemTypeText = selectedOperationType ? document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent : 'a problem type';
             setMessage(`Problem type set to **${problemTypeText.toUpperCase()}**. Now choose a **difficulty**.`);
-        } else { // !selectedOperationType
-            // Ensure currentDifficulty is not null before trying to get textContent
+        } else {
             const difficultyText = currentDifficulty ? currentDifficulty.toUpperCase() : 'a difficulty';
             setMessage(`Difficulty set to **${difficultyText}**. Now choose a **problem type**.`);
         }
@@ -1412,6 +1426,5 @@ installButton.addEventListener('click', () => {
 
 window.onload = function() {
     console.log('Script loaded and window.onload fired.');
-    initializeGame();
-    checkAndEnableStartGame();
+    welcomeModal.style.display = 'flex';
 };
