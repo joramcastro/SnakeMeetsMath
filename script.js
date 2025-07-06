@@ -1387,7 +1387,7 @@ function generateCheatSheetContent(operationType, difficulty) {
         case 'arithmetic':
             content = `
                 <h3>Decimal Arithmetic</h3>
-                <p>Solve basic math problems involving addition, subtraction, multiplication, and division of decimal numbers.</p>
+                <p>Solve problems using addition, subtraction, multiplication, and division.</p>
                 <div class="formula-example">
                     <p class="formula"><b>Formula:</b> $A \\text{ op } B = C$</p>
                     <p class="example"><b>Example:</b> $15 \\div 3 = ?$</p>
@@ -1398,7 +1398,7 @@ function generateCheatSheetContent(operationType, difficulty) {
         case 'exponentiation':
             content = `
                 <h3>Exponentiation (xⁿ)</h3>
-                <p>Calculate the power of a number.</p>
+                <p>Multiply a number by itself a certain number of times.</p>
                 <div class="formula-example">
                     <p class="formula"><b>Formula:</b> $Base^{Exponent} = Result$</p>
                     <p class="example"><b>Example:</b> $4^3 = ?$</p>
@@ -1409,7 +1409,7 @@ function generateCheatSheetContent(operationType, difficulty) {
         case 'modulus':
             content = `
                 <h3>Modulus (X mod Y)</h3>
-                <p>Find the remainder when one number is divided by another.</p>
+                <p>Find the remainder after dividing one number by another.</p>
                 <div class="formula-example">
                     <p class="formula"><b>Formula:</b> $X \\text{ mod } Y = Remainder$</p>
                     <p class="example"><b>Example:</b> $17 \\text{ mod } 5 = ?$</p>
@@ -1420,7 +1420,7 @@ function generateCheatSheetContent(operationType, difficulty) {
         case 'absolute-value':
             content = `
                 <h3>Absolute Value (|x|)</h3>
-                <p>The absolute value of a number is its distance from zero, always positive.</p>
+                <p>The absolute value is how far a number is from zero, always a positive value.</p>
                 <div class="formula-example">
                     <p class="formula"><b>Formula:</b> $|x| = x$ if $x \\ge 0$, and $|x| = -x$ if $x < 0$</p>
                     <p class="example"><b>Example:</b> $|-7| = ?$</p>
@@ -1431,7 +1431,7 @@ function generateCheatSheetContent(operationType, difficulty) {
         case 'binary-decimal':
             content = `
                 <h3>Binary to Decimal</h3>
-                <p>Convert a binary number (base 2) to its decimal equivalent (base 10).</p>
+                <p>Convert a binary number (using only 0s and 1s) to its regular decimal number.</p>
                 <div class="formula-example">
                     <p class="formula"><b>Formula:</b> $\\sum (Bit_i \\times 2^i)$</p>
                     <p class="example"><b>Example:</b> Convert $1011_2$ to decimal</p>
@@ -1442,9 +1442,9 @@ function generateCheatSheetContent(operationType, difficulty) {
         case 'decimal-binary':
             content = `
                 <h3>Decimal to Binary</h3>
-                <p>Convert a decimal number (base 10) to its binary equivalent (base 2).</p>
+                <p>Convert a regular decimal number to its binary equivalent (using only 0s and 1s).</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Method:</b> Repeated division by 2, collect remainders.</p>
+                    <p class="formula"><b>Method:</b> Repeatedly divide by 2 and collect the remainders from bottom to top.</p>
                     <p class="example"><b>Example:</b> Convert $13_{10}$ to binary</p>
                     <p class="solution"><b>Solution:</b><br>
                         $13 \\div 2 = 6$ R $1$<br>
@@ -1458,7 +1458,7 @@ function generateCheatSheetContent(operationType, difficulty) {
         case 'linear-equation':
             content = `
                 <h3>Solve Linear Equation</h3>
-                <p>Find the value of the unknown variable (x) in a linear equation.</p>
+                <p>Find the value of 'x' in an equation like $ax + b = c$.</p>
                 <div class="formula-example">
                     <p class="formula"><b>Formula:</b> $ax + b = c \\implies ax = c - b \\implies x = (c - b) / a$</p>
                     <p class="example"><b>Example:</b> Solve for x: $3x + 5 = 14$</p>
@@ -1475,7 +1475,7 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Arithmetic Mean</h3>
                 <p>Calculate the average of a set of numbers.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $Mean = \\frac{\\sum (Numbers)}{Count}$</p>
+                    <p class="formula"><b>Formula:</b> $Mean = \\frac{\\text{Sum of Numbers}}{\\text{Count of Numbers}}$</p>
                     <p class="example"><b>Example:</b> Find the mean of $2, 4, 6$</p>
                     <p class="solution"><b>Solution:</b> $\\frac{2 + 4 + 6}{3} = \\frac{12}{3} = 4$</p>
                 </div>
@@ -1484,14 +1484,14 @@ function generateCheatSheetContent(operationType, difficulty) {
         case 'standard-deviation':
             content = `
                 <h3>Standard Deviation</h3>
-                <p>Measure of the amount of variation or dispersion of a set of values.</p>
+                <p>Measures how spread out numbers are from the average.</p>
                 <div class="formula-example">
                     <p class="formula"><b>Formula:</b> $\\sigma = \\sqrt{\\frac{\\sum (x_i - \\mu)^2}{N}}$</p>
                     <p class="example"><b>Example:</b> Std. Dev. of $1, 2, 3$ (2 dec places)</p>
                     <p class="solution"><b>Solution:</b><br>
                         Mean ($\\mu$) = $(1+2+3)/3 = 2$<br>
-                        Variances: $(1-2)^2=1, (2-2)^2=0, (3-2)^2=1$<br>
-                        Sum of variances = $1+0+1=2$<br>
+                        Differences squared: $(1-2)^2=1, (2-2)^2=0, (3-2)^2=1$<br>
+                        Sum of differences squared = $1+0+1=2$<br>
                         Standard Deviation = $\\sqrt{2/3} \\approx 0.82$</p>
                 </div>
             `;
@@ -1499,7 +1499,7 @@ function generateCheatSheetContent(operationType, difficulty) {
         case 'evaluating-function':
             content = `
                 <h3>Evaluating Function</h3>
-                <p>Substitute the given value for 'x' into the function and simplify.</p>
+                <p>Replace 'x' with a given number in the function and calculate the result.</p>
                 <div class="formula-example">
                     <p class="formula"><b>Formula:</b> $f(x) = \\text{expression}$</p>
                     <p class="example"><b>Example:</b> Evaluate $f(x) = 2x + 3$ for $x = 4$</p>
@@ -1513,7 +1513,7 @@ function generateCheatSheetContent(operationType, difficulty) {
         case 'fraction-decimal':
             content = `
                 <h3>Fraction to Decimal</h3>
-                <p>Convert a fraction to its decimal equivalent by dividing the numerator by the denominator.</p>
+                <p>Convert a fraction to a decimal by dividing the top number (numerator) by the bottom number (denominator).</p>
                 <div class="formula-example">
                     <p class="formula"><b>Formula:</b> $\\frac{Numerator}{Denominator} = Decimal$</p>
                     <p class="example"><b>Example:</b> Convert $3/4$ to decimal</p>
@@ -1524,27 +1524,28 @@ function generateCheatSheetContent(operationType, difficulty) {
         case 'simple-interest':
             content = `
                 <h3>Simple Interest</h3>
-                <p>Calculate the total amount after simple interest is applied.</p>
+                <p>Calculate the total amount you'll have after earning simple interest.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $I = PRT$, $A = P + I$ (where R is decimal rate)</p>
+                    <p class="formula"><b>Formula:</b> Interest ($I$) = Principal ($P$) $\\times$ Rate ($R$) $\\times$ Time ($T$), Total Amount ($A$) = $P + I$</p>
                     <p class="example"><b>Example:</b> P=₱1000, R=5%, T=2 yrs. Simple Interest Total?</p>
                     <p class="solution"><b>Solution:</b><br>
-                        $I = 1000 \\times (5/100) \\times 2 = 100$<br>
-                        $A = 1000 + 100 = 1100$</p>
+                        $I = ₱1000 \\times (5/100) \\times 2 = ₱100$<br>
+                        $A = ₱1000 + ₱100 = ₱1100$</p>
                 </div>
             `;
             break;
         case 'compound-interest':
             content = `
                 <h3>Compound Interest</h3>
-                <p>Calculate the total amount after compound interest is applied.</p>
+                <p>Calculate the total amount you'll have when interest is earned on both the original amount and accumulated interest.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $A = P(1 + \\frac{R}{N})^{NT}$</p>
+                    <p class="formula"><b>Formula:</b> $A = P(1 + \\frac{R}{N})^{NT}$ <br>
+                    $P = \\text{Principal, } R = \\text{Annual Rate (decimal), } N = \\text{Times Compounded per year, } T = \\text{Time (years)}$</p>
                     <p class="example"><b>Example:</b> P=₱1000, R=5%, T=2 yrs, annually. Comp. Int. Total?</p>
                     <p class="solution"><b>Solution:</b><br>
-                        $A = 1000(1 + \\frac{0.05}{1})^{1 \\times 2}$<br>
-                        $A = 1000(1.05)^2$<br>
-                        $A = 1000 \\times 1.1025 = 1102.50$</p>
+                        $A = ₱1000(1 + \\frac{0.05}{1})^{1 \\times 2}$<br>
+                        $A = ₱1000(1.05)^2$<br>
+                        $A = ₱1000 \\times 1.1025 = ₱1102.50$</p>
                 </div>
             `;
             break;
