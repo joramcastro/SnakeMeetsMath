@@ -22,6 +22,10 @@
     --shadow-heavy: rgba(0, 0, 0, 0.3);
 }
 
+html {
+    height: 100%;
+}
+
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
@@ -45,9 +49,11 @@ body {
     width: 100%;
     max-width: 1200px;
     flex-grow: 1;
-    overflow-y: auto;
     padding-top: 10px;
     padding-bottom: 10px;
+    height: 100%;
+    box-sizing: border-box;
+    /* Removed overflow-y: auto; for desktop, handled by game-panel */
 }
 
 .main-content-wrapper {
@@ -58,6 +64,7 @@ body {
     width: 100%;
     box-sizing: border-box;
     padding: 10px;
+    flex-grow: 1;
 }
 
 .game-panel {
@@ -455,6 +462,7 @@ input[type="number"] {
         flex-direction: row;
         align-items: flex-start;
         padding: 20px;
+        height: 100%; /* Ensure it takes available height for flex alignment */
     }
 
     .game-panel {
@@ -462,6 +470,24 @@ input[type="number"] {
         width: auto;
         flex-shrink: 1;
         gap: 15px;
+        max-height: calc(100vh - 90px); /* Adjusted for header/footer/body padding */
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--primary-blue) transparent;
+    }
+
+    .game-panel::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .game-panel::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .game-panel::-webkit-scrollbar-thumb {
+        background-color: var(--primary-blue);
+        border-radius: 10px;
+        border: 2px solid transparent;
     }
 
     .right-panel {
@@ -469,32 +495,7 @@ input[type="number"] {
         width: auto;
         padding-top: 0;
         gap: 15px;
-    }
-
-    .math-challenge {
-        padding: 20px 15px;
-    }
-
-    .custom-keyboard {
-        max-width: 180px;
-        padding: 10px;
-        gap: 8px;
-    }
-    .key-btn {
-        padding: 12px 0;
-        font-size: 1.0rem;
-        min-width: 45px;
-    }
-    .key-btn.wide {
-        font-size: 0.85rem;
-    }
-
-    .control-panel, .operation-selection-panel, .difficulty-panel {
-        gap: 12px;
-    }
-    .operation-selection-panel .operation-buttons,
-    .difficulty-panel .difficulty-buttons-container {
-        gap: 10px;
+        align-self: stretch; /* Make it stretch to game-panel's height */
     }
 
     h1 {
@@ -510,14 +511,21 @@ input[type="number"] {
         padding: 10px;
         justify-content: flex-start;
     }
+    .main-wrapper {
+        height: auto; /* Allow content to push height on mobile */
+        overflow-y: auto; /* Allow scrolling on mobile if content is too tall */
+    }
     .main-content-wrapper {
         flex-direction: column;
         gap: 15px;
         padding: 0;
+        height: auto; /* Allow content to push height on mobile */
     }
     .game-panel {
         padding: 15px;
         gap: 10px;
+        max-height: none; /* Remove max-height for mobile */
+        overflow-y: visible; /* Remove overflow for mobile */
     }
     .right-panel {
         width: 95%;
