@@ -150,7 +150,7 @@ function initializeGame() {
     generateFood();
     drawGame();
     updateDifficultyAndOperationDisplay();
-    setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
+    setMessage('Welcome! Pamili ug 1 ka PROBLEM TYPE then unsa nga DIFFICULTY imong gusto.');
 }
 
 function drawGame() {
