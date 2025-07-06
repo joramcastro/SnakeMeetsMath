@@ -53,7 +53,6 @@ body {
     padding-bottom: 10px;
     height: 100%;
     box-sizing: border-box;
-    /* Removed overflow-y: auto; for desktop, handled by game-panel */
 }
 
 .main-content-wrapper {
@@ -462,15 +461,19 @@ input[type="number"] {
         flex-direction: row;
         align-items: flex-start;
         padding: 20px;
-        height: 100%; /* Ensure it takes available height for flex alignment */
+        height: 100%;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
     .game-panel {
-        max-width: 480px;
+        flex-grow: 2;
+        flex-basis: 0;
+        max-width: 800px;
         width: auto;
-        flex-shrink: 1;
         gap: 15px;
-        max-height: calc(100vh - 90px); /* Adjusted for header/footer/body padding */
+        max-height: calc(100vh - 90px);
         overflow-y: auto;
         scrollbar-width: thin;
         scrollbar-color: var(--primary-blue) transparent;
@@ -491,11 +494,13 @@ input[type="number"] {
     }
 
     .right-panel {
-        max-width: 200px;
+        flex-grow: 1;
+        flex-basis: 0;
+        max-width: 400px;
         width: auto;
         padding-top: 0;
         gap: 15px;
-        align-self: stretch; /* Make it stretch to game-panel's height */
+        align-self: stretch;
     }
 
     h1 {
@@ -512,20 +517,20 @@ input[type="number"] {
         justify-content: flex-start;
     }
     .main-wrapper {
-        height: auto; /* Allow content to push height on mobile */
-        overflow-y: auto; /* Allow scrolling on mobile if content is too tall */
+        height: auto;
+        overflow-y: auto;
     }
     .main-content-wrapper {
         flex-direction: column;
         gap: 15px;
         padding: 0;
-        height: auto; /* Allow content to push height on mobile */
+        height: auto;
     }
     .game-panel {
         padding: 15px;
         gap: 10px;
-        max-height: none; /* Remove max-height for mobile */
-        overflow-y: visible; /* Remove overflow for mobile */
+        max-height: none;
+        overflow-y: visible;
     }
     .right-panel {
         width: 95%;
