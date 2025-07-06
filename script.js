@@ -7,6 +7,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
 const highScoreDisplay = document.getElementById('high-score');
+const highScoreContainer = document.getElementById('high-score-container');
 const mathChallengeArea = document.getElementById('math-challenge-area');
 const mathProblemDisplay = document.getElementById('math-problem');
 const mathAnswerInput = document.getElementById('math-answer-input');
@@ -75,6 +76,8 @@ function initializeGame() {
     direction = 'right';
     score = 0;
     scoreDisplay.textContent = score;
+    highScoreDisplay.textContent = 0;
+    highScoreContainer.style.display = 'none';
     
     isGameRunning = false;
     isPaused = false;
@@ -258,12 +261,13 @@ function startGame() {
 
     isGameRunning = true;
     startGameBtn.style.display = 'none';
-    pauseGameBtn.style.display = 'none'; 
+    pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'none';
     operationSelectionPanel.style.display = 'none';
     canvas.style.display = 'block';
     scoreDisplay.parentElement.style.display = 'flex';
+    highScoreContainer.style.display = 'flex';
     gameInterval = setInterval(moveSnake, GAME_SPEED);
     messageArea.style.display = 'none';
 }
@@ -325,6 +329,7 @@ function endGame() {
     customKeyboard.style.display = 'none';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
+    highScoreContainer.style.display = 'none';
 
     if (lastProblemText && lastCorrectAnswerDisplay) {
         setMessage(`Game Over! The correct answer for "${lastProblemText}" was **${lastCorrectAnswerDisplay}**. Keep practicing, you'll get it next time!`);
@@ -342,11 +347,6 @@ function endGame() {
     currentDifficulty = null;
     selectedOperationType = null;
     updateDifficultyAndOperationDisplay();
-}
-
-function resetGame() {
-    endGame();
-    initializeGame();
 }
 
 function getDigitRange(difficulty) {
@@ -991,7 +991,8 @@ function startChallenge() {
     customKeyboard.style.display = 'flex';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
-    pauseGameBtn.style.display = 'none'; // Hide pause button initially for new challenge
+    highScoreContainer.style.display = 'none';
+    pauseGameBtn.style.display = 'none';
 
     let allowDecimalInput = false;
 
@@ -1143,7 +1144,8 @@ function submitMathAnswer() {
         customKeyboard.style.display = 'none';
         canvas.style.display = 'block';
         scoreDisplay.parentElement.style.display = 'flex';
-        pauseGameBtn.style.display = 'none'; // Hide pause button after answering
+        highScoreContainer.style.display = 'flex';
+        pauseGameBtn.style.display = 'none';
 
         gameInterval = setInterval(moveSnake, GAME_SPEED);
         generateFood();
@@ -1317,6 +1319,11 @@ function updateDifficultyAndOperationDisplay() {
 
     const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
     highScoreDisplay.textContent = highScores[highScoreKey] || 0;
+    if (currentDifficulty && selectedOperationType) {
+        highScoreContainer.style.display = 'flex';
+    } else {
+        highScoreContainer.style.display = 'none';
+    }
 }
 
 function checkAndEnableStartGame() {
@@ -1326,8 +1333,10 @@ function checkAndEnableStartGame() {
         setMessage(`Ready to play! Selected: **${selectedProblemText}** at **${currentDifficulty.toUpperCase()}** difficulty. Click **Start Game**.`);
         const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
         highScoreDisplay.textContent = highScores[highScoreKey] || 0;
+        highScoreContainer.style.display = 'flex';
     } else {
         startGameBtn.disabled = true;
+        highScoreContainer.style.display = 'none';
     }
 }
 
@@ -1360,6 +1369,7 @@ installButton.addEventListener('click', () => {
 });
 
 window.onload = function() {
+    console.log('Script loaded and window.onload fired.');
     initializeGame();
     checkAndEnableStartGame();
 };
