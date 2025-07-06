@@ -1289,10 +1289,10 @@ customKeyboard.addEventListener('click', (e) => {
 startGameBtn.addEventListener('click', () => {
     startGame();
 });
-pauseGameBtn.addEventListener('click', pauseGame);
-resetGameBtn.addEventListener('click', resetGame);
-submitAnswerBtn.addEventListener('click', submitMathAnswer);
-restartGameBtn.addEventListener('click', resetGame);
+pauseGameBtn.addEventListener('click', () => pauseGame());
+resetGameBtn.addEventListener('click', () => resetGame());
+submitAnswerBtn.addEventListener('click', () => submitMathAnswer());
+restartGameBtn.addEventListener('click', () => resetGame());
 
 difficultyButtons.forEach(button => {
     button.addEventListener('click', () => {
