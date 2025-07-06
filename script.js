@@ -1,7 +1,7 @@
 const CANVAS_SIZE = 400;
 const CELL_SIZE = 20;
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 380;
+const GAME_SPEED = 350;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -954,7 +954,7 @@ function generateSimpleInterestProblem() {
         setMessage('Simple Interest fallback. Please continue.');
     }
 
-    mathProblemDisplay.textContent = `P=$${principal}, R=${rate}%, T=${time} yrs. Simple Interest Total?`;
+    mathProblemDisplay.textContent = `P=₱${principal}, R=${rate}%, T=${time} yrs. Simple Interest Total?`;
     correctMathAnswer = parseFloat(totalAmount.toFixed(2));
     mathAnswerInput.value = '';
 }
@@ -997,7 +997,7 @@ function generateCompoundInterestProblem() {
     else if (periods === 4) periodsText = 'quarterly';
     else if (periods === 12) periodsText = 'monthly';
 
-    mathProblemDisplay.textContent = `P=$${principal}, R=${rate}%, T=${time} yrs, ${periodsText}. Comp. Int. Total?`;
+    mathProblemDisplay.textContent = `P=₱${principal}, R=${rate}%, T=${time} yrs, ${periodsText}. Comp. Int. Total?`;
     correctMathAnswer = parseFloat(totalAmount.toFixed(2));
     mathAnswerInput.value = '';
 }
@@ -1527,7 +1527,7 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <p>Calculate the total amount after simple interest is applied.</p>
                 <div class="formula-example">
                     <p class="formula"><b>Formula:</b> $I = PRT$, $A = P + I$ (where R is decimal rate)</p>
-                    <p class="example"><b>Example:</b> P=$1000, R=5%, T=2 yrs. Simple Interest Total?</p>
+                    <p class="example"><b>Example:</b> P=₱1000, R=5%, T=2 yrs. Simple Interest Total?</p>
                     <p class="solution"><b>Solution:</b><br>
                         $I = 1000 \\times (5/100) \\times 2 = 100$<br>
                         $A = 1000 + 100 = 1100$</p>
@@ -1540,7 +1540,7 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <p>Calculate the total amount after compound interest is applied.</p>
                 <div class="formula-example">
                     <p class="formula"><b>Formula:</b> $A = P(1 + \\frac{R}{N})^{NT}$</p>
-                    <p class="example"><b>Example:</b> P=$1000, R=5%, T=2 yrs, annually. Comp. Int. Total?</p>
+                    <p class="example"><b>Example:</b> P=₱1000, R=5%, T=2 yrs, annually. Comp. Int. Total?</p>
                     <p class="solution"><b>Solution:</b><br>
                         $A = 1000(1 + \\frac{0.05}{1})^{1 \\times 2}$<br>
                         $A = 1000(1.05)^2$<br>
@@ -1574,7 +1574,7 @@ function checkAndEnableStartGame() {
         
         generateCheatSheetContent(selectedOperationType, currentDifficulty);
         cheatSheetModal.style.display = 'flex';
-        startGameBtn.style.display = 'none'; // Hide the start button on the main panel
+        startGameBtn.style.display = 'none';
     } else {
         startGameBtn.disabled = true;
         if (highScoreContainer) {
@@ -1590,7 +1590,7 @@ function checkAndEnableStartGame() {
             setMessage(`Difficulty set to **${difficultyText}**. Now choose a **problem type**.`);
         }
         cheatSheetModal.style.display = 'none';
-        startGameBtn.style.display = 'inline-block'; // Show the start button on the main panel
+        startGameBtn.style.display = 'inline-block';
     }
 }
 
