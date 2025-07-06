@@ -64,6 +64,46 @@ const difficultyTimes = {
     expert: 240
 };
 
+// Moved resetGame and endGame functions to the top for explicit declaration order
+function resetGame() {
+    endGame();
+    initializeGame();
+}
+
+function endGame() {
+    isGameRunning = false;
+    clearInterval(gameInterval);
+    clearInterval(mathTimerInterval);
+    clearInterval(pauseCountdownInterval);
+    finalScoreDisplay.textContent = score;
+    gameOverModal.style.display = 'flex';
+    mathChallengeArea.style.display = 'none';
+    customKeyboard.style.display = 'none';
+    canvas.style.display = 'none';
+    scoreDisplay.parentElement.style.display = 'none';
+    if (highScoreContainer) {
+        highScoreContainer.style.display = 'none';
+    }
+
+    if (lastProblemText && lastCorrectAnswerDisplay) {
+        setMessage(`Game Over! The correct answer for "${lastProblemText}" was **${lastCorrectAnswerDisplay}**. Keep practicing, you'll get it next time!`);
+    } else {
+        setMessage('Game Over! Better luck next time!');
+    }
+    
+    startGameBtn.style.display = 'inline-block';
+    pauseGameBtn.style.display = 'none';
+    resetGameBtn.style.display = 'inline-block';
+    difficultyPanel.style.display = 'flex';
+    operationSelectionPanel.style.display = 'flex';
+
+    startGameBtn.disabled = true;
+    currentDifficulty = null;
+    selectedOperationType = null;
+    updateDifficultyAndOperationDisplay();
+}
+
+
 function initializeGame() {
     canvas.width = CANVAS_SIZE;
     canvas.height = CANVAS_SIZE;
@@ -324,38 +364,6 @@ function resumeGame() {
     messageArea.style.display = 'none';
 }
 
-function endGame() {
-    isGameRunning = false;
-    clearInterval(gameInterval);
-    clearInterval(mathTimerInterval);
-    clearInterval(pauseCountdownInterval);
-    finalScoreDisplay.textContent = score;
-    gameOverModal.style.display = 'flex';
-    mathChallengeArea.style.display = 'none';
-    customKeyboard.style.display = 'none';
-    canvas.style.display = 'none';
-    scoreDisplay.parentElement.style.display = 'none';
-    if (highScoreContainer) {
-        highScoreContainer.style.display = 'none';
-    }
-
-    if (lastProblemText && lastCorrectAnswerDisplay) {
-        setMessage(`Game Over! The correct answer for "${lastProblemText}" was **${lastCorrectAnswerDisplay}**. Keep practicing, you'll get it next time!`);
-    } else {
-        setMessage('Game Over! Better luck next time!');
-    }
-    
-    startGameBtn.style.display = 'inline-block';
-    pauseGameBtn.style.display = 'none';
-    resetGameBtn.style.display = 'inline-block';
-    difficultyPanel.style.display = 'flex';
-    operationSelectionPanel.style.display = 'flex';
-
-    startGameBtn.disabled = true;
-    currentDifficulty = null;
-    selectedOperationType = null;
-    updateDifficultyAndOperationDisplay();
-}
 
 function getDigitRange(difficulty) {
     switch (difficulty) {
@@ -1286,13 +1294,11 @@ customKeyboard.addEventListener('click', (e) => {
     }
 });
 
-startGameBtn.addEventListener('click', () => {
-    startGame();
-});
-pauseGameBtn.addEventListener('click', () => pauseGame());
-resetGameBtn.addEventListener('click', () => resetGame());
-submitAnswerBtn.addEventListener('click', () => submitMathAnswer());
-restartGameBtn.addEventListener('click', () => resetGame());
+startGameBtn.addEventListener('click', startGame);
+pauseGameBtn.addEventListener('click', pauseGame);
+resetGameBtn.addEventListener('click', resetGame);
+submitAnswerBtn.addEventListener('click', submitMathAnswer);
+restartGameBtn.addEventListener('click', resetGame);
 
 difficultyButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -1300,6 +1306,7 @@ difficultyButtons.forEach(button => {
         button.classList.add('selected');
         currentDifficulty = button.dataset.difficulty;
         console.log('Difficulty selected:', currentDifficulty);
+        updateDifficultyAndOperationDisplay(); // Call update before checkAndEnable
         checkAndEnableStartGame();
     });
 });
@@ -1310,6 +1317,7 @@ operationButtons.forEach(button => {
         button.classList.add('selected');
         selectedOperationType = button.dataset.operationType;
         console.log('Operation selected:', selectedOperationType);
+        updateDifficultyAndOperationDisplay(); // Call update before checkAndEnable
         checkAndEnableStartGame();
     });
 });
@@ -1363,9 +1371,13 @@ function checkAndEnableStartGame() {
         if (!currentDifficulty && !selectedOperationType) {
             setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
         } else if (!currentDifficulty) {
-            setMessage(`Problem type set to **${document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent.toUpperCase()}**. Now choose a **difficulty**.`);
-        } else {
-            setMessage(`Difficulty set to **${currentDifficulty.toUpperCase()}**. Now choose a **problem type**.`);
+            // Ensure selectedOperationType is not null before trying to get textContent
+            const problemTypeText = selectedOperationType ? document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent : 'a problem type';
+            setMessage(`Problem type set to **${problemTypeText.toUpperCase()}**. Now choose a **difficulty**.`);
+        } else { // !selectedOperationType
+            // Ensure currentDifficulty is not null before trying to get textContent
+            const difficultyText = currentDifficulty ? currentDifficulty.toUpperCase() : 'a difficulty';
+            setMessage(`Difficulty set to **${difficultyText}**. Now choose a **problem type**.`);
         }
     }
 }
