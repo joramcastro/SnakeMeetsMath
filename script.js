@@ -1,7 +1,7 @@
 const CANVAS_SIZE = 400;
 const CELL_SIZE = 20;
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 350;
+const GAME_SPEED = 380;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -33,6 +33,10 @@ const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
 
 const welcomeModal = document.getElementById('welcomeModal');
 const startPlayingBtn = document.getElementById('startPlayingBtn');
+
+const cheatSheetModal = document.getElementById('cheatSheetModal');
+const cheatSheetContent = document.getElementById('cheatSheetContent');
+const closeCheatSheetBtn = document.getElementById('closeCheatSheetBtn');
 
 let snake = [];
 let food = {};
@@ -135,6 +139,7 @@ function initializeGame() {
     customKeyboard.style.display = 'none';
     gameOverModal.style.display = 'none';
     infoModal.style.display = 'none';
+    cheatSheetModal.style.display = 'none';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
 
@@ -315,6 +320,7 @@ function startGame() {
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'none';
     operationSelectionPanel.style.display = 'none';
+    cheatSheetModal.style.display = 'none';
     canvas.style.display = 'block';
     scoreDisplay.parentElement.style.display = 'flex';
     if (highScoreContainer) {
@@ -970,7 +976,7 @@ function generateCompoundInterestProblem() {
         attempts++;
         principal = generateRandomNum(1, currentDifficulty === 'easy' ? 5 : currentDifficulty === 'medium' ? 10 : currentDifficulty === 'hard' ? 20 : 50) * 1000;
         rate = getRate(currentDifficulty === 'easy' ? 2 : currentDifficulty === 'medium' ? 4 : currentDifficulty === 'hard' ? 6 : 8,
-                               currentDifficulty === 'easy' ? 8 : currentDifficulty === 'medium' ? 12 : currentDifficulty === 'hard' ? 18 : 25);
+                                 currentDifficulty === 'easy' ? 8 : currentDifficulty === 'medium' ? 12 : currentDifficulty === 'hard' ? 18 : 25);
         time = generateRandomNum(1, currentDifficulty === 'easy' ? 3 : currentDifficulty === 'medium' ? 6 : currentDifficulty === 'hard' ? 10 : 15);
         periods = getPeriods(currentDifficulty);
 
@@ -1293,7 +1299,11 @@ customKeyboard.addEventListener('click', (e) => {
     }
 });
 
-startGameBtn.addEventListener('click', startGame);
+startGameBtn.addEventListener('click', () => {
+    if (currentDifficulty && selectedOperationType) {
+        startGame();
+    }
+});
 pauseGameBtn.addEventListener('click', pauseGame);
 resetGameBtn.addEventListener('click', resetGame);
 submitAnswerBtn.addEventListener('click', submitMathAnswer);
@@ -1316,12 +1326,16 @@ startPlayingBtn.addEventListener('click', () => {
     checkAndEnableStartGame();
 });
 
+closeCheatSheetBtn.addEventListener('click', () => {
+    cheatSheetModal.style.display = 'none';
+    startGame();
+});
+
 difficultyButtons.forEach(button => {
     button.addEventListener('click', () => {
         difficultyButtons.forEach(btn => btn.classList.remove('selected'));
         button.classList.add('selected');
         currentDifficulty = button.dataset.difficulty;
-        console.log('Difficulty selected:', currentDifficulty);
         updateDifficultyAndOperationDisplay();
         checkAndEnableStartGame();
     });
@@ -1332,7 +1346,6 @@ operationButtons.forEach(button => {
         operationButtons.forEach(btn => btn.classList.remove('selected'));
         button.classList.add('selected');
         selectedOperationType = button.dataset.operationType;
-        console.log('Operation selected:', selectedOperationType);
         updateDifficultyAndOperationDisplay();
         checkAndEnableStartGame();
     });
@@ -1366,8 +1379,187 @@ function updateDifficultyAndOperationDisplay() {
     }
 }
 
+function generateCheatSheetContent(operationType, difficulty) {
+    let content = '';
+    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+    switch (operationType) {
+        case 'arithmetic':
+            content = `
+                <h3>Decimal Arithmetic</h3>
+                <p>Solve basic math problems involving addition, subtraction, multiplication, and division of decimal numbers.</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Formula:</b> $A \\text{ op } B = C$</p>
+                    <p class="example"><b>Example:</b> $15 \\div 3 = ?$</p>
+                    <p class="solution"><b>Solution:</b> $15 \\div 3 = 5$</p>
+                </div>
+            `;
+            break;
+        case 'exponentiation':
+            content = `
+                <h3>Exponentiation (xⁿ)</h3>
+                <p>Calculate the power of a number.</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Formula:</b> $Base^{Exponent} = Result$</p>
+                    <p class="example"><b>Example:</b> $4^3 = ?$</p>
+                    <p class="solution"><b>Solution:</b> $4 \\times 4 \\times 4 = 64$</p>
+                </div>
+            `;
+            break;
+        case 'modulus':
+            content = `
+                <h3>Modulus (X mod Y)</h3>
+                <p>Find the remainder when one number is divided by another.</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Formula:</b> $X \\text{ mod } Y = Remainder$</p>
+                    <p class="example"><b>Example:</b> $17 \\text{ mod } 5 = ?$</p>
+                    <p class="solution"><b>Solution:</b> $17 \\div 5 = 3$ with a remainder of $2$. So, $17 \\text{ mod } 5 = 2$</p>
+                </div>
+            `;
+            break;
+        case 'absolute-value':
+            content = `
+                <h3>Absolute Value (|x|)</h3>
+                <p>The absolute value of a number is its distance from zero, always positive.</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Formula:</b> $|x| = x$ if $x \\ge 0$, and $|x| = -x$ if $x < 0$</p>
+                    <p class="example"><b>Example:</b> $|-7| = ?$</p>
+                    <p class="solution"><b>Solution:</b> The distance of $-7$ from $0$ is $7$. So, $|-7| = 7$</p>
+                </div>
+            `;
+            break;
+        case 'binary-decimal':
+            content = `
+                <h3>Binary to Decimal</h3>
+                <p>Convert a binary number (base 2) to its decimal equivalent (base 10).</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Formula:</b> $\\sum (Bit_i \\times 2^i)$</p>
+                    <p class="example"><b>Example:</b> Convert $1011_2$ to decimal</p>
+                    <p class="solution"><b>Solution:</b> $(1 \\times 2^3) + (0 \\times 2^2) + (1 \\times 2^1) + (1 \\times 2^0) = 8 + 0 + 2 + 1 = 11$</p>
+                </div>
+            `;
+            break;
+        case 'decimal-binary':
+            content = `
+                <h3>Decimal to Binary</h3>
+                <p>Convert a decimal number (base 10) to its binary equivalent (base 2).</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Method:</b> Repeated division by 2, collect remainders.</p>
+                    <p class="example"><b>Example:</b> Convert $13_{10}$ to binary</p>
+                    <p class="solution"><b>Solution:</b><br>
+                        $13 \\div 2 = 6$ R $1$<br>
+                        $6 \\div 2 = 3$ R $0$<br>
+                        $3 \\div 2 = 1$ R $1$<br>
+                        $1 \\div 2 = 0$ R $1$<br>
+                        Read remainders bottom-up: $1101_2$</p>
+                </div>
+            `;
+            break;
+        case 'linear-equation':
+            content = `
+                <h3>Solve Linear Equation</h3>
+                <p>Find the value of the unknown variable (x) in a linear equation.</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Formula:</b> $ax + b = c \\implies ax = c - b \\implies x = (c - b) / a$</p>
+                    <p class="example"><b>Example:</b> Solve for x: $3x + 5 = 14$</p>
+                    <p class="solution"><b>Solution:</b><br>
+                        $3x = 14 - 5$<br>
+                        $3x = 9$<br>
+                        $x = 9 \\div 3$<br>
+                        $x = 3$</p>
+                </div>
+            `;
+            break;
+        case 'arithmetic-mean':
+            content = `
+                <h3>Arithmetic Mean</h3>
+                <p>Calculate the average of a set of numbers.</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Formula:</b> $Mean = \\frac{\\sum (Numbers)}{Count}$</p>
+                    <p class="example"><b>Example:</b> Find the mean of $2, 4, 6$</p>
+                    <p class="solution"><b>Solution:</b> $\\frac{2 + 4 + 6}{3} = \\frac{12}{3} = 4$</p>
+                </div>
+            `;
+            break;
+        case 'standard-deviation':
+            content = `
+                <h3>Standard Deviation</h3>
+                <p>Measure of the amount of variation or dispersion of a set of values.</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Formula:</b> $\\sigma = \\sqrt{\\frac{\\sum (x_i - \\mu)^2}{N}}$</p>
+                    <p class="example"><b>Example:</b> Std. Dev. of $1, 2, 3$ (2 dec places)</p>
+                    <p class="solution"><b>Solution:</b><br>
+                        Mean ($\\mu$) = $(1+2+3)/3 = 2$<br>
+                        Variances: $(1-2)^2=1, (2-2)^2=0, (3-2)^2=1$<br>
+                        Sum of variances = $1+0+1=2$<br>
+                        Standard Deviation = $\\sqrt{2/3} \\approx 0.82$</p>
+                </div>
+            `;
+            break;
+        case 'evaluating-function':
+            content = `
+                <h3>Evaluating Function</h3>
+                <p>Substitute the given value for 'x' into the function and simplify.</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Formula:</b> $f(x) = \\text{expression}$</p>
+                    <p class="example"><b>Example:</b> Evaluate $f(x) = 2x + 3$ for $x = 4$</p>
+                    <p class="solution"><b>Solution:</b><br>
+                        $f(4) = 2(4) + 3$<br>
+                        $f(4) = 8 + 3$<br>
+                        $f(4) = 11$</p>
+                </div>
+            `;
+            break;
+        case 'fraction-decimal':
+            content = `
+                <h3>Fraction to Decimal</h3>
+                <p>Convert a fraction to its decimal equivalent by dividing the numerator by the denominator.</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Formula:</b> $\\frac{Numerator}{Denominator} = Decimal$</p>
+                    <p class="example"><b>Example:</b> Convert $3/4$ to decimal</p>
+                    <p class="solution"><b>Solution:</b> $3 \\div 4 = 0.75$</p>
+                </div>
+            `;
+            break;
+        case 'simple-interest':
+            content = `
+                <h3>Simple Interest</h3>
+                <p>Calculate the total amount after simple interest is applied.</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Formula:</b> $I = PRT$, $A = P + I$ (where R is decimal rate)</p>
+                    <p class="example"><b>Example:</b> P=$1000, R=5%, T=2 yrs. Simple Interest Total?</p>
+                    <p class="solution"><b>Solution:</b><br>
+                        $I = 1000 \\times (5/100) \\times 2 = 100$<br>
+                        $A = 1000 + 100 = 1100$</p>
+                </div>
+            `;
+            break;
+        case 'compound-interest':
+            content = `
+                <h3>Compound Interest</h3>
+                <p>Calculate the total amount after compound interest is applied.</p>
+                <div class="formula-example">
+                    <p class="formula"><b>Formula:</b> $A = P(1 + \\frac{R}{N})^{NT}$</p>
+                    <p class="example"><b>Example:</b> P=$1000, R=5%, T=2 yrs, annually. Comp. Int. Total?</p>
+                    <p class="solution"><b>Solution:</b><br>
+                        $A = 1000(1 + \\frac{0.05}{1})^{1 \\times 2}$<br>
+                        $A = 1000(1.05)^2$<br>
+                        $A = 1000 \\times 1.1025 = 1102.50$</p>
+                </div>
+            `;
+            break;
+        default:
+            content = `
+                <h3>Welcome to SnakeMeetsMath!</h3>
+                <p>Select a problem type and difficulty to see specific formulas and examples.</p>
+                <p>Then, click "Got It! Start Game" to begin your challenge!</p>
+            `;
+            break;
+    }
+    cheatSheetContent.innerHTML = content;
+}
+
 function checkAndEnableStartGame() {
-    console.log('Checking game start:', 'Difficulty:', currentDifficulty, 'Operation:', selectedOperationType);
     if (currentDifficulty && selectedOperationType) {
         startGameBtn.disabled = false;
         const selectedProblemText = document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent;
@@ -1379,6 +1571,10 @@ function checkAndEnableStartGame() {
         if (highScoreContainer) {
             highScoreContainer.style.display = 'flex';
         }
+        
+        generateCheatSheetContent(selectedOperationType, currentDifficulty);
+        cheatSheetModal.style.display = 'flex';
+        startGameBtn.style.display = 'none'; // Hide the start button on the main panel
     } else {
         startGameBtn.disabled = true;
         if (highScoreContainer) {
@@ -1393,6 +1589,8 @@ function checkAndEnableStartGame() {
             const difficultyText = currentDifficulty ? currentDifficulty.toUpperCase() : 'a difficulty';
             setMessage(`Difficulty set to **${difficultyText}**. Now choose a **problem type**.`);
         }
+        cheatSheetModal.style.display = 'none';
+        startGameBtn.style.display = 'inline-block'; // Show the start button on the main panel
     }
 }
 
@@ -1425,6 +1623,5 @@ installButton.addEventListener('click', () => {
 });
 
 window.onload = function() {
-    console.log('Script loaded and window.onload fired.');
     welcomeModal.style.display = 'flex';
 };
