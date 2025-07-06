@@ -76,10 +76,10 @@ function initializeGame() {
     direction = 'right';
     score = 0;
     scoreDisplay.textContent = score;
-    if (highScoreDisplay) { // Robustness check
+    if (highScoreDisplay) {
         highScoreDisplay.textContent = 0;
     }
-    if (highScoreContainer) { // Robustness check
+    if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
     }
     
@@ -271,7 +271,7 @@ function startGame() {
     operationSelectionPanel.style.display = 'none';
     canvas.style.display = 'block';
     scoreDisplay.parentElement.style.display = 'flex';
-    if (highScoreContainer) { // Robustness check
+    if (highScoreContainer) {
         highScoreContainer.style.display = 'flex';
     }
     gameInterval = setInterval(moveSnake, GAME_SPEED);
@@ -335,7 +335,7 @@ function endGame() {
     customKeyboard.style.display = 'none';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
-    if (highScoreContainer) { // Robustness check
+    if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
     }
 
@@ -999,7 +999,7 @@ function startChallenge() {
     customKeyboard.style.display = 'flex';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
-    if (highScoreContainer) { // Robustness check
+    if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
     }
     pauseGameBtn.style.display = 'none';
@@ -1144,7 +1144,7 @@ function submitMathAnswer() {
         if (!highScores[highScoreKey] || score > highScores[highScoreKey]) {
             highScores[highScoreKey] = score;
             localStorage.setItem('mathSnakeHighScores', JSON.stringify(highScores));
-            if (highScoreDisplay) { // Robustness check
+            if (highScoreDisplay) {
                 highScoreDisplay.textContent = highScores[highScoreKey];
             }
         }
@@ -1156,7 +1156,7 @@ function submitMathAnswer() {
         customKeyboard.style.display = 'none';
         canvas.style.display = 'block';
         scoreDisplay.parentElement.style.display = 'flex';
-        if (highScoreContainer) { // Robustness check
+        if (highScoreContainer) {
             highScoreContainer.style.display = 'flex';
         }
         pauseGameBtn.style.display = 'none';
@@ -1299,7 +1299,8 @@ difficultyButtons.forEach(button => {
         difficultyButtons.forEach(btn => btn.classList.remove('selected'));
         button.classList.add('selected');
         currentDifficulty = button.dataset.difficulty;
-        checkAndEnableStartGame(); // This will now handle the message
+        console.log('Difficulty selected:', currentDifficulty);
+        checkAndEnableStartGame();
     });
 });
 
@@ -1308,7 +1309,8 @@ operationButtons.forEach(button => {
         operationButtons.forEach(btn => btn.classList.remove('selected'));
         button.classList.add('selected');
         selectedOperationType = button.dataset.operationType;
-        checkAndEnableStartGame(); // This will now handle the message
+        console.log('Operation selected:', selectedOperationType);
+        checkAndEnableStartGame();
     });
 });
 
@@ -1330,10 +1332,10 @@ function updateDifficultyAndOperationDisplay() {
     });
 
     const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
-    if (highScoreDisplay) { // Robustness check
+    if (highScoreDisplay) {
         highScoreDisplay.textContent = highScores[highScoreKey] || 0;
     }
-    if (currentDifficulty && selectedOperationType && highScoreContainer) { // Robustness check
+    if (currentDifficulty && selectedOperationType && highScoreContainer) {
         highScoreContainer.style.display = 'flex';
     } else if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
@@ -1341,28 +1343,28 @@ function updateDifficultyAndOperationDisplay() {
 }
 
 function checkAndEnableStartGame() {
+    console.log('Checking game start:', 'Difficulty:', currentDifficulty, 'Operation:', selectedOperationType);
     if (currentDifficulty && selectedOperationType) {
         startGameBtn.disabled = false;
         const selectedProblemText = document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent;
         setMessage(`Ready to play! Selected: **${selectedProblemText}** at **${currentDifficulty.toUpperCase()}** difficulty. Click **Start Game**.`);
         const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
-        if (highScoreDisplay) { // Robustness check
+        if (highScoreDisplay) {
             highScoreDisplay.textContent = highScores[highScoreKey] || 0;
         }
-        if (highScoreContainer) { // Robustness check
+        if (highScoreContainer) {
             highScoreContainer.style.display = 'flex';
         }
     } else {
         startGameBtn.disabled = true;
-        if (highScoreContainer) { // Robustness check
+        if (highScoreContainer) {
             highScoreContainer.style.display = 'none';
         }
-        // Keep the initial welcome message or prompt for remaining selection
         if (!currentDifficulty && !selectedOperationType) {
             setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
         } else if (!currentDifficulty) {
             setMessage(`Problem type set to **${document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent.toUpperCase()}**. Now choose a **difficulty**.`);
-        } else { // !selectedOperationType
+        } else {
             setMessage(`Difficulty set to **${currentDifficulty.toUpperCase()}**. Now choose a **problem type**.`);
         }
     }
