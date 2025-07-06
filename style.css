@@ -312,6 +312,31 @@ details[open] > summary.operation-category-summary::after {
     background-color: var(--red-alert-dark);
 }
 
+.info-btn {
+    position: absolute;
+    right: 20px;
+    bottom: 10px;
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #60a5fa;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.info-btn:hover {
+    background-color: #3b82f6;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+.info-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
 .modal {
     position: fixed;
     top: 0;
@@ -336,6 +361,34 @@ details[open] > summary.operation-category-summary::after {
     transform: scale(0.9);
     animation: modalPopIn 0.3s forwards cubic-bezier(0.2, 0.8, 0.2, 1.2);
 }
+.welcome-modal-content {
+    background: linear-gradient(135deg, #a7e4e1, #c7ecec);
+    border: 2px solid #81e6d9;
+    color: #334155;
+}
+.welcome-modal-content h2 {
+    color: #0d9488;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+.welcome-modal-content p {
+    color: #475569;
+    font-size: 1.1rem;
+}
+.welcome-modal-content .developer-greeting {
+    font-style: italic;
+    margin-top: 15px;
+    font-size: 0.95rem;
+    color: #5b21b6;
+    font-weight: bold;
+}
+.welcome-modal-content .btn {
+    margin-top: 25px;
+    background-color: var(--green-submit);
+}
+.welcome-modal-content .btn:hover {
+    background-color: var(--green-submit-dark);
+}
+
 @keyframes modalPopIn {
     to {
         transform: scale(1);
@@ -391,8 +444,18 @@ details[open] > summary.operation-category-summary::after {
 footer {
     flex-shrink: 0;
     margin-top: 25px;
-    padding-bottom: 10px;
+    padding: 10px;
     color: var(--text-secondary);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+footer #footer-text {
+    flex-grow: 1;
+    text-align: center;
 }
 
 .custom-keyboard {
@@ -463,14 +526,14 @@ input[type="number"] {
         padding: 20px;
         height: 100%;
         width: 100%;
-        max-width: none; /* Allow it to stretch across the full width */
-        margin: 0; /* Remove auto margin to allow full width */
+        max-width: none;
+        margin: 0;
     }
 
     .game-panel {
         flex-grow: 2;
         flex-basis: 0;
-        max-width: none; /* Allow it to grow */
+        max-width: none;
         width: auto;
         gap: 15px;
         max-height: calc(100vh - 90px);
@@ -496,7 +559,7 @@ input[type="number"] {
     .right-panel {
         flex-grow: 1;
         flex-basis: 0;
-        max-width: none; /* Allow it to grow */
+        max-width: none;
         width: auto;
         padding-top: 0;
         gap: 15px;
