@@ -710,35 +710,28 @@ function generateBinaryToDecimalProblem() {
 
 function generateBinaryAdditionProblem() {
     let binaryNum1, binaryNum2, sumBinary;
-    const maxLength = (currentDifficulty === 'easy' ? 4 :
-                                 currentDifficulty === 'medium' ? 6 :
-                                 currentDifficulty === 'hard' ? 8 : 10);
-    const MAX_ATTEMPTS = 100;
-    let attempts = 0;
-    let problemGenerated = false;
+    
+    
+    const bit1 = Math.random() < 0.5 ? '0' : '1';
+    const bit2 = Math.random() < 0.5 ? '0' : '1';
 
-    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
-        attempts++;
-        let dec1 = generateRandomNum(1, Math.pow(2, maxLength) - 1);
-        let dec2 = generateRandomNum(1, Math.pow(2, maxLength) - 1);
+    binaryNum1 = bit1;
+    binaryNum2 = bit2;
 
-        binaryNum1 = decToBin(dec1);
-        binaryNum2 = decToBin(dec2);
+    const dec1 = parseInt(bit1, 2);
+    const dec2 = parseInt(bit2, 2);
+    const sumDec = dec1 + dec2;
+    sumBinary = sumDec.toString(2);
 
-        let sumDec = dec1 + dec2;
-        sumBinary = decToBin(sumDec);
-
-        if (sumBinary.length <= maxLength + 1) { 
-            problemGenerated = true;
-        }
+  
+    if (bit1 === '1' && bit2 === '1') {
+        sumBinary = '10';
+    } else if (bit1 === '0' && bit2 === '0') {
+        sumBinary = '0';
+    } else {
+        sumBinary = '1';
     }
 
-    if (!problemGenerated) {
-        binaryNum1 = '10';
-        binaryNum2 = '11';
-        sumBinary = '101';
-        setMessage('Binary Addition problem generation fallback. Please continue.');
-    }
 
     mathProblemDisplay.textContent = `Add binary: ${binaryNum1} + ${binaryNum2} = ?`;
     correctMathAnswer = sumBinary;
@@ -1492,15 +1485,17 @@ function generateCheatSheetContent(operationType, difficulty) {
             break;
         case 'binary-addition':
             content = `
-                <h3>Binary Addition</h3>
-                <p>Add two binary numbers. Remember, $0+0=0$, $0+1=1$, $1+0=1$, $1+1=0$ (carry $1$).</p>
+                <h3>Binary Addition (0s and 1s)</h3>
+                <p>Add two binary bits. Remember the rules:</p>
+                <ul>
+                    <li>$0 + 0 = 0$</li>
+                    <li>$0 + 1 = 1$</li>
+                    <li>$1 + 0 = 1$</li>
+                    <li>$1 + 1 = 10$ (which is $0$ with a carry of $1$)</li>
+                </ul>
                 <div class="formula-example">
-                    <p class="example"><b>Example:</b> Add binary $101_2 + 011_2 = ?$</p>
-                    <p class="solution"><b>Solution:</b><br>
-                        &nbsp;&nbsp; $101$<br>
-                        $+ 011$<br>
-                        -----<br>
-                        $1000$ (as $1+1=0$ carry $1$, etc.)</p>
+                    <p class="example"><b>Example:</b> Add binary $1 + 1 = ?$</p>
+                    <p class="solution"><b>Solution:</b> $1 + 1 = 10_2$</p>
                 </div>
             `;
             break;
