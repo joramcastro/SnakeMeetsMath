@@ -976,7 +976,7 @@ function generateCompoundInterestProblem() {
         attempts++;
         principal = generateRandomNum(1, currentDifficulty === 'easy' ? 5 : currentDifficulty === 'medium' ? 10 : currentDifficulty === 'hard' ? 20 : 50) * 1000;
         rate = getRate(currentDifficulty === 'easy' ? 2 : currentDifficulty === 'medium' ? 4 : currentDifficulty === 'hard' ? 6 : 8,
-                                 currentDifficulty === 'easy' ? 8 : currentDifficulty === 'medium' ? 12 : currentDifficulty === 'hard' ? 18 : 25);
+                                     currentDifficulty === 'easy' ? 8 : currentDifficulty === 'medium' ? 12 : currentDifficulty === 'hard' ? 18 : 25);
         time = generateRandomNum(1, currentDifficulty === 'easy' ? 3 : currentDifficulty === 'medium' ? 6 : currentDifficulty === 'hard' ? 10 : 15);
         periods = getPeriods(currentDifficulty);
 
@@ -1389,7 +1389,6 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Decimal Arithmetic</h3>
                 <p>Solve problems using addition, subtraction, multiplication, and division.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $A \\text{ op } B = C$</p>
                     <p class="example"><b>Example:</b> $15 \\div 3 = ?$</p>
                     <p class="solution"><b>Solution:</b> $15 \\div 3 = 5$</p>
                 </div>
@@ -1400,7 +1399,6 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Exponentiation (xⁿ)</h3>
                 <p>Multiply a number by itself a certain number of times.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $Base^{Exponent} = Result$</p>
                     <p class="example"><b>Example:</b> $4^3 = ?$</p>
                     <p class="solution"><b>Solution:</b> $4 \\times 4 \\times 4 = 64$</p>
                 </div>
@@ -1411,7 +1409,6 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Modulus (X mod Y)</h3>
                 <p>Find the remainder after dividing one number by another.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $X \\text{ mod } Y = Remainder$</p>
                     <p class="example"><b>Example:</b> $17 \\text{ mod } 5 = ?$</p>
                     <p class="solution"><b>Solution:</b> $17 \\div 5 = 3$ with a remainder of $2$. So, $17 \\text{ mod } 5 = 2$</p>
                 </div>
@@ -1422,7 +1419,6 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Absolute Value (|x|)</h3>
                 <p>The absolute value is how far a number is from zero, always a positive value.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $|x| = x$ if $x \\ge 0$, and $|x| = -x$ if $x < 0$</p>
                     <p class="example"><b>Example:</b> $|-7| = ?$</p>
                     <p class="solution"><b>Solution:</b> The distance of $-7$ from $0$ is $7$. So, $|-7| = 7$</p>
                 </div>
@@ -1433,7 +1429,6 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Binary to Decimal</h3>
                 <p>Convert a binary number (using only 0s and 1s) to its regular decimal number.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $\\sum (Bit_i \\times 2^i)$</p>
                     <p class="example"><b>Example:</b> Convert $1011_2$ to decimal</p>
                     <p class="solution"><b>Solution:</b> $(1 \\times 2^3) + (0 \\times 2^2) + (1 \\times 2^1) + (1 \\times 2^0) = 8 + 0 + 2 + 1 = 11$</p>
                 </div>
@@ -1444,7 +1439,6 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Decimal to Binary</h3>
                 <p>Convert a regular decimal number to its binary equivalent (using only 0s and 1s).</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Method:</b> Repeatedly divide by 2 and collect the remainders from bottom to top.</p>
                     <p class="example"><b>Example:</b> Convert $13_{10}$ to binary</p>
                     <p class="solution"><b>Solution:</b><br>
                         $13 \\div 2 = 6$ R $1$<br>
@@ -1460,7 +1454,6 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Solve Linear Equation</h3>
                 <p>Find the value of 'x' in an equation like $ax + b = c$.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $ax + b = c \\implies ax = c - b \\implies x = (c - b) / a$</p>
                     <p class="example"><b>Example:</b> Solve for x: $3x + 5 = 14$</p>
                     <p class="solution"><b>Solution:</b><br>
                         $3x = 14 - 5$<br>
@@ -1475,7 +1468,6 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Arithmetic Mean</h3>
                 <p>Calculate the average of a set of numbers.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $Mean = \\frac{\\text{Sum of Numbers}}{\\text{Count of Numbers}}$</p>
                     <p class="example"><b>Example:</b> Find the mean of $2, 4, 6$</p>
                     <p class="solution"><b>Solution:</b> $\\frac{2 + 4 + 6}{3} = \\frac{12}{3} = 4$</p>
                 </div>
@@ -1486,13 +1478,12 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Standard Deviation</h3>
                 <p>Measures how spread out numbers are from the average.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $\\sigma = \\sqrt{\\frac{\\sum (x_i - \\mu)^2}{N}}$</p>
                     <p class="example"><b>Example:</b> Std. Dev. of $1, 2, 3$ (2 dec places)</p>
                     <p class="solution"><b>Solution:</b><br>
                         Mean ($\\mu$) = $(1+2+3)/3 = 2$<br>
                         Differences squared: $(1-2)^2=1, (2-2)^2=0, (3-2)^2=1$<br>
                         Sum of differences squared = $1+0+1=2$<br>
-                        Standard Deviation = $\\sqrt{2/3} \\approx 0.82$</p>
+                        Standard Deviation = $\\sqrt{2 \\div 3} \\approx 0.82$</p>
                 </div>
             `;
             break;
@@ -1501,7 +1492,6 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Evaluating Function</h3>
                 <p>Replace 'x' with a given number in the function and calculate the result.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $f(x) = \\text{expression}$</p>
                     <p class="example"><b>Example:</b> Evaluate $f(x) = 2x + 3$ for $x = 4$</p>
                     <p class="solution"><b>Solution:</b><br>
                         $f(4) = 2(4) + 3$<br>
@@ -1515,7 +1505,6 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Fraction to Decimal</h3>
                 <p>Convert a fraction to a decimal by dividing the top number (numerator) by the bottom number (denominator).</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $\\frac{Numerator}{Denominator} = Decimal$</p>
                     <p class="example"><b>Example:</b> Convert $3/4$ to decimal</p>
                     <p class="solution"><b>Solution:</b> $3 \\div 4 = 0.75$</p>
                 </div>
@@ -1526,11 +1515,10 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Simple Interest</h3>
                 <p>Calculate the total amount you'll have after earning simple interest.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> Interest ($I$) = Principal ($P$) $\\times$ Rate ($R$) $\\times$ Time ($T$), Total Amount ($A$) = $P + I$</p>
                     <p class="example"><b>Example:</b> P=₱1000, R=5%, T=2 yrs. Simple Interest Total?</p>
                     <p class="solution"><b>Solution:</b><br>
-                        $I = ₱1000 \\times (5/100) \\times 2 = ₱100$<br>
-                        $A = ₱1000 + ₱100 = ₱1100$</p>
+                        Interest ($I$) = $₱1000 \\times (5 \\div 100) \\times 2 = ₱100$<br>
+                        Total Amount ($A$) = $₱1000 + ₱100 = ₱1100$</p>
                 </div>
             `;
             break;
@@ -1539,11 +1527,9 @@ function generateCheatSheetContent(operationType, difficulty) {
                 <h3>Compound Interest</h3>
                 <p>Calculate the total amount you'll have when interest is earned on both the original amount and accumulated interest.</p>
                 <div class="formula-example">
-                    <p class="formula"><b>Formula:</b> $A = P(1 + \\frac{R}{N})^{NT}$ <br>
-                    $P = \\text{Principal, } R = \\text{Annual Rate (decimal), } N = \\text{Times Compounded per year, } T = \\text{Time (years)}$</p>
                     <p class="example"><b>Example:</b> P=₱1000, R=5%, T=2 yrs, annually. Comp. Int. Total?</p>
                     <p class="solution"><b>Solution:</b><br>
-                        $A = ₱1000(1 + \\frac{0.05}{1})^{1 \\times 2}$<br>
+                        $A = ₱1000(1 + (0.05 \\div 1))^{1 \\times 2}$<br>
                         $A = ₱1000(1.05)^2$<br>
                         $A = ₱1000 \\times 1.1025 = ₱1102.50$</p>
                 </div>
@@ -1552,7 +1538,7 @@ function generateCheatSheetContent(operationType, difficulty) {
         default:
             content = `
                 <h3>Welcome to SnakeMeetsMath!</h3>
-                <p>Select a problem type and difficulty to see specific formulas and examples.</p>
+                <p>Select a problem type and difficulty to see specific examples.</p>
                 <p>Then, click "Got It! Start Game" to begin your challenge!</p>
             `;
             break;
