@@ -734,9 +734,9 @@ function generateBinaryAdditionProblem() {
     }
 
     if (!problemGenerated) {
-        binaryNum1 = '10'; // 2
-        binaryNum2 = '11'; // 3
-        sumBinary = '101'; // 5
+        binaryNum1 = '10';
+        binaryNum2 = '11';
+        sumBinary = '101';
         setMessage('Binary Addition problem generation fallback. Please continue.');
     }
 
