@@ -708,6 +708,44 @@ function generateBinaryToDecimalProblem() {
     mathAnswerInput.value = '';
 }
 
+function generateBinaryAdditionProblem() {
+    let binaryNum1, binaryNum2, sumBinary;
+    const maxLength = (currentDifficulty === 'easy' ? 4 :
+                                 currentDifficulty === 'medium' ? 6 :
+                                 currentDifficulty === 'hard' ? 8 : 10);
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        let dec1 = generateRandomNum(1, Math.pow(2, maxLength) - 1);
+        let dec2 = generateRandomNum(1, Math.pow(2, maxLength) - 1);
+
+        binaryNum1 = decToBin(dec1);
+        binaryNum2 = decToBin(dec2);
+
+        let sumDec = dec1 + dec2;
+        sumBinary = decToBin(sumDec);
+
+        if (sumBinary.length <= maxLength + 1) { 
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        binaryNum1 = '10'; // 2
+        binaryNum2 = '11'; // 3
+        sumBinary = '101'; // 5
+        setMessage('Binary Addition problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Add binary: ${binaryNum1} + ${binaryNum2} = ?`;
+    correctMathAnswer = sumBinary;
+    mathAnswerInput.value = '';
+}
+
+
 function generateLinearEquationProblem() {
     let a, b, c, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
@@ -1038,6 +1076,9 @@ function startChallenge() {
         case 'decimal-binary':
             generateDecimalToBinaryProblem();
             break;
+        case 'binary-addition':
+            generateBinaryAdditionProblem();
+            break;
         case 'linear-equation':
             generateLinearEquationProblem();
             break;
@@ -1075,7 +1116,7 @@ function startChallenge() {
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
     
     lastProblemText = mathProblemDisplay.textContent;
-    lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-decimal') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
+    lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-decimal' || selectedOperationType === 'binary-addition') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
 
     startMathTimer();
     setMessage('Answer the problem to proceed!');
@@ -1114,10 +1155,10 @@ function submitMathAnswer() {
         return;
     }
 
-    if (selectedOperationType === 'decimal-binary') {
+    if (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') {
         userAnswer = userAnswerRaw;
         if (!/^[01]+$/.test(userAnswer)) {
-            setMessage('For Binary conversion, please enter only 0s and 1s!');
+            setMessage('For Binary conversion/addition, please enter only 0s and 1s!');
             mathAnswerInput.value = '';
             mathAnswerInput.focus();
             return;
@@ -1132,7 +1173,7 @@ function submitMathAnswer() {
         }
     }
     
-    const isCorrect = (selectedOperationType === 'decimal-binary') ?
+    const isCorrect = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') ?
                         userAnswer === correctMathAnswer :
                         userAnswer === parseFloat(correctMathAnswer.toFixed(2));
 
@@ -1187,7 +1228,7 @@ function submitMathAnswer() {
 function handleKeyboardInput(value) {
     if (!awaitingMathAnswer) return;
 
-    if (selectedOperationType === 'decimal-binary') {
+    if (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') {
         if (value === 'clear') {
             mathAnswerInput.value = '';
         } else if (value === 'backspace') {
@@ -1446,6 +1487,20 @@ function generateCheatSheetContent(operationType, difficulty) {
                         $3 \\div 2 = 1$ R $1$<br>
                         $1 \\div 2 = 0$ R $1$<br>
                         Read remainders bottom-up: $1101_2$</p>
+                </div>
+            `;
+            break;
+        case 'binary-addition':
+            content = `
+                <h3>Binary Addition</h3>
+                <p>Add two binary numbers. Remember, $0+0=0$, $0+1=1$, $1+0=1$, $1+1=0$ (carry $1$).</p>
+                <div class="formula-example">
+                    <p class="example"><b>Example:</b> Add binary $101_2 + 011_2 = ?$</p>
+                    <p class="solution"><b>Solution:</b><br>
+                        &nbsp;&nbsp; $101$<br>
+                        $+ 011$<br>
+                        -----<br>
+                        $1000$ (as $1+1=0$ carry $1$, etc.)</p>
                 </div>
             `;
             break;
