@@ -33,9 +33,17 @@
                 <div class="operation-selection-panel" id="operation-selection-panel">
                     <h2>Choose Problem Type:</h2>
 
-                    <details open> <summary class="operation-category-summary">Basic & Advanced Arithmetic</summary>
+                    <details open> <summary class="operation-category-summary">Decimal Basic Arithmetic</summary>
                         <div class="operation-buttons">
-                            <button class="btn operation-btn" data-operation-type="arithmetic">Decimal Arithmetic</button>
+                            <button class="btn operation-btn" data-operation-type="decimal-addition">Addition</button>
+                            <button class="btn operation-btn" data-operation-type="decimal-subtraction">Subtraction</button>
+                            <button class="btn operation-btn" data-operation-type="decimal-multiplication">Multiplication</button>
+                            <button class="btn operation-btn" data-operation-type="decimal-division">Division</button>
+                        </div>
+                    </details>
+
+                    <details> <summary class="operation-category-summary">Decimal Advanced Arithmetic</summary>
+                        <div class="operation-buttons">
                             <button class="btn operation-btn" data-operation-type="exponentiation">Exponentiation (xⁿ)</button>
                             <button class="btn operation-btn" data-operation-type="modulus">Modulus (X mod Y)</button>
                             <button class="btn operation-btn" data-operation-type="absolute-value">Absolute Value (|x|)</button>
@@ -48,6 +56,9 @@
                             <button class="btn operation-btn" data-operation-type="binary-decimal">Binary to Decimal</button>
                             <button class="btn operation-btn" data-operation-type="decimal-binary">Decimal to Binary</button>
                             <button class="btn operation-btn" data-operation-type="binary-addition">Binary Addition</button>
+                            <button class="btn operation-btn" data-operation-type="binary-subtraction">Binary Subtraction</button>
+                            <button class="btn operation-btn" data-operation-type="binary-multiplication">Binary Multiplication</button>
+                            <button class="btn operation-btn" data-operation-type="binary-division">Binary Division</button>
                         </div>
                     </details>
 
@@ -149,7 +160,7 @@
 
     <div id="cheatSheetModal" class="modal" style="display:none;">
         <div class="modal-content cheat-sheet-modal-content">
-            <h2 class="font-press-start-2p">SOLUTION GUIDE</h2>
+            <h2 class="font-press-start-2p">Cheat Sheet</h2>
             <div id="cheatSheetContent" class="cheat-sheet-content">
                 </div>
             <button id="closeCheatSheetBtn" class="btn">Got It! Start Game</button>
