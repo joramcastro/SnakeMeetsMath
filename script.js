@@ -1236,7 +1236,10 @@ function startChallenge() {
     if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
     }
-    pauseGameBtn.style.display = 'none';
+    // Move pause button to math challenge area for conditional display
+    controlPanel.style.display = 'flex'; // Ensure control panel is visible
+    pauseGameBtn.style.display = 'none'; // Initially hide pause button
+    resetGameBtn.style.display = 'none'; // Hide reset button during math challenge
 
     let allowDecimalInput = false;
 
@@ -1311,6 +1314,7 @@ function startMathTimer() {
         timeLeftForMath--;
         timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
 
+        // Show pause button if time is 10s or less AND player has points
         if (timeLeftForMath <= 10 && !isPaused && score > 0) {
             pauseGameBtn.style.display = 'inline-block';
         } else {
@@ -1401,7 +1405,7 @@ function submitMathAnswer() {
         if (highScoreContainer) {
             highScoreContainer.style.display = 'flex';
         }
-        pauseGameBtn.style.display = 'none';
+        pauseGameBtn.style.display = 'none'; // Hide pause button after challenge
 
         gameInterval = setInterval(moveSnake, GAME_SPEED);
         generateFood();
