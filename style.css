@@ -22,50 +22,54 @@
     --shadow-heavy: rgba(0, 0, 0, 0.3);
 }
 
+/* Ensure html and body take up 100% of the viewport */
 html, body {
-    height: 100%; /* Make html and body fill viewport height */
-    width: 100%; /* Make html and body fill viewport width */
+    height: 100%;
+    width: 100%;
     margin: 0;
-    padding: 0; /* Remove padding from body to truly use 100% */
-    overflow: hidden; /* Prevent overall scrolling */
+    padding: 0; /* Remove body padding */
+    overflow: hidden; /* Prevent native scrollbars */
 }
 
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
     display: flex;
-    flex-direction: column; /* Start with column for small screens */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     color: var(--text-primary);
     box-sizing: border-box;
 }
 
+/* Main wrapper to occupy entire available space */
 .main-wrapper {
     display: flex;
-    flex-direction: column; /* Default to column */
+    flex-direction: column; /* Stacks contents vertically by default */
     align-items: center;
-    width: 100%; /* Take full width */
-    height: 100%; /* Take full height within body */
-    max-width: none; /* Remove any max-width constraints */
-    flex-grow: 1; /* Allow it to grow */
-    padding: 10px; /* Add some padding here for inner spacing */
+    width: 100%;
+    height: 100%; /* Fill height */
+    max-width: none; /* Remove horizontal limits */
+    flex-grow: 1;
+    padding: 10px; /* Add some overall padding for the content inside */
     box-sizing: border-box;
 }
 
+/* Main content wrapper to also occupy entire available space */
 .main-content-wrapper {
     display: flex;
     flex-direction: column; /* Default to column for small screens */
     gap: 20px;
-    width: 100%; /* Take full width */
-    height: 100%; /* Take full height */
+    width: 100%;
+    height: 100%; /* Fill height */
     box-sizing: border-box;
     padding: 0; /* No internal padding here, main-wrapper has it */
-    flex-grow: 1; /* Allow it to grow */
-    justify-content: center; /* Center content vertically in single column */
-    align-items: center; /* Center content horizontally in single column */
+    flex-grow: 1;
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
 }
 
+/* Game Panel - Make it the primary full-screen element */
 .game-panel {
     display: flex;
     flex-direction: column;
@@ -75,29 +79,36 @@ body {
     background-color: var(--bg-light);
     border-radius: 20px;
     box-shadow: 0 18px 45px var(--shadow-heavy);
-    width: 100%; /* Takes full width available in column */
-    max-width: 450px; /* Keep a max-width for aesthetic on mobile */
+    width: 100%; /* Take full width of its parent */
+    height: 100%; /* Take full height of its parent */
+    max-width: none; /* Remove fixed max-width */
+    max-height: none; /* Remove fixed max-height */
     box-sizing: border-box;
     border: 2px solid var(--bg-gradient-start);
     transition: all 0.3s ease;
-    flex-shrink: 0; /* Prevent it from shrinking too much when space is tight */
-    margin: auto; /* Center it horizontally within the column */
+    flex-shrink: 1; /* Allow to shrink if content overflows slightly */
+    overflow-y: auto; /* Allow scrolling if its internal content is too tall */
 }
 .game-panel:hover {
     transform: translateY(-3px);
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
 }
 
+/* Right Panel - Will only be visible when math challenge is active.
+   It should also take full available space, essentially overlaying/replacing the game panel area. */
 .right-panel {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    width: 100%; /* Takes full width available in column */
-    max-width: 180px; /* Keep a max-width for aesthetic on mobile */
+    width: 100%;
+    height: 100%; /* Fill height when active */
+    max-width: none; /* Remove fixed max-width */
     box-sizing: border-box;
-    flex-shrink: 0; /* Prevent it from shrinking too much when space is tight */
-    margin: auto; /* Center it horizontally within the column */
+    flex-grow: 1;
+    justify-content: center; /* Vertically center content */
+    align-items: center; /* Horizontally center content */
+    /* When active, it will essentially fill the same space as game-panel */
 }
 
 /* Canvas styling - REMOVED fixed width/height properties */
@@ -110,10 +121,10 @@ canvas {
     box-shadow: 0 10px 25px var(--shadow-medium);
     transition: transform 0.3s ease;
     /* JS will set actual width/height attributes */
-    /* Ensure it scales without distortion */
-    max-width: 100%; /* Max width relative to its parent */
-    max-height: 100%; /* Max height relative to its parent */
-    object-fit: contain; /* Maintain aspect ratio without stretching */
+    /* Ensure it scales visually without distortion, but JS controls resolution */
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
 canvas:hover {
     transform: translateY(-8px);
@@ -243,7 +254,7 @@ details[open] > summary.operation-category-summary::after {
     color: #0d9488;
     box-shadow: 0 6px 20px rgba(0,0,0,0.2);
     border: 2px dashed #64748b;
-    flex-shrink: 0; /* Prevents shrinking too much */
+    flex-shrink: 0;
 }
 
 .math-challenge input {
@@ -319,7 +330,9 @@ details[open] > summary.operation-category-summary::after {
 }
 
 .info-btn {
-    position: absolute; /* Kept for general placement, but consider if it should be outside main-wrapper */
+    /* If this button should always be visible regardless of panel,
+       it might need to be outside main-wrapper in HTML and position: fixed */
+    position: absolute;
     right: 20px;
     bottom: 10px;
     width: 35px;
@@ -375,7 +388,7 @@ details[open] > summary.operation-category-summary::after {
 .welcome-modal-content h2 {
     color: #0d9488;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    font-size: 2.5rem; /* Revert to original size or adjust for welcome modal specifically if needed */
+    font-size: 2.5rem;
 }
 .welcome-modal-content p {
     color: #475569;
@@ -476,7 +489,7 @@ footer #footer-text {
     width: 100%;
     max-width: 180px; /* This can be adjusted further */
     margin-top: 0;
-    flex-shrink: 0; /* Prevents shrinking too much */
+    flex-shrink: 0;
 }
 
 .keyboard-row {
@@ -624,63 +637,66 @@ input[type="number"] {
 }
 
 
+/* Media query for larger screens: Desktop/Tablet Landscape */
 @media (min-width: 768px) {
-    /* Main container should now use flex for row layout */
+    /* Main content wrapper shifts to row layout */
     .main-content-wrapper {
         flex-direction: row;
-        align-items: center; /* Vertically center content when in row mode */
-        justify-content: center; /* Horizontally center content when in row mode */
-        padding: 20px; /* Add overall padding for desktop */
-        flex-wrap: nowrap; /* Prevent wrapping in row layout */
+        align-items: stretch; /* Stretch items to fill height */
+        justify-content: center;
+        padding: 20px;
+        flex-wrap: nowrap;
+        height: 100%; /* Ensure it takes full height */
     }
 
-    /* Game Panel takes a larger flexible share */
+    /* Game Panel to occupy most of the width */
     .game-panel {
-        flex-grow: 2; /* Takes 2 parts of the available space */
-        flex-shrink: 1; /* Can shrink if needed */
-        flex-basis: auto; /* Base size adapts to content */
-        max-width: 700px; /* Max width to prevent it from getting too wide */
-        height: 100%; /* Make it fill height of its parent (main-content-wrapper) */
-        margin: 0; /* Remove auto margins to let flex handle spacing */
-        max-height: none; /* Remove fixed max-height if it prevents full fill */
-        overflow-y: auto; /* Re-enable scrolling if content overflows vertically */
-    }
-
-    /* Right Panel takes a smaller flexible share */
-    .right-panel {
-        flex-grow: 1; /* Takes 1 part of the available space */
-        flex-shrink: 1; /* Can shrink if needed */
-        flex-basis: auto; /* Base size adapts to content */
-        max-width: 400px; /* Max width to prevent it from getting too wide */
-        height: 100%; /* Make it fill height of its parent (main-content-wrapper) */
-        margin: 0; /* Remove auto margins */
-        display: flex;
-        flex-direction: column;
-        justify-content: center; /* Vertically center content within right panel */
-        align-items: center; /* Horizontally center content within right panel */
-    }
-
-    /* Ensure canvas fills available space within its flexible parent */
-    canvas {
-        flex-grow: 1; /* Allow canvas to grow and take space */
+        flex-grow: 2; /* Takes a larger share */
         flex-shrink: 1;
         flex-basis: auto;
-        margin: auto; /* Keep centering within its container */
+        max-width: 75%; /* Limit its max width a bit to leave room for right panel */
+        height: 100%; /* Fill height */
+        margin: 0 10px; /* Add horizontal margin between panels */
+        overflow-y: auto; /* Allow scrolling for internal content if needed */
+        /* Center content horizontally within the panel, might override align-items: center on flex-direction: column */
+        align-self: center; /* Vertically center itself within main-content-wrapper */
+    }
+
+    /* Right Panel to occupy remaining space */
+    .right-panel {
+        flex-grow: 1; /* Takes remaining share */
+        flex-shrink: 1;
+        flex-basis: auto;
+        max-width: 25%; /* Limit its max width */
+        height: 100%; /* Fill height */
+        margin: 0 10px; /* Add horizontal margin between panels */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        align-self: center; /* Vertically center itself within main-content-wrapper */
+    }
+
+    /* Canvas sizing for desktop - ensure it adapts within its parent */
+    canvas {
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: auto;
         max-width: 100%;
         max-height: 100%;
     }
 
-    /* Adjust math challenge and keyboard to fill right panel better */
+    /* Ensure math challenge and keyboard also adapt within right-panel */
     .math-challenge, .custom-keyboard {
-        width: 100%; /* Should take full width of right-panel */
-        margin: 0; /* Remove auto margins as right-panel centers its content */
-        flex-shrink: 0; /* Prevent them from shrinking */
+        width: 100%; /* Fill the width of right-panel */
+        margin: 0 auto; /* Center if content is smaller than panel */
     }
     .custom-keyboard {
-         max-width: 300px; /* Reapply a reasonable max-width for keyboard on desktop */
-         margin-top: 15px; /* Add some margin between math challenge and keyboard */
+         margin-top: 15px; /* Spacing between math challenge and keyboard */
     }
 
+
+    /* Typography adjustments for larger screens */
     h1 {
         font-size: 2.2rem;
     }
@@ -689,34 +705,37 @@ input[type="number"] {
     }
 }
 
+/* Media query for small screens: Mobile */
 @media (max-width: 767px) {
     body {
-        padding: 0; /* Remove padding from body on mobile */
-        justify-content: flex-start;
+        padding: 0; /* Remove body padding */
+        justify-content: flex-start; /* Align content to top */
     }
     .main-wrapper {
-        padding: 5px; /* Add minimal padding to wrapper on mobile */
-        height: auto;
-        overflow-y: auto; /* Allow scrolling for content on small screens */
+        padding: 5px; /* Small padding for the whole wrapper */
+        height: auto; /* Allow height to be determined by content */
+        overflow-y: auto; /* Enable scrolling for the whole wrapper on mobile */
     }
     .main-content-wrapper {
         gap: 15px;
         padding: 0;
         height: auto;
-        /* Keep centering for single column */
+        flex-direction: column; /* Stack vertically */
+        justify-content: flex-start; /* Align content to top */
     }
     .game-panel {
         padding: 15px;
         gap: 10px;
         max-height: none;
-        overflow-y: visible;
-        margin: 0 auto; /* Ensure centering in column */
+        overflow-y: visible; /* Content flows naturally */
+        margin: 0 auto; /* Center horizontally */
     }
     .right-panel {
         width: 95%;
-        max-width: 320px;
-        margin: 0 auto;
+        max-width: 320px; /* Keep a reasonable max width for readability */
+        margin: 0 auto; /* Center horizontally */
     }
+    /* Typography adjustments for small screens */
     h1 {
         font-size: 1.2rem;
         letter-spacing: 1px;
