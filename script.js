@@ -1,9 +1,9 @@
 let currentCanvasSize;
 let currentCellSize;
-const CELLS_PER_SIDE = 20;
+const CELLS_PER_SIDE = 16;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 450;
+const GAME_SPEED = 350;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -35,6 +35,11 @@ const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
 
 const welcomeModal = document.getElementById('welcomeModal');
 const startPlayingBtn = document.getElementById('startPlayingBtn');
+
+// Get references to the main panels
+const gamePanel = document.querySelector('.game-panel');
+const rightPanel = document.querySelector('.right-panel');
+
 
 let snake = [];
 let food = {};
@@ -72,18 +77,20 @@ const difficultyTimes = {
     expert: 240
 };
 
+// Function to resize the canvas dynamically
 function resizeCanvas() {
-    let parentElement;
+    let parentElementForCanvas;
     let targetWidth, targetHeight;
-    const gamePanelPadding = 20; // Padding for the game-panel as defined in CSS
+    const panelPadding = 20; // Padding for the game-panel/right-panel as defined in CSS
 
+    // Determine the active panel and its available space for the canvas or math challenge
     if (isGameRunning && !awaitingMathAnswer) {
         // Game is running, canvas is visible inside .game-panel
-        parentElement = document.querySelector('.game-panel');
-        if (!parentElement) { // Fallback if element not found
+        parentElementForCanvas = gamePanel;
+        if (!parentElementForCanvas) {
             console.error("Game panel not found during resize. Using window dimensions.");
-            targetWidth = window.innerWidth - (gamePanelPadding * 2);
-            targetHeight = window.innerHeight - (gamePanelPadding * 2);
+            targetWidth = window.innerWidth - (panelPadding * 2);
+            targetHeight = window.innerHeight - (panelPadding * 2);
         } else {
             const headerHeight = document.querySelector('.header').offsetHeight || 0;
             const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
@@ -91,24 +98,24 @@ function resizeCanvas() {
             const controlPanelHeight = controlPanel.style.display !== 'none' ? controlPanel.offsetHeight : 0;
             
             // Approximate total height of elements above canvas within the game-panel
-            // Adjust these values based on your exact CSS gaps/margins between elements
             const fixedTopElementsHeight = headerHeight + statsPanelHeight + controlPanelHeight;
             const estimatedGaps = 12 * 3; // Example: gap after header, after stats, after control panel
 
-            targetWidth = parentElement.clientWidth - (gamePanelPadding * 2);
-            targetHeight = parentElement.clientHeight - fixedTopElementsHeight - estimatedGaps - (gamePanelPadding * 2);
+            targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
+            targetHeight = parentElementForCanvas.clientHeight - fixedTopElementsHeight - estimatedGaps - (panelPadding * 2);
         }
         
     } else if (awaitingMathAnswer) {
         // Math challenge is active, canvas is hidden. No need to resize canvas.
+        // The right-panel itself will be handled by CSS to fill the screen.
         return; 
     } else {
         // Initial state / Menu state, canvas is hidden, .game-panel contains selections
-        parentElement = document.querySelector('.game-panel');
-        if (!parentElement) { // Fallback if element not found
+        parentElementForCanvas = gamePanel;
+        if (!parentElementForCanvas) {
             console.error("Game panel not found during menu resize. Using window dimensions.");
-            targetWidth = window.innerWidth - (gamePanelPadding * 2);
-            targetHeight = window.innerHeight - (gamePanelPadding * 2);
+            targetWidth = window.innerWidth - (panelPadding * 2);
+            targetHeight = window.innerHeight - (panelPadding * 2);
         } else {
             const headerHeight = document.querySelector('.header').offsetHeight || 0;
             const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
@@ -118,13 +125,12 @@ function resizeCanvas() {
             const startGameBtnHeight = startGameBtn.offsetHeight || 0;
             
             // Approximate total height of menu elements within the game-panel
-            // Adjust these values based on your exact CSS gaps/margins between elements
             const menuElementsHeight = headerHeight + statsPanelHeight + operationSelectionPanelHeight +
                                        difficultyPanelHeight + messageAreaHeight + startGameBtnHeight;
             const estimatedGaps = 12 * 6; // Example: sum of various gaps/margins
 
-            targetWidth = parentElement.clientWidth - (gamePanelPadding * 2);
-            targetHeight = parentElement.clientHeight - menuElementsHeight - estimatedGaps - (gamePanelPadding * 2);
+            targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
+            targetHeight = parentElementForCanvas.clientHeight - menuElementsHeight - estimatedGaps - (panelPadding * 2);
         }
     }
 
@@ -133,8 +139,8 @@ function resizeCanvas() {
 
     let desiredSize = Math.min(targetWidth, targetHeight);
 
-    const minCanvasSize = CELLS_PER_SIDE * 5;
-    const maxCanvasSize = 800; // Cap the canvas size for very large displays
+    const minCanvasSize = CELLS_PER_SIDE * 5; // Minimum 5x5 cells
+    const maxCanvasSize = 1000; // Increased max canvas size for 1080p optimization
 
     currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
     currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
@@ -144,16 +150,20 @@ function resizeCanvas() {
     canvas.height = currentCanvasSize;
     currentCellSize = currentCanvasSize / CELLS_PER_SIDE;
 
+    // Recalculate snake and food positions based on the new cell size
     if (snake && snake.length > 0) {
-        const oldCellSizeForSnake = snake[0].x / (snake.findIndex(s => s.x !== snake[0].x || s.y !== snake[0].y) > 0 ? snake[1].x - snake[0].x : (currentCanvasSize / CELLS_PER_SIDE));
+        // Calculate oldCellSize based on existing snake segment positions
+        let effectiveOldCellSize = currentCellSize; // Default to current if no movement yet
+        if (snake[0].x !== 0 && snake[0].y !== 0 && snake.length > 1) {
+            effectiveOldCellSize = Math.abs(snake[1].x - snake[0].x) || Math.abs(snake[1].y - snake[0].y);
+        } else if (snake[0].x !== 0) { // For single-segment snake not at (0,0)
+            effectiveOldCellSize = snake[0].x / (INITIAL_SNAKE_LENGTH - 1); // Assuming initial snake is horizontal
+        } else if (snake[0].y !== 0) { // For single-segment snake not at (0,0)
+             effectiveOldCellSize = snake[0].y / (INITIAL_SNAKE_LENGTH - 1); // Assuming initial snake is vertical
+        }
         
-        // Handle initial state where oldCellSizeForSnake might be 0 or undefined
-        let effectiveOldCellSize = oldCellSizeForSnake;
         if (isNaN(effectiveOldCellSize) || effectiveOldCellSize <= 0) {
-            // If snake is at (0,0) or hasn't moved, default old cell size to initial expected currentCellSize
-            effectiveOldCellSize = currentCanvasSize / CELLS_PER_SIDE; // This is a heuristic
-            // Or better, assume it was based on the original 400px canvas size if this is very early load
-            if (currentCanvasSize === 0) effectiveOldCellSize = 20; // Fallback to original 20px
+            effectiveOldCellSize = currentCanvasSize / CELLS_PER_SIDE; // Fallback
         }
 
         const oldSnakeGrid = snake.map(segment => ({
@@ -166,6 +176,7 @@ function resizeCanvas() {
             y: segment.y * currentCellSize
         }));
     } else {
+        // Initialize snake if it's empty (e.g., first load or after reset)
         snake = [];
         for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
             snake.push({ x: (INITIAL_SNAKE_LENGTH - 1 - i) * currentCellSize, y: 0 });
@@ -173,9 +184,8 @@ function resizeCanvas() {
     }
 
     if (food && food.x !== undefined && food.y !== undefined) {
-        const oldCellSizeForFood = currentCellSize; // Assume food is always positioned correctly relative to the current grid
-        const oldFoodGridX = Math.round(food.x / oldCellSizeForFood);
-        const oldFoodGridY = Math.round(food.y / oldCellSizeForFood);
+        const oldFoodGridX = Math.round(food.x / currentCellSize); // Use currentCellSize as base for food grid position
+        const oldFoodGridY = Math.round(food.y / currentCellSize);
 
         food = {
             x: oldFoodGridX * currentCellSize,
@@ -204,10 +214,16 @@ function endGame() {
     clearInterval(pauseCountdownInterval);
     finalScoreDisplay.textContent = score;
     gameOverModal.style.display = 'flex';
+    
+    // Explicitly hide math challenge and keyboard, show game panel elements
     mathChallengeArea.style.display = 'none';
     customKeyboard.style.display = 'none';
-    canvas.style.display = 'none';
-    scoreDisplay.parentElement.style.display = 'none';
+    rightPanel.style.display = 'none'; // Hide right panel
+
+    gamePanel.style.display = 'flex'; // Show game panel
+    canvas.style.display = 'none'; // Canvas is hidden in menu state
+    scoreDisplay.parentElement.style.display = 'none'; // Score hidden in menu state
+
     if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
     }
@@ -252,12 +268,17 @@ function initializeGame() {
     isGameRunning = false;
     isPaused = false;
     awaitingMathAnswer = false;
+    
+    // Explicitly manage panel visibility for initial state
+    gamePanel.style.display = 'flex'; // Show game panel
+    rightPanel.style.display = 'none'; // Hide right panel
+
     mathChallengeArea.style.display = 'none';
     customKeyboard.style.display = 'none';
     gameOverModal.style.display = 'none';
     infoModal.style.display = 'none';
-    canvas.style.display = 'none'; // Keep canvas hidden initially
-    scoreDisplay.parentElement.style.display = 'none';
+    canvas.style.display = 'none'; // Canvas hidden in menu state
+    scoreDisplay.parentElement.style.display = 'none'; // Score hidden in menu state
 
     clearInterval(gameInterval);
     clearInterval(mathTimerInterval);
@@ -433,6 +454,11 @@ function startGame() {
     }
 
     isGameRunning = true;
+    
+    // Explicitly manage panel visibility for game state
+    gamePanel.style.display = 'flex'; // Game panel visible
+    rightPanel.style.display = 'none'; // Right panel hidden
+
     pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'none';
@@ -1181,6 +1207,10 @@ function startChallenge() {
 
     initialTimeForCurrentChallenge = difficultyTimes[currentDifficulty];
 
+    // Explicitly manage panel visibility for math challenge state
+    gamePanel.style.display = 'none'; // Hide game panel
+    rightPanel.style.display = 'flex'; // Show right panel
+
     mathChallengeArea.style.display = 'block';
     customKeyboard.style.display = 'flex';
     canvas.style.display = 'none';
@@ -1341,6 +1371,11 @@ function submitMathAnswer() {
         setMessage(`Correct! +${pointsEarned} points.`);
         awaitingMathAnswer = false;
         clearInterval(mathTimerInterval);
+        
+        // Explicitly manage panel visibility after math challenge
+        gamePanel.style.display = 'flex'; // Show game panel
+        rightPanel.style.display = 'none'; // Hide right panel
+
         mathChallengeArea.style.display = 'none';
         customKeyboard.style.display = 'none';
         canvas.style.display = 'block';
