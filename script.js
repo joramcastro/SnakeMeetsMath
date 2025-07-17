@@ -1,5 +1,8 @@
-const CANVAS_SIZE = 400;
-const CELL_SIZE = 20;
+// Removed CANVAS_SIZE and CELL_SIZE as fixed constants
+let currentCanvasSize; // Will be set dynamically
+let currentCellSize;   // Will be set dynamically
+const CELLS_PER_SIDE = 20; // Represents the desired number of cells along one side of the canvas
+
 const INITIAL_SNAKE_LENGTH = 1;
 const GAME_SPEED = 350;
 
@@ -33,11 +36,6 @@ const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
 
 const welcomeModal = document.getElementById('welcomeModal');
 const startPlayingBtn = document.getElementById('startPlayingBtn');
-
-// Removed cheatSheetModal and related elements as per instruction 1.
-// const cheatSheetModal = document.getElementById('cheatSheetModal');
-// const cheatSheetContent = document.getElementById('cheatSheetContent');
-// const closeCheatSheetBtn = document.getElementById('closeCheatSheetBtn');
 
 let snake = [];
 let food = {};
@@ -74,6 +72,83 @@ const difficultyTimes = {
     hard: 180,
     expert: 240
 };
+
+// Function to resize the canvas dynamically
+function resizeCanvas() {
+    const headerHeight = document.querySelector('.header').offsetHeight || 0;
+    const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
+    const controlPanelHeight = document.querySelector('.control-panel').offsetHeight || 0;
+    const operationSelectionPanelHeight = operationSelectionPanel.offsetHeight || 0;
+    const difficultyPanelHeight = difficultyPanel.offsetHeight || 0;
+    const messageAreaHeight = messageArea.offsetHeight || 0;
+    const startGameBtnHeight = startGameBtn.offsetHeight || 0;
+    const footerHeight = document.querySelector('footer').offsetHeight || 0;
+    const totalUIHeight = headerHeight + statsPanelHeight + controlPanelHeight +
+                          operationSelectionPanelHeight + difficultyPanelHeight +
+                          messageAreaHeight + startGameBtnHeight + footerHeight +
+                          (10 * 2) + // body padding-top and padding-bottom
+                          (20 * 2); // approximate vertical gap/margins in game-panel
+
+    // Determine available width and height, accounting for padding/margins
+    const availableWidth = window.innerWidth - (20 * 2); // Total padding/margins on sides
+    const availableHeight = window.innerHeight - totalUIHeight;
+
+    // Set a maximum size to prevent it from getting too big on very large screens, or keep it responsive.
+    // For simplicity, let's target a max of 400px x 400px, or fill available space if smaller.
+    // However, the request is "to fit the screen", so let's try to fill more.
+    let desiredSize = Math.min(availableWidth, availableHeight);
+
+    // Apply some limits, don't let it be too small or too big
+    const minSize = 200;
+    const maxSize = 800; // You can adjust this max size
+
+    currentCanvasSize = Math.max(minSize, Math.min(desiredSize, maxSize));
+    // Ensure currentCanvasSize is a multiple of CELLS_PER_SIDE for clean grid
+    currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
+    currentCanvasSize = Math.max(currentCanvasSize, CELLS_PER_SIDE); // Ensure it's at least one cell
+
+    canvas.width = currentCanvasSize;
+    canvas.height = currentCanvasSize;
+    currentCellSize = currentCanvasSize / CELLS_PER_SIDE;
+
+    // Recalculate snake and food positions based on the new cell size
+    // This is crucial for responsiveness: convert existing (x,y) to grid units, then back to new pixel units.
+    if (snake && snake.length > 0) {
+        // Store current snake positions in grid units
+        const oldSnakeGrid = snake.map(segment => ({
+            x: Math.round(segment.x / (canvas.width / CELLS_PER_SIDE)),
+            y: Math.round(segment.y / (canvas.height / CELLS_PER_SIDE))
+        }));
+
+        // Re-initialize snake with new pixel positions
+        snake = oldSnakeGrid.map(segment => ({
+            x: segment.x * currentCellSize,
+            y: segment.y * currentCellSize
+        }));
+    }
+
+    if (food && food.x !== undefined && food.y !== undefined) {
+        // Store current food position in grid units
+        const oldFoodGridX = Math.round(food.x / (canvas.width / CELLS_PER_SIDE));
+        const oldFoodGridY = Math.round(food.y / (canvas.height / CELLS_PER_SIDE));
+
+        // Re-generate food based on new pixel positions, ensuring it's on the grid
+        food = {
+            x: oldFoodGridX * currentCellSize,
+            y: oldFoodGridY * currentCellSize
+        };
+        // If the food went off-screen due to extreme resize, regenerate it entirely
+        if (food.x >= currentCanvasSize || food.y >= currentCanvasSize || isFoodOnSnake(food)) {
+             generateFood(); // Re-generate food if it falls out of bounds or on snake after resize
+        }
+    } else {
+        generateFood(); // Generate initial food if not present
+    }
+
+
+    drawGame(); // Redraw game after resizing
+}
+
 
 function resetGame() {
     endGame();
@@ -115,12 +190,13 @@ function endGame() {
 
 
 function initializeGame() {
-    canvas.width = CANVAS_SIZE;
-    canvas.height = CANVAS_SIZE;
+    // Call resizeCanvas here to set up initial canvas dimensions and cell size
+    resizeCanvas();
 
     snake = [];
+    // Initialize snake using currentCellSize for positions
     for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
-        snake.push({ x: (INITIAL_SNAKE_LENGTH - 1 - i) * CELL_SIZE, y: 0 });
+        snake.push({ x: (INITIAL_SNAKE_LENGTH - 1 - i) * currentCellSize, y: 0 });
     }
 
     direction = 'right';
@@ -140,9 +216,7 @@ function initializeGame() {
     customKeyboard.style.display = 'none';
     gameOverModal.style.display = 'none';
     infoModal.style.display = 'none';
-    // Removed cheatSheetModal hide as per instruction 1.
-    // cheatSheetModal.style.display = 'none';
-    canvas.style.display = 'none';
+    canvas.style.display = 'none'; // Keep canvas hidden initially
     scoreDisplay.parentElement.style.display = 'none';
 
     clearInterval(gameInterval);
@@ -160,30 +234,30 @@ function initializeGame() {
     currentDifficulty = null;
     selectedOperationType = null;
 
-    generateFood();
+    generateFood(); // Generate food using the newly set currentCellSize
     drawGame();
     updateDifficultyAndOperationDisplay();
     setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
 }
 
 function drawGame() {
-    ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Use dynamic canvas dimensions
 
     snake.forEach((segment, index) => {
         ctx.fillStyle = index === 0 ? '#4CAF50' : '#8BC34A';
         ctx.strokeStyle = '#2E7D32';
         ctx.lineWidth = 2;
 
-        const cornerRadius = CELL_SIZE / 4;
+        const cornerRadius = currentCellSize / 4; // Use dynamic currentCellSize
 
         ctx.beginPath();
         ctx.moveTo(segment.x + cornerRadius, segment.y);
-        ctx.lineTo(segment.x + CELL_SIZE - cornerRadius, segment.y);
-        ctx.arcTo(segment.x + CELL_SIZE, segment.y, segment.x + CELL_SIZE, segment.y + cornerRadius, cornerRadius);
-        ctx.lineTo(segment.x + CELL_SIZE, segment.y + CELL_SIZE - cornerRadius);
-        ctx.arcTo(segment.x + CELL_SIZE, segment.y + CELL_SIZE, segment.x + CELL_SIZE - cornerRadius, segment.y + CELL_SIZE, cornerRadius);
-        ctx.lineTo(segment.x + cornerRadius, segment.y + CELL_SIZE);
-        ctx.arcTo(segment.x, segment.y + CELL_SIZE, segment.x, segment.y + CELL_SIZE - cornerRadius, cornerRadius);
+        ctx.lineTo(segment.x + currentCellSize - cornerRadius, segment.y);
+        ctx.arcTo(segment.x + currentCellSize, segment.y, segment.x + currentCellSize, segment.y + cornerRadius, cornerRadius);
+        ctx.lineTo(segment.x + currentCellSize, segment.y + currentCellSize - cornerRadius);
+        ctx.arcTo(segment.x + currentCellSize, segment.y + currentCellSize, segment.x + currentCellSize - cornerRadius, segment.y + currentCellSize, cornerRadius);
+        ctx.lineTo(segment.x + cornerRadius, segment.y + currentCellSize);
+        ctx.arcTo(segment.x, segment.y + currentCellSize, segment.x, segment.y + currentCellSize - cornerRadius, cornerRadius);
         ctx.lineTo(segment.x, segment.y + cornerRadius);
         ctx.arcTo(segment.x, segment.y, segment.x + cornerRadius, segment.y, cornerRadius);
         ctx.closePath();
@@ -194,27 +268,27 @@ function drawGame() {
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 1;
-            const eyeOffset = CELL_SIZE / 4;
-            const eyeRadius = CELL_SIZE / 8;
+            const eyeOffset = currentCellSize / 4; // Use dynamic currentCellSize
+            const eyeRadius = currentCellSize / 8; // Use dynamic currentCellSize
 
             let eye1X, eye1Y, eye2X, eye2Y;
 
             switch (direction) {
                 case 'right':
-                    eye1X = segment.x + CELL_SIZE - eyeOffset; eye1Y = segment.y + eyeOffset;
-                    eye2X = segment.x + CELL_SIZE - eyeOffset; eye2Y = segment.y + CELL_SIZE - eyeOffset;
+                    eye1X = segment.x + currentCellSize - eyeOffset; eye1Y = segment.y + eyeOffset;
+                    eye2X = segment.x + currentCellSize - eyeOffset; eye2Y = segment.y + currentCellSize - eyeOffset;
                     break;
                 case 'left':
                     eye1X = segment.x + eyeOffset; eye1Y = segment.y + eyeOffset;
-                    eye2X = segment.x + eyeOffset; eye2Y = segment.y + CELL_SIZE - eyeOffset;
+                    eye2X = segment.x + eyeOffset; eye2Y = segment.y + currentCellSize - eyeOffset;
                     break;
                 case 'up':
                     eye1X = segment.x + eyeOffset; eye1Y = segment.y + eyeOffset;
-                    eye2X = segment.x + CELL_SIZE - eyeOffset; eye2Y = segment.y + eyeOffset;
+                    eye2X = segment.x + currentCellSize - eyeOffset; eye2Y = segment.y + eyeOffset;
                     break;
                 case 'down':
-                    eye1X = segment.x + eyeOffset; eye1Y = segment.y + CELL_SIZE - eyeOffset;
-                    eye2X = segment.x + CELL_SIZE - eyeOffset; eye2Y = segment.y + CELL_SIZE - eyeOffset;
+                    eye1X = segment.x + eyeOffset; eye1Y = segment.y + currentCellSize - eyeOffset;
+                    eye2X = segment.x + currentCellSize - eyeOffset; eye2Y = segment.y + currentCellSize - eyeOffset;
                     break;
             }
             ctx.beginPath();
@@ -233,7 +307,7 @@ function drawGame() {
     ctx.strokeStyle = '#FF8F00';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(food.x + CELL_SIZE / 2, food.y + CELL_SIZE / 2, CELL_SIZE / 2 - 2, 0, Math.PI * 2);
+    ctx.arc(food.x + currentCellSize / 2, food.y + currentCellSize / 2, currentCellSize / 2 - 2, 0, Math.PI * 2); // Use dynamic currentCellSize
     ctx.fill();
     ctx.stroke();
 }
@@ -245,27 +319,28 @@ function moveSnake() {
 
     switch (direction) {
         case 'up':
-            head.y -= CELL_SIZE;
+            head.y -= currentCellSize; // Use dynamic currentCellSize
             break;
         case 'down':
-            head.y += CELL_SIZE;
+            head.y += currentCellSize; // Use dynamic currentCellSize
             break;
         case 'left':
-            head.x -= CELL_SIZE;
+            head.x -= currentCellSize; // Use dynamic currentCellSize
             break;
         case 'right':
-            head.x += CELL_SIZE;
+            head.x += currentCellSize; // Use dynamic currentCellSize
             break;
     }
 
+    // Wrap around logic using dynamic canvas size
     if (head.x < 0) {
-        head.x = CANVAS_SIZE - CELL_SIZE;
-    } else if (head.x >= CANVAS_SIZE) {
+        head.x = currentCanvasSize - currentCellSize;
+    } else if (head.x >= currentCanvasSize) {
         head.x = 0;
     }
     if (head.y < 0) {
-        head.y = CANVAS_SIZE - CELL_SIZE;
-    } else if (head.y >= CANVAS_SIZE) {
+        head.y = currentCanvasSize - currentCellSize;
+    } else if (head.y >= currentCanvasSize) {
         head.y = 0;
     }
 
@@ -287,10 +362,12 @@ function moveSnake() {
 
 function generateFood() {
     let newFoodPos;
+    const maxGridX = currentCanvasSize / currentCellSize;
+    const maxGridY = currentCanvasSize / currentCellSize;
     do {
         newFoodPos = {
-            x: Math.floor(Math.random() * (CANVAS_SIZE / CELL_SIZE)) * CELL_SIZE,
-            y: Math.floor(Math.random() * (CANVAS_SIZE / CELL_SIZE)) * CELL_SIZE
+            x: Math.floor(Math.random() * maxGridX) * currentCellSize,
+            y: Math.floor(Math.random() * maxGridY) * currentCellSize
         };
     } while (isFoodOnSnake(newFoodPos));
     food = newFoodPos;
@@ -317,13 +394,10 @@ function startGame() {
     }
 
     isGameRunning = true;
-    // startGameBtn.style.display = 'none'; // Keep visible or adjust as needed
     pauseGameBtn.style.display = 'none'; // Will show during math challenges
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'none';
     operationSelectionPanel.style.display = 'none';
-    // Removed cheatSheetModal hide as per instruction 1.
-    // cheatSheetModal.style.display = 'none';
     canvas.style.display = 'block';
     scoreDisplay.parentElement.style.display = 'flex';
     if (highScoreContainer) {
@@ -1143,7 +1217,7 @@ function startChallenge() {
     timeLeftForMath = initialTimeForCurrentChallenge;
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
     
-    lastProblemText = mathProblemDisplay.textContent;
+    lastProblemText = mathProblemDisplay.textContent; // Note: for binary addition, this will be HTML not just text
     lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-decimal' || selectedOperationType === 'binary-addition') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
 
     startMathTimer();
@@ -1395,12 +1469,6 @@ startPlayingBtn.addEventListener('click', () => {
     checkAndEnableStartGame();
 });
 
-// Removed closeCheatSheetBtn listener as per instruction 1.
-// closeCheatSheetBtn.addEventListener('click', () => {
-//     cheatSheetModal.style.display = 'none';
-//     startGame();
-// });
-
 difficultyButtons.forEach(button => {
     button.addEventListener('click', () => {
         difficultyButtons.forEach(btn => btn.classList.remove('selected'));
@@ -1449,191 +1517,6 @@ function updateDifficultyAndOperationDisplay() {
     }
 }
 
-// Removed generateCheatSheetContent function as it's no longer used.
-/*
-function generateCheatSheetContent(operationType, difficulty) {
-    let content = '';
-    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-
-    switch (operationType) {
-        case 'arithmetic':
-            content = `
-                <h3>Decimal Arithmetic</h3>
-                <p>Solve problems using addition, subtraction, multiplication, and division.</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> $15 \\div 3 = ?$</p>
-                    <p class="solution"><b>Solution:</b> $15 \\div 3 = 5$</p>
-                </div>
-            `;
-            break;
-        case 'exponentiation':
-            content = `
-                <h3>Exponentiation (xⁿ)</h3>
-                <p>Multiply a number by itself a certain number of times.</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> $4^3 = ?$</p>
-                    <p class="solution"><b>Solution:</b> $4 \\times 4 \\times 4 = 64$</p>
-                </div>
-            `;
-            break;
-        case 'modulus':
-            content = `
-                <h3>Modulus (X mod Y)</h3>
-                <p>Find the remainder after dividing one number by another.</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> $17 \\text{ mod } 5 = ?$</p>
-                    <p class="solution"><b>Solution:</b> $17 \\div 5 = 3$ with a remainder of $2$. So, $17 \\text{ mod } 5 = 2$</p>
-                </div>
-            `;
-            break;
-        case 'absolute-value':
-            content = `
-                <h3>Absolute Value (|x|)</h3>
-                <p>The absolute value is how far a number is from zero, always a positive value.</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> $|-7| = ?$</p>
-                    <p class="solution"><b>Solution:</b> The distance of $-7$ from $0$ is $7$. So, $|-7| = 7$</p>
-                </div>
-            `;
-            break;
-        case 'binary-decimal':
-            content = `
-                <h3>Binary to Decimal</h3>
-                <p>Convert a binary number (using only 0s and 1s) to its regular decimal number.</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> Convert $1011_2$ to decimal</p>
-                    <p class="solution"><b>Solution:</b> $(1 \\times 2^3) + (0 \\times 2^2) + (1 \\times 2^1) + (1 \\times 2^0) = 8 + 0 + 2 + 1 = 11$</p>
-                </div>
-            `;
-            break;
-        case 'decimal-binary':
-            content = `
-                <h3>Decimal to Binary</h3>
-                <p>Convert a regular decimal number to its binary equivalent (using only 0s and 1s).</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> Convert $13_{10}$ to binary</p>
-                    <p class="solution"><b>Solution:</b><br>
-                        $13 \\div 2 = 6$ R $1$<br>
-                        $6 \\div 2 = 3$ R $0$<br>
-                        $3 \\div 2 = 1$ R $1$<br>
-                        $1 \\div 2 = 0$ R $1$<br>
-                        Read remainders bottom-up: $1101_2$</p>
-                </div>
-            `;
-            break;
-        case 'binary-addition':
-            content = `
-                <h3>Binary Addition (0s and 1s)</h3>
-                <p>Add two binary numbers. Remember the rules:</p>
-                <ul>
-                    <li>$0 + 0 = 0$</li>
-                    <li>$0 + 1 = 1$</li>
-                    <li>$1 + 0 = 1$</li>
-                    <li>$1 + 1 = 10$ (which is $0$ with a carry of $1$)</li>
-                </ul>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> Add binary $101_2 + 011_2 = ?$</p>
-                    <p class="solution"><b>Solution:</b> $101_2 + 011_2 = 1000_2$</p>
-                </div>
-            `;
-            break;
-        case 'linear-equation':
-            content = `
-                <h3>Solve Linear Equation</h3>
-                <p>Find the value of 'x' in an equation like $ax + b = c$.</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> Solve for x: $3x + 5 = 14$</p>
-                    <p class="solution"><b>Solution:</b><br>
-                        $3x = 14 - 5$<br>
-                        $3x = 9$<br>
-                        $x = 9 \\div 3$<br>
-                        $x = 3$</p>
-                </div>
-            `;
-            break;
-        case 'arithmetic-mean':
-            content = `
-                <h3>Arithmetic Mean</h3>
-                <p>Calculate the average of a set of numbers.</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> Find the mean of $2, 4, 6$</p>
-                    <p class="solution"><b>Solution:</b> $\\frac{2 + 4 + 6}{3} = \\frac{12}{3} = 4$</p>
-                </div>
-            `;
-            break;
-        case 'standard-deviation':
-            content = `
-                <h3>Standard Deviation</h3>
-                <p>Measures how spread out numbers are from the average.</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> Std. Dev. of $1, 2, 3$ (2 dec places)</p>
-                    <p class="solution"><b>Solution:</b><br>
-                        Mean ($\\mu$) = $(1+2+3)/3 = 2$<br>
-                        Differences squared: $(1-2)^2=1, (2-2)^2=0, (3-2)^2=1$<br>
-                        Sum of differences squared = $1+0+1=2$<br>
-                        Standard Deviation = $\\sqrt{2 \\div 3} \\approx 0.82$</p>
-                </div>
-            `;
-            break;
-        case 'evaluating-function':
-            content = `
-                <h3>Evaluating Function</h3>
-                <p>Replace 'x' with a given number in the function and calculate the result.</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> Evaluate $f(x) = 2x + 3$ for $x = 4$</p>
-                    <p class="solution"><b>Solution:</b><br>
-                        $f(4) = 2(4) + 3$<br>
-                        $f(4) = 8 + 3$<br>
-                        $f(4) = 11$</p>
-                </div>
-            `;
-            break;
-        case 'fraction-decimal':
-            content = `
-                <h3>Fraction to Decimal</h3>
-                <p>Convert a fraction to a decimal by dividing the top number (numerator) by the bottom number (denominator).</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> Convert $3/4$ to decimal</p>
-                    <p class="solution"><b>Solution:</b> $3 \\div 4 = 0.75$</p>
-                </div>
-            `;
-            break;
-        case 'simple-interest':
-            content = `
-                <h3>Simple Interest</h3>
-                <p>Calculate the total amount you'll have after earning simple interest.</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> P=₱1000, R=5%, T=2 yrs. Simple Interest Total?</p>
-                    <p class="solution"><b>Solution:</b><br>
-                        Interest ($I$) = $₱1000 \\times (5 \\div 100) \\times 2 = ₱100$<br>
-                        Total Amount ($A$) = $₱1000 + ₱100 = ₱1100$</p>
-                </div>
-            `;
-            break;
-        case 'compound-interest':
-            content = `
-                <h3>Compound Interest</h3>
-                <p>Calculate the total amount you'll have when interest is earned on both the original amount and accumulated interest.</p>
-                <div class="formula-example">
-                    <p class="example"><b>Example:</b> P=₱1000, R=5%, T=2 yrs, annually. Comp. Int. Total?</p>
-                    <p class="solution"><b>Solution:</b><br>
-                        $A = ₱1000(1 + (0.05 \\div 1))^{1 \\times 2}$<br>
-                        $A = ₱1000(1.05)^2$<br>
-                        $A = ₱1000 \\times 1.1025 = ₱1102.50$</p>
-                </div>
-            `;
-            break;
-        default:
-            content = `
-                <h3>Welcome to SnakeMeetsMath!</h3>
-                <p>Select a problem type and difficulty to see specific examples.</p>
-                <p>Then, click "Got It! Start Game" to begin your challenge!</p>
-            `;
-            break;
-    }
-    cheatSheetContent.innerHTML = content;
-}
-*/
 
 function checkAndEnableStartGame() {
     if (currentDifficulty && selectedOperationType) {
@@ -1647,19 +1530,12 @@ function checkAndEnableStartGame() {
         if (highScoreContainer) {
             highScoreContainer.style.display = 'flex';
         }
-        
-        // Removed cheatSheetModal display and startGameBtn hide as per instruction 1.
-        // generateCheatSheetContent(selectedOperationType, currentDifficulty);
-        // cheatSheetModal.style.display = 'flex';
-        // startGameBtn.style.display = 'none';
-        startGameBtn.style.display = 'inline-block'; // Ensure Start Game button is visible if not playing
+        startGameBtn.style.display = 'inline-block';
     } else {
         startGameBtn.disabled = true;
         if (highScoreContainer) {
             highScoreContainer.style.display = 'none';
         }
-        // Removed cheatSheetModal hide as per instruction 1.
-        // cheatSheetModal.style.display = 'none';
         startGameBtn.style.display = 'inline-block';
         if (!currentDifficulty && !selectedOperationType) {
             setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
@@ -1701,6 +1577,11 @@ installButton.addEventListener('click', () => {
     }
 });
 
-window.onload = function() {
+// Initial call to resize canvas on window load
+window.addEventListener('load', function() {
     welcomeModal.style.display = 'flex';
-};
+    resizeCanvas(); // Set initial canvas size
+});
+
+// Listen for window resize events to adjust canvas
+window.addEventListener('resize', resizeCanvas);
