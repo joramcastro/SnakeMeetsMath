@@ -171,6 +171,28 @@ h1 {
     border: 1px solid #d1d8df;
 }
 
+/* Hide the current High Score container by default */
+#high-score-container {
+    display: none !important;
+}
+
+/* Ensure All-Time High Score container is a flex container when visible */
+#all-time-high-score-container {
+    display: flex; /* Default to flex for menu display */
+    justify-content: space-between;
+    width: 100%;
+    background-color: #f7fafc;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #5b21b6;
+    box-shadow: inset 0 0 10px var(--shadow-light);
+    border: 1px solid #d1d8df;
+    margin-top: 12px; /* Add some margin below the stats panel */
+}
+
+
 .control-panel, .difficulty-panel, .operation-selection-panel {
     display: flex;
     flex-direction: column;
