@@ -245,7 +245,7 @@ function endGame() {
     scoreDisplay.parentElement.style.display = 'none'; // Score hidden in menu state
 
     if (highScoreContainer) {
-        highScoreContainer.style.display = 'none';
+        highScoreContainer.style.display = 'none'; // Hide current high score in end game
     }
     if (allTimeHighScoreContainer) { // Ensure all-time high score is visible on end game
         allTimeHighScoreContainer.style.display = 'flex';
@@ -284,9 +284,7 @@ function initializeGame() {
     direction = 'right';
     score = 0;
     scoreDisplay.textContent = score;
-    if (highScoreDisplay) {
-        highScoreDisplay.textContent = 0;
-    }
+    // Always hide highScoreContainer in the main menu
     if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
     }
@@ -319,7 +317,8 @@ function initializeGame() {
     messageArea.style.display = 'block';
     header.style.display = 'block'; // Show header in menu state
     controlPanel.style.display = 'flex'; // Ensure control panel is visible in menu state
-    if (allTimeHighScoreContainer) { // Ensure all-time high score is visible on initialize
+    // Always show allTimeHighScoreContainer in the main menu
+    if (allTimeHighScoreContainer) {
         allTimeHighScoreContainer.style.display = 'flex';
     }
 
@@ -1651,11 +1650,14 @@ function updateDifficultyAndOperationDisplay() {
     if (highScoreDisplay) {
         highScoreDisplay.textContent = highScores[highScoreKey] || 0;
     }
-    if (highScoreContainer) {
-        highScoreContainer.style.display = 'flex';
-    } else {
-        highScoreContainer.style.display = 'none';
-    }
+    // The current high score container should only be visible during gameplay, not in the menu.
+    // Its visibility is now managed by initializeGame() and startGame().
+    // Removed conditional display logic from here to avoid conflicts.
+    // if (highScoreContainer) {
+    //     highScoreContainer.style.display = 'flex';
+    // } else {
+    //     highScoreContainer.style.display = 'none';
+    // }
 }
 
 // Function to update the all-time high score display
@@ -1676,15 +1678,21 @@ function checkAndEnableStartGame() {
         if (highScoreDisplay) {
             highScoreDisplay.textContent = highScores[highScoreKey] || 0;
         }
-        if (highScoreContainer) {
-            highScoreContainer.style.display = 'flex';
-        }
+        // The current high score container should only be visible during gameplay, not in the menu.
+        // Its visibility is now managed by initializeGame() and startGame().
+        // Removed conditional display logic from here to avoid conflicts.
+        // if (highScoreContainer) {
+        //     highScoreContainer.style.display = 'flex';
+        // }
         startGameBtn.style.display = 'inline-block';
     } else {
         startGameBtn.disabled = true;
-        if (highScoreContainer) {
-            highScoreContainer.style.display = 'none';
-        }
+        // The current high score container should only be visible during gameplay, not in the menu.
+        // Its visibility is now managed by initializeGame() and startGame().
+        // Removed conditional display logic from here to avoid conflicts.
+        // if (highScoreContainer) {
+        //     highScoreContainer.style.display = 'none';
+        // }
         startGameBtn.style.display = 'inline-block';
         if (!currentDifficulty && !selectedOperationType) {
             setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
