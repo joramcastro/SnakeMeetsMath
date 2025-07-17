@@ -1,6 +1,6 @@
 let currentCanvasSize;
 let currentCellSize;
-const CELLS_PER_SIDE = 15; // Decreased from 20 to make snake/food bigger
+const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
 const GAME_SPEED = 350;
