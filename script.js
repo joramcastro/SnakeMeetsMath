@@ -498,16 +498,15 @@ function pauseGame() {
         return;
     }
 
-    // This pause logic is now only for the math challenge timer.
-    // Pause during snake gameplay is not allowed by this button.
+    // Pause is now ONLY available during math challenge, not snake gameplay.
+    // And only if time is 10s or less AND player has points.
     if (!awaitingMathAnswer) {
-        // This condition should ideally not be met if the button is hidden during snake gameplay
-        setMessage('Pause is only available during math challenges when time is low.');
+        setMessage('Pause is only available during math challenges.');
         return;
     }
 
-    if (timeLeftForMath > 10 || score < 1) {
-        let currentMessage = `Pause is only available when time left is 10s or less and you have points to fuel it. Current time left: ${timeLeftForMath}s, Current points: ${score}.`;
+    if (timeLeftForMath > 10 || score < 3) { // Changed score check to 3 points
+        let currentMessage = `Pause is only available when time left is 10s or less and you have at least 3 points. Current time left: ${timeLeftForMath}s, Current points: ${score}.`;
         setMessage(currentMessage);
         return;
     }
@@ -515,15 +514,17 @@ function pauseGame() {
     isPaused = true;
     clearInterval(gameInterval);
     clearInterval(mathTimerInterval);
-    score = Math.max(0, score - 1);
+    score = Math.max(0, score - 3); // Deduct 3 points
     scoreDisplay.textContent = score;
     
-    pauseTimeLeft = 20;
-    setMessage(`Game Paused. 1 point deducted. Resuming in ${pauseTimeLeft}s. Pause fuel: ${score} points`);
+    pauseTimeLeft = 20; // Pause for 20 seconds
+    setMessage(`Game Paused. 3 points deducted. Resuming in ${pauseTimeLeft}s. Pause fuel: ${score} points`);
     
+    // Clear any existing countdown to prevent multiple intervals running
+    clearInterval(pauseCountdownInterval);
     pauseCountdownInterval = setInterval(() => {
         pauseTimeLeft--;
-        setMessage(`Game Paused. 1 point deducted. Resuming in ${pauseTimeLeft}s. Pause fuel: ${score} points`);
+        setMessage(`Game Paused. 3 points deducted. Resuming in ${pauseTimeLeft}s. Pause fuel: ${score} points`);
         
         if (pauseTimeLeft <= 0) {
             clearInterval(pauseCountdownInterval);
@@ -534,7 +535,7 @@ function pauseGame() {
 
 function resumeGame() {
     isPaused = false;
-    clearInterval(pauseCountdownInterval);
+    clearInterval(pauseCountdownInterval); // Ensure countdown is cleared
     if (isGameRunning) {
         gameInterval = setInterval(moveSnake, GAME_SPEED);
     }
@@ -1324,9 +1325,8 @@ function startMathTimer() {
         timeLeftForMath--;
         timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
 
-        // Show pause button if time is 10s or less AND player has points
-        // This condition is for the math challenge timer.
-        if (timeLeftForMath <= 10 && !isPaused && score > 0) {
+        // Show pause button if time is 10s or less AND player has at least 3 points
+        if (timeLeftForMath <= 10 && !isPaused && score >= 3) { // Changed score check to >= 3
             pauseGameBtn.style.display = 'inline-block';
         } else {
             pauseGameBtn.style.display = 'none';
