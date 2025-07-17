@@ -1,6 +1,6 @@
 let currentCanvasSize;
 let currentCellSize;
-const CELLS_PER_SIDE = 15; // Decreased from 20 to make snake/food bigger
+const CELLS_PER_SIDE = 17;
 
 const INITIAL_SNAKE_LENGTH = 1;
 const GAME_SPEED = 350;
@@ -464,17 +464,21 @@ function startGame() {
     gamePanel.style.display = 'flex'; // Game panel visible
     rightPanel.style.display = 'none'; // Right panel hidden
 
-    pauseGameBtn.style.display = 'none';
-    resetGameBtn.style.display = 'inline-block';
+    // Hide elements not needed during gameplay
+    startGameBtn.style.display = 'none';
     difficultyPanel.style.display = 'none';
     operationSelectionPanel.style.display = 'none';
-    canvas.style.display = 'block';
-    scoreDisplay.parentElement.style.display = 'flex';
+    messageArea.style.display = 'none';
+    installButton.style.display = 'none'; // Hide install button during gameplay
+
+    pauseGameBtn.style.display = 'none'; // Pause button initially hidden
+    resetGameBtn.style.display = 'inline-block'; // Reset button visible
+    canvas.style.display = 'block'; // Canvas visible
+    scoreDisplay.parentElement.style.display = 'flex'; // Score visible
     if (highScoreContainer) {
-        highScoreContainer.style.display = 'flex';
+        highScoreContainer.style.display = 'flex'; // High score visible
     }
     gameInterval = setInterval(moveSnake, GAME_SPEED);
-    messageArea.style.display = 'none';
 }
 
 function pauseGame() {
