@@ -83,68 +83,73 @@ function resizeCanvas() {
     let targetWidth, targetHeight;
     const panelPadding = 20; // Padding for the game-panel/right-panel as defined in CSS
 
-    // Determine the active panel and its available space for the canvas or math challenge
-    if (isGameRunning && !awaitingMathAnswer) {
-        // Game is running, canvas is visible inside .game-panel
-        parentElementForCanvas = gamePanel;
-        if (!parentElementForCanvas) {
-            console.error("Game panel not found during resize. Using window dimensions.");
-            targetWidth = window.innerWidth - (panelPadding * 2);
-            targetHeight = window.innerHeight - (panelPadding * 2);
-        } else {
-            const headerHeight = document.querySelector('.header').offsetHeight || 0;
-            const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
-            const controlPanel = document.getElementById('control-panel');
-            const controlPanelHeight = controlPanel.style.display !== 'none' ? controlPanel.offsetHeight : 0;
-            
-            // Approximate total height of elements above canvas within the game-panel
-            const fixedTopElementsHeight = headerHeight + statsPanelHeight + controlPanelHeight;
-            const estimatedGaps = 12 * 3; // Example: gap after header, after stats, after control panel
-
-            targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
-            targetHeight = parentElementForCanvas.clientHeight - fixedTopElementsHeight - estimatedGaps - (panelPadding * 2);
-        }
-        
-    } else if (awaitingMathAnswer) {
-        // Math challenge is active, canvas is hidden. No need to resize canvas.
-        // The right-panel itself will be handled by CSS to fill the screen.
-        return; 
+    // Check for 1920x1080p resolution specifically
+    if (window.innerWidth === 1920 && window.innerHeight === 1080) {
+        currentCanvasSize = 600; // Set fixed size for this resolution
     } else {
-        // Initial state / Menu state, canvas is hidden, .game-panel contains selections
-        parentElementForCanvas = gamePanel;
-        if (!parentElementForCanvas) {
-            console.error("Game panel not found during menu resize. Using window dimensions.");
-            targetWidth = window.innerWidth - (panelPadding * 2);
-            targetHeight = window.innerHeight - (panelPadding * 2);
-        } else {
-            const headerHeight = document.querySelector('.header').offsetHeight || 0;
-            const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
-            const operationSelectionPanelHeight = operationSelectionPanel.offsetHeight || 0;
-            const difficultyPanelHeight = difficultyPanel.offsetHeight || 0;
-            const messageAreaHeight = messageArea.offsetHeight || 0;
-            const startGameBtnHeight = startGameBtn.offsetHeight || 0;
+        // Determine the active panel and its available space for the canvas or math challenge
+        if (isGameRunning && !awaitingMathAnswer) {
+            // Game is running, canvas is visible inside .game-panel
+            parentElementForCanvas = gamePanel;
+            if (!parentElementForCanvas) {
+                console.error("Game panel not found during resize. Using window dimensions.");
+                targetWidth = window.innerWidth - (panelPadding * 2);
+                targetHeight = window.innerHeight - (panelPadding * 2);
+            } else {
+                const headerHeight = document.querySelector('.header').offsetHeight || 0;
+                const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
+                const controlPanel = document.getElementById('control-panel');
+                const controlPanelHeight = controlPanel.style.display !== 'none' ? controlPanel.offsetHeight : 0;
+                
+                // Approximate total height of elements above canvas within the game-panel
+                const fixedTopElementsHeight = headerHeight + statsPanelHeight + controlPanelHeight;
+                const estimatedGaps = 12 * 3; // Example: gap after header, after stats, after control panel
+
+                targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
+                targetHeight = parentElementForCanvas.clientHeight - fixedTopElementsHeight - estimatedGaps - (panelPadding * 2);
+            }
             
-            // Approximate total height of menu elements within the game-panel
-            const menuElementsHeight = headerHeight + statsPanelHeight + operationSelectionPanelHeight +
-                                       difficultyPanelHeight + messageAreaHeight + startGameBtnHeight;
-            const estimatedGaps = 12 * 6; // Example: sum of various gaps/margins
+        } else if (awaitingMathAnswer) {
+            // Math challenge is active, canvas is hidden. No need to resize canvas.
+            // The right-panel itself will be handled by CSS to fill the screen.
+            return; 
+        } else {
+            // Initial state / Menu state, canvas is hidden, .game-panel contains selections
+            parentElementForCanvas = gamePanel;
+            if (!parentElementForCanvas) {
+                console.error("Game panel not found during menu resize. Using window dimensions.");
+                targetWidth = window.innerWidth - (panelPadding * 2);
+                targetHeight = window.innerHeight - (panelPadding * 2);
+            } else {
+                const headerHeight = document.querySelector('.header').offsetHeight || 0;
+                const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
+                const operationSelectionPanelHeight = operationSelectionPanel.offsetHeight || 0;
+                const difficultyPanelHeight = difficultyPanel.offsetHeight || 0;
+                const messageAreaHeight = messageArea.offsetHeight || 0;
+                const startGameBtnHeight = startGameBtn.offsetHeight || 0;
+                
+                // Approximate total height of menu elements within the game-panel
+                const menuElementsHeight = headerHeight + statsPanelHeight + operationSelectionPanelHeight +
+                                           difficultyPanelHeight + messageAreaHeight + startGameBtnHeight;
+                const estimatedGaps = 12 * 6; // Example: sum of various gaps/margins
 
-            targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
-            targetHeight = parentElementForCanvas.clientHeight - menuElementsHeight - estimatedGaps - (panelPadding * 2);
+                targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
+                targetHeight = parentElementForCanvas.clientHeight - menuElementsHeight - estimatedGaps - (panelPadding * 2);
+            }
         }
+
+        targetWidth = Math.max(0, targetWidth);
+        targetHeight = Math.max(0, targetHeight);
+
+        let desiredSize = Math.min(targetWidth, targetHeight);
+
+        const minCanvasSize = CELLS_PER_SIDE * 5; // Minimum 5x5 cells
+        const maxCanvasSize = 1000; // Increased max canvas size for 1080p optimization
+
+        currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
+        currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
+        currentCanvasSize = Math.max(currentCanvasSize, CELLS_PER_SIDE);
     }
-
-    targetWidth = Math.max(0, targetWidth);
-    targetHeight = Math.max(0, targetHeight);
-
-    let desiredSize = Math.min(targetWidth, targetHeight);
-
-    const minCanvasSize = CELLS_PER_SIDE * 5; // Minimum 5x5 cells
-    const maxCanvasSize = 1000; // Increased max canvas size for 1080p optimization
-
-    currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
-    currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
-    currentCanvasSize = Math.max(currentCanvasSize, CELLS_PER_SIDE);
 
     canvas.width = currentCanvasSize;
     canvas.height = currentCanvasSize;
