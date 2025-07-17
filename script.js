@@ -42,6 +42,10 @@ const rightPanel = document.querySelector('.right-panel');
 const header = document.querySelector('.header'); // Get reference to the header
 const controlPanel = document.getElementById('control-panel'); // Get reference to control panel
 
+// New elements for all-time high score display
+const allTimeHighScoreDisplay = document.getElementById('all-time-high-score');
+const allTimeHighScoreProblemTypeDisplay = document.getElementById('all-time-high-score-problem-type');
+
 
 let snake = [];
 let food = {};
@@ -78,6 +82,10 @@ const difficultyTimes = {
     hard: 180,
     expert: 240
 };
+
+// All-time high score variables
+let allTimeHighScore = JSON.parse(localStorage.getItem('allTimeMathSnakeHighScore')) || { score: 0, problemType: 'N/A' };
+
 
 // Function to resize the canvas dynamically
 function resizeCanvas() {
@@ -130,10 +138,15 @@ function resizeCanvas() {
                 const messageAreaHeight = messageArea.offsetHeight || 0;
                 const startGameBtnHeight = startGameBtn.offsetHeight || 0;
                 
+                // All-time high score display is also visible in menu, account for its height
+                const allTimeHighScoreContainer = document.getElementById('all-time-high-score-container');
+                const allTimeHighScoreContainerHeight = allTimeHighScoreContainer ? allTimeHighScoreContainer.offsetHeight : 0;
+
+
                 // Approximate total height of menu elements within the game-panel
                 const menuElementsHeight = headerHeight + statsPanelHeight + operationSelectionPanelHeight +
-                                       difficultyPanelHeight + messageAreaHeight + startGameBtnHeight;
-                const estimatedGaps = 12 * 6; // Example: sum of various gaps/margins
+                                       difficultyPanelHeight + messageAreaHeight + startGameBtnHeight + allTimeHighScoreContainerHeight;
+                const estimatedGaps = 12 * 7; // Example: sum of various gaps/margins, adjusted for new element
 
                 targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
                 targetHeight = parentElementForCanvas.clientHeight - menuElementsHeight - estimatedGaps - (panelPadding * 2);
@@ -253,6 +266,7 @@ function endGame() {
     currentDifficulty = null;
     selectedOperationType = null;
     updateDifficultyAndOperationDisplay();
+    updateAllTimeHighScoreDisplay(); // Update display on game end
 }
 
 
@@ -310,6 +324,7 @@ function initializeGame() {
     drawGame();
     updateDifficultyAndOperationDisplay();
     setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
+    updateAllTimeHighScoreDisplay(); // Update display on initialize
 }
 
 function drawGame() {
@@ -1405,6 +1420,15 @@ function submitMathAnswer() {
             }
         }
 
+        // Update all-time high score
+        if (score > allTimeHighScore.score) {
+            allTimeHighScore.score = score;
+            allTimeHighScore.problemType = document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent;
+            localStorage.setItem('allTimeMathSnakeHighScore', JSON.stringify(allTimeHighScore));
+            updateAllTimeHighScoreDisplay();
+        }
+
+
         setMessage(`Correct! +${pointsEarned} points.`);
         awaitingMathAnswer = false;
         clearInterval(mathTimerInterval);
@@ -1618,6 +1642,14 @@ function updateDifficultyAndOperationDisplay() {
         highScoreContainer.style.display = 'flex';
     } else {
         highScoreContainer.style.display = 'none';
+    }
+}
+
+// Function to update the all-time high score display
+function updateAllTimeHighScoreDisplay() {
+    if (allTimeHighScoreDisplay && allTimeHighScoreProblemTypeDisplay) {
+        allTimeHighScoreDisplay.textContent = allTimeHighScore.score;
+        allTimeHighScoreProblemTypeDisplay.textContent = allTimeHighScore.problemType;
     }
 }
 
