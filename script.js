@@ -34,9 +34,10 @@ const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
 const welcomeModal = document.getElementById('welcomeModal');
 const startPlayingBtn = document.getElementById('startPlayingBtn');
 
-const cheatSheetModal = document.getElementById('cheatSheetModal');
-const cheatSheetContent = document.getElementById('cheatSheetContent');
-const closeCheatSheetBtn = document.getElementById('closeCheatSheetBtn');
+// Removed cheatSheetModal and related elements as per instruction 1.
+// const cheatSheetModal = document.getElementById('cheatSheetModal');
+// const cheatSheetContent = document.getElementById('cheatSheetContent');
+// const closeCheatSheetBtn = document.getElementById('closeCheatSheetBtn');
 
 let snake = [];
 let food = {};
@@ -139,7 +140,8 @@ function initializeGame() {
     customKeyboard.style.display = 'none';
     gameOverModal.style.display = 'none';
     infoModal.style.display = 'none';
-    cheatSheetModal.style.display = 'none';
+    // Removed cheatSheetModal hide as per instruction 1.
+    // cheatSheetModal.style.display = 'none';
     canvas.style.display = 'none';
     scoreDisplay.parentElement.style.display = 'none';
 
@@ -315,12 +317,13 @@ function startGame() {
     }
 
     isGameRunning = true;
-    startGameBtn.style.display = 'none';
-    pauseGameBtn.style.display = 'none';
+    // startGameBtn.style.display = 'none'; // Keep visible or adjust as needed
+    pauseGameBtn.style.display = 'none'; // Will show during math challenges
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'none';
     operationSelectionPanel.style.display = 'none';
-    cheatSheetModal.style.display = 'none';
+    // Removed cheatSheetModal hide as per instruction 1.
+    // cheatSheetModal.style.display = 'none';
     canvas.style.display = 'block';
     scoreDisplay.parentElement.style.display = 'flex';
     if (highScoreContainer) {
@@ -710,30 +713,62 @@ function generateBinaryToDecimalProblem() {
 
 function generateBinaryAdditionProblem() {
     let binaryNum1, binaryNum2, sumBinary;
-    
-    
-    const bit1 = Math.random() < 0.5 ? '0' : '1';
-    const bit2 = Math.random() < 0.5 ? '0' : '1';
+    let bitLength;
 
-    binaryNum1 = bit1;
-    binaryNum2 = bit2;
-
-    const dec1 = parseInt(bit1, 2);
-    const dec2 = parseInt(bit2, 2);
-    const sumDec = dec1 + dec2;
-    sumBinary = sumDec.toString(2);
-
-  
-    if (bit1 === '1' && bit2 === '1') {
-        sumBinary = '10';
-    } else if (bit1 === '0' && bit2 === '0') {
-        sumBinary = '0';
-    } else {
-        sumBinary = '1';
+    if (currentDifficulty === 'easy') {
+        bitLength = generateRandomNum(2, 4);
+    } else if (currentDifficulty === 'medium') {
+        bitLength = generateRandomNum(4, 6);
+    } else if (currentDifficulty === 'hard') {
+        bitLength = generateRandomNum(6, 8);
+    } else { // expert
+        bitLength = generateRandomNum(8, 10);
     }
 
+    // Generate two random binary strings of specified length
+    const generateRandomBinary = (length) => {
+        let binary = '';
+        for (let i = 0; i < length; i++) {
+            binary += Math.round(Math.random());
+        }
+        // Ensure at least one '1' for non-zero numbers
+        if (parseInt(binary, 2) === 0 && length > 0) {
+            binary = binary.substring(0, length - 1) + '1';
+        }
+        return binary;
+    };
 
-    mathProblemDisplay.textContent = `Add binary: ${binaryNum1} + ${binaryNum2} = ?`;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        binaryNum1 = generateRandomBinary(bitLength);
+        binaryNum2 = generateRandomBinary(bitLength);
+
+        // Convert to decimal, add, then convert back to binary
+        const dec1 = parseInt(binaryNum1, 2);
+        const dec2 = parseInt(binaryNum2, 2);
+        const sumDec = dec1 + dec2;
+        sumBinary = sumDec.toString(2);
+
+        // Ensure the sum doesn't exceed a reasonable length for the current difficulty
+        // (e.g., prevent extremely long sums from smaller initial numbers if they carry a lot)
+        if (sumBinary.length <= bitLength + 1) { // sum can be 1 bit longer due to carry
+             problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        binaryNum1 = '101'; // Fallback to a simple example
+        binaryNum2 = '011';
+        sumBinary = (parseInt(binaryNum1, 2) + parseInt(binaryNum2, 2)).toString(2);
+        setMessage('Binary Addition problem generation fallback. Please continue.');
+    }
+
+    // Format for display - using <br> for visual stacking
+    mathProblemDisplay.innerHTML = `Add binary:<br>${binaryNum1}<br>+ ${binaryNum2}<br>= ?`;
     correctMathAnswer = sumBinary;
     mathAnswerInput.value = '';
 }
@@ -1167,8 +1202,8 @@ function submitMathAnswer() {
     }
     
     const isCorrect = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') ?
-                        userAnswer === correctMathAnswer :
-                        userAnswer === parseFloat(correctMathAnswer.toFixed(2));
+                         userAnswer === correctMathAnswer :
+                         userAnswer === parseFloat(correctMathAnswer.toFixed(2));
 
     if (isCorrect) {
         let pointsEarned = 0;
@@ -1360,10 +1395,11 @@ startPlayingBtn.addEventListener('click', () => {
     checkAndEnableStartGame();
 });
 
-closeCheatSheetBtn.addEventListener('click', () => {
-    cheatSheetModal.style.display = 'none';
-    startGame();
-});
+// Removed closeCheatSheetBtn listener as per instruction 1.
+// closeCheatSheetBtn.addEventListener('click', () => {
+//     cheatSheetModal.style.display = 'none';
+//     startGame();
+// });
 
 difficultyButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -1413,6 +1449,8 @@ function updateDifficultyAndOperationDisplay() {
     }
 }
 
+// Removed generateCheatSheetContent function as it's no longer used.
+/*
 function generateCheatSheetContent(operationType, difficulty) {
     let content = '';
     const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
@@ -1486,7 +1524,7 @@ function generateCheatSheetContent(operationType, difficulty) {
         case 'binary-addition':
             content = `
                 <h3>Binary Addition (0s and 1s)</h3>
-                <p>Add two binary bits. Remember the rules:</p>
+                <p>Add two binary numbers. Remember the rules:</p>
                 <ul>
                     <li>$0 + 0 = 0$</li>
                     <li>$0 + 1 = 1$</li>
@@ -1494,8 +1532,8 @@ function generateCheatSheetContent(operationType, difficulty) {
                     <li>$1 + 1 = 10$ (which is $0$ with a carry of $1$)</li>
                 </ul>
                 <div class="formula-example">
-                    <p class="example"><b>Example:</b> Add binary $1 + 1 = ?$</p>
-                    <p class="solution"><b>Solution:</b> $1 + 1 = 10_2$</p>
+                    <p class="example"><b>Example:</b> Add binary $101_2 + 011_2 = ?$</p>
+                    <p class="solution"><b>Solution:</b> $101_2 + 011_2 = 1000_2$</p>
                 </div>
             `;
             break;
@@ -1595,6 +1633,7 @@ function generateCheatSheetContent(operationType, difficulty) {
     }
     cheatSheetContent.innerHTML = content;
 }
+*/
 
 function checkAndEnableStartGame() {
     if (currentDifficulty && selectedOperationType) {
@@ -1609,14 +1648,19 @@ function checkAndEnableStartGame() {
             highScoreContainer.style.display = 'flex';
         }
         
-        generateCheatSheetContent(selectedOperationType, currentDifficulty);
-        cheatSheetModal.style.display = 'flex';
-        startGameBtn.style.display = 'none';
+        // Removed cheatSheetModal display and startGameBtn hide as per instruction 1.
+        // generateCheatSheetContent(selectedOperationType, currentDifficulty);
+        // cheatSheetModal.style.display = 'flex';
+        // startGameBtn.style.display = 'none';
+        startGameBtn.style.display = 'inline-block'; // Ensure Start Game button is visible if not playing
     } else {
         startGameBtn.disabled = true;
         if (highScoreContainer) {
             highScoreContainer.style.display = 'none';
         }
+        // Removed cheatSheetModal hide as per instruction 1.
+        // cheatSheetModal.style.display = 'none';
+        startGameBtn.style.display = 'inline-block';
         if (!currentDifficulty && !selectedOperationType) {
             setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
         } else if (!currentDifficulty) {
@@ -1626,8 +1670,6 @@ function checkAndEnableStartGame() {
             const difficultyText = currentDifficulty ? currentDifficulty.toUpperCase() : 'a difficulty';
             setMessage(`Difficulty set to **${difficultyText}**. Now choose a **problem type**.`);
         }
-        cheatSheetModal.style.display = 'none';
-        startGameBtn.style.display = 'inline-block';
     }
 }
 
