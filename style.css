@@ -803,8 +803,9 @@ input[type="number"] {
     .game-panel, .right-panel {
         padding: 15px;
         gap: 10px;
-        max-height: none;
-        overflow-y: visible;
+        /* Set height to 100% of parent and allow internal scrolling */
+        height: 100%; 
+        overflow-y: auto;
         margin: auto;
         /* Ensure content starts from the top on mobile */
         justify-content: flex-start; 
