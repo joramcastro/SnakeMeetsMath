@@ -1,6 +1,6 @@
 let currentCanvasSize;
 let currentCellSize;
-const CELLS_PER_SIDE = 17;
+const CELLS_PER_SIDE = 15; // Decreased from 20 to make snake/food bigger
 
 const INITIAL_SNAKE_LENGTH = 1;
 const GAME_SPEED = 350;
@@ -39,6 +39,7 @@ const startPlayingBtn = document.getElementById('startPlayingBtn');
 // Get references to the main panels
 const gamePanel = document.querySelector('.game-panel');
 const rightPanel = document.querySelector('.right-panel');
+const header = document.querySelector('.header'); // Get reference to the header
 
 
 let snake = [];
@@ -96,14 +97,14 @@ function resizeCanvas() {
                 targetWidth = window.innerWidth - (panelPadding * 2);
                 targetHeight = window.innerHeight - (panelPadding * 2);
             } else {
-                const headerHeight = document.querySelector('.header').offsetHeight || 0;
+                // Header is hidden during gameplay, so don't include its height in calculation
                 const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
                 const controlPanel = document.getElementById('control-panel');
                 const controlPanelHeight = controlPanel.style.display !== 'none' ? controlPanel.offsetHeight : 0;
                 
                 // Approximate total height of elements above canvas within the game-panel
-                const fixedTopElementsHeight = headerHeight + statsPanelHeight + controlPanelHeight;
-                const estimatedGaps = 12 * 3; // Example: gap after header, after stats, after control panel
+                const fixedTopElementsHeight = statsPanelHeight + controlPanelHeight; // Header excluded
+                const estimatedGaps = 12 * 2; // Example: gap after stats, after control panel
 
                 targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
                 targetHeight = parentElementForCanvas.clientHeight - fixedTopElementsHeight - estimatedGaps - (panelPadding * 2);
@@ -121,7 +122,7 @@ function resizeCanvas() {
                 targetWidth = window.innerWidth - (panelPadding * 2);
                 targetHeight = window.innerHeight - (panelPadding * 2);
             } else {
-                const headerHeight = document.querySelector('.header').offsetHeight || 0;
+                const headerHeight = header.offsetHeight || 0; // Header is visible in menu
                 const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
                 const operationSelectionPanelHeight = operationSelectionPanel.offsetHeight || 0;
                 const difficultyPanelHeight = difficultyPanel.offsetHeight || 0;
@@ -130,7 +131,7 @@ function resizeCanvas() {
                 
                 // Approximate total height of menu elements within the game-panel
                 const menuElementsHeight = headerHeight + statsPanelHeight + operationSelectionPanelHeight +
-                                           difficultyPanelHeight + messageAreaHeight + startGameBtnHeight;
+                                       difficultyPanelHeight + messageAreaHeight + startGameBtnHeight;
                 const estimatedGaps = 12 * 6; // Example: sum of various gaps/margins
 
                 targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
@@ -244,6 +245,7 @@ function endGame() {
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'flex';
     operationSelectionPanel.style.display = 'flex';
+    header.style.display = 'block'; // Show header when game ends
 
     startGameBtn.disabled = true;
     currentDifficulty = null;
@@ -296,6 +298,7 @@ function initializeGame() {
     difficultyPanel.style.display = 'flex';
     operationSelectionPanel.style.display = 'flex';
     messageArea.style.display = 'block';
+    header.style.display = 'block'; // Show header in menu state
 
     currentDifficulty = null;
     selectedOperationType = null;
@@ -465,6 +468,7 @@ function startGame() {
     rightPanel.style.display = 'none'; // Right panel hidden
 
     // Hide elements not needed during gameplay
+    header.style.display = 'none'; // Hide header during gameplay
     startGameBtn.style.display = 'none';
     difficultyPanel.style.display = 'none';
     operationSelectionPanel.style.display = 'none';
