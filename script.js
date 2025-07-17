@@ -99,7 +99,7 @@ function resizeCanvas() {
             
             // Approximate total height of elements above canvas within the game-panel
             const fixedTopElementsHeight = headerHeight + statsPanelHeight + controlPanelHeight;
-            const estimatedGaps = 12 * 3; // Example: gap after header, after stats, after control panel
+            const estimatedGaps = 20 * 3; // Example: gap after header, after stats, after control panel
 
             targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
             targetHeight = parentElementForCanvas.clientHeight - fixedTopElementsHeight - estimatedGaps - (panelPadding * 2);
@@ -139,7 +139,7 @@ function resizeCanvas() {
 
     let desiredSize = Math.min(targetWidth, targetHeight);
 
-    const minCanvasSize = CELLS_PER_SIDE * 5; // Minimum 5x5 cells
+    const minCanvasSize = CELLS_PER_SIDE * 6; // Minimum 5x5 cells
     const maxCanvasSize = 1000; // Increased max canvas size for 1080p optimization
 
     currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
