@@ -668,9 +668,10 @@ input[type="number"] {
     .right-panel {
         /* When math challenge is active, it will contain math problem, input, keyboard */
         display: flex; /* Ensure it's a flex container */
-        flex-direction: column; /* Default to column for smaller desktop widths */
-        justify-content: center; /* Center content vertically */
-        align-items: center; /* Center content horizontally */
+        flex-direction: row; /* Changed to row for side-by-side on desktop */
+        justify-content: center; /* Center content horizontally */
+        align-items: center; /* Center content vertically */
+        gap: 40px; /* Space between math challenge and keyboard */
     }
 
     /* Canvas sizing for desktop - ensure it adapts within its parent */
@@ -701,13 +702,13 @@ input[type="number"] {
         flex-shrink: 0; /* Prevent these from shrinking */
         width: auto; /* Allow content-based width */
         max-width: 100%; /* Ensure they don't overflow */
-        margin: 0 auto; /* Center them */
+        margin: 0; /* Remove auto margins */
     }
     .math-challenge { font-size: 1.6rem; padding: 25px 20px; }
     .math-challenge input { font-size: 1.4rem; padding: 12px 18px; }
     .math-challenge button { padding: 12px 20px; font-size: 1.1rem; }
     .math-challenge #timer-display { font-size: 1.3rem; }
-    .custom-keyboard { max-width: 300px; margin-top: 20px; }
+    .custom-keyboard { max-width: 400px; /* Increased max-width for keyboard */ }
     .custom-keyboard .key-btn { padding: 12px 0; font-size: 1.1rem; }
     .custom-keyboard .key-btn.wide { font-size: 0.9rem; }
 }
@@ -724,23 +725,23 @@ input[type="number"] {
     }
 
     .right-panel {
-        flex-direction: row; /* Arrange math challenge and keyboard side-by-side */
-        justify-content: center; /* Center content horizontally */
-        align-items: center; /* Center content vertically */
-        gap: 40px; /* Space between math challenge and keyboard */
+        flex-direction: row; /* Keep row for math challenge and keyboard */
+        justify-content: center;
+        align-items: center;
+        gap: 40px;
     }
 
     .math-challenge {
-        width: auto; /* Allow content to dictate width */
-        max-width: 45%; /* Limit math challenge width */
-        margin: 0; /* Remove auto margins */
+        width: auto;
+        max-width: 45%; /* Keep proportional width */
+        margin: 0;
         flex-shrink: 0;
     }
 
     .custom-keyboard {
-        width: auto; /* Allow content to dictate width */
-        max-width: 400px; /* Increased max-width for keyboard */
-        margin: 0; /* Remove auto margins */
+        width: auto;
+        max-width: 450px; /* Adjusted max-width for keyboard to be 50% wider (from 300px to 450px) */
+        margin: 0;
         flex-shrink: 0;
     }
 
@@ -749,7 +750,6 @@ input[type="number"] {
     .stats-panel { 
         font-size: 2rem; /* Increased font size for stats */
         padding: 20px 30px; /* Adjusted padding for stats */
-        /* Ensure numbers are emphasized with proper spacing */
         justify-content: space-around; /* Distribute space evenly */
     }
     .btn { font-size: 1.5rem; }
