@@ -92,10 +92,11 @@ body {
     align-items: center;
     gap: 12px;
     width: 100%;
-    max-width: 180px;
+    max-width: 180px; /* This max-width might need adjustment on larger screens */
     box-sizing: border-box;
 }
 
+/* Canvas styling - REMOVED fixed width/height properties */
 canvas {
     background-color: var(--bg-medium);
     border: 6px solid #81e6d9;
@@ -104,11 +105,7 @@ canvas {
     border-radius: 12px;
     box-shadow: 0 10px 25px var(--shadow-medium);
     transition: transform 0.3s ease;
-    width: 100%;
-    height: auto;
-    max-width: 400px;
-    max-height: 400px;
-    object-fit: contain;
+    /* width, height, max-width, max-height, object-fit removed to allow JS to control */
 }
 canvas:hover {
     transform: translateY(-8px);
@@ -468,7 +465,7 @@ footer #footer-text {
     flex-direction: column;
     gap: 6px;
     width: 100%;
-    max-width: 180px;
+    max-width: 180px; /* This max-width might constrain the keyboard on larger screens */
     margin-top: 0;
 }
 
@@ -520,7 +517,7 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
-/* Cheat Sheet Modal Styles */
+/* Cheat Sheet Modal Styles - Kept for reference but not actively used by current JS/HTML */
 .cheat-sheet-modal-content {
     background: linear-gradient(135deg, #d1e8ef, #e0f2f7);
     border: 2px solid #81e6d9;
@@ -657,12 +654,22 @@ input[type="number"] {
     .right-panel {
         flex-grow: 1;
         flex-basis: 0;
-        max-width: none;
+        max-width: none; /* Removed previous fixed max-width for right-panel */
         width: auto;
         padding-top: 0;
         gap: 15px;
         align-self: stretch;
+        display: flex; /* Ensure flex behavior */
+        flex-direction: column; /* Ensure vertical stacking */
+        justify-content: center; /* Center content vertically */
     }
+
+    /* Adjust math challenge and keyboard to fill right panel better */
+    .math-challenge, .custom-keyboard {
+        max-width: 100%; /* Allow them to fill available width */
+        margin: 0 auto; /* Center them within the right panel */
+    }
+
 
     h1 {
         font-size: 2.2rem;
@@ -695,7 +702,7 @@ input[type="number"] {
     }
     .right-panel {
         width: 95%;
-        max-width: 320px;
+        max-width: 320px; /* Kept a max-width for mobile for better appearance */
         margin: 0 auto;
     }
     h1 {
@@ -762,6 +769,7 @@ input[type="number"] {
         font-size: 0.8rem;
     }
 
+    /* Cheat Sheet Modal Styles - kept but not used by current JS/HTML */
     .cheat-sheet-modal-content h2 {
         font-size: 1.5rem;
     }
