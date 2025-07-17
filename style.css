@@ -22,12 +22,13 @@
     --shadow-heavy: rgba(0, 0, 0, 0.3);
 }
 
+/* Ensure html and body take up 100% of the viewport */
 html, body {
     height: 100%;
     width: 100%;
     margin: 0;
-    padding: 0;
-    overflow: hidden;
+    padding: 0; /* Remove body padding */
+    overflow: hidden; /* Prevent native scrollbars */
 }
 
 body {
@@ -41,24 +42,27 @@ body {
     box-sizing: border-box;
 }
 
+/* Main wrapper to occupy entire available space */
 .main-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height: 100%;
-    max-width: none; /* Removed max-width to allow it to spread on large screens */
+    height: 100%; /* Fill height */
+    max-width: none; /* Remove horizontal limits */
     flex-grow: 1;
-    padding: 10px;
+    padding: 10px; /* Add some overall padding for the content inside */
     box-sizing: border-box;
 }
 
+/* Main content wrapper to also occupy entire available space */
 .main-content-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    position: relative; /* Needed for absolute positioning of children */
+    display: flex; /* Keep flex for potential future use, but children are absolute */
+    flex-direction: column; /* Default flex-direction */
+    gap: 0; /* No gap needed with absolute positioning */
     width: 100%;
-    height: 100%;
+    height: 100%; /* Fill height */
     box-sizing: border-box;
     padding: 0;
     flex-grow: 1;
@@ -66,55 +70,58 @@ body {
     align-items: center;
 }
 
-.game-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    padding: 20px;
-    background-color: var(--bg-light);
+/* Game Panel & Right Panel - Absolute positioning to fill parent and overlap */
+.game-panel, .right-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 20px; /* Default padding for panels */
+    background-color: var(--bg-light); /* Default background */
     border-radius: 20px;
     box-shadow: 0 18px 45px var(--shadow-heavy);
-    width: 100%;
-    height: 100%; /* Default to full height on small screens */
-    max-width: 450px; /* Keep for mobile/default single column */
-    max-height: none; /* Removed fixed max-height */
-    box-sizing: border-box;
-    border: 2px solid var(--bg-gradient-start);
     transition: all 0.3s ease;
-    flex-shrink: 1;
-    overflow-y: auto; /* Allow scrolling if internal content is too tall */
+    border: 2px solid var(--bg-gradient-start);
+    
+    /* Flex properties for internal layout */
+    display: flex; /* Will be toggled by JS */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Center content vertically by default */
+    gap: 12px;
+    overflow-y: auto; /* Allow internal scrolling if content exceeds height */
 }
+
 .game-panel:hover {
     transform: translateY(-3px);
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
 }
 
+/* Specific styles for right-panel (math challenge) if needed, overrides game-panel defaults */
 .right-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    height: 100%; /* Fill height when active */
-    max-width: 180px; /* Keep for mobile/default single column */
-    box-sizing: border-box;
-    flex-grow: 1;
-    justify-content: center;
-    align-items: center;
+    background-color: var(--bg-medium); /* Different background for math challenge */
+    border: 2px dashed #64748b;
 }
 
+/* Canvas styling - REMOVED fixed width/height properties */
 canvas {
     background-color: var(--bg-medium);
     border: 6px solid #81e6d9;
     display: block;
-    margin: 0 auto;
+    margin: 0 auto; /* Center the canvas */
     border-radius: 12px;
     box-shadow: 0 10px 25px var(--shadow-medium);
     transition: transform 0.3s ease;
+    /* JS will set actual width/height attributes */
+    /* Ensure it scales visually without distortion, but JS controls resolution */
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain;
+    object-fit: contain; /* Important to maintain aspect ratio */
+    flex-grow: 1; /* Allow canvas to take available space in flex column */
+    flex-shrink: 1;
+    flex-basis: auto;
 }
 canvas:hover {
     transform: translateY(-8px);
@@ -627,102 +634,82 @@ input[type="number"] {
 
 /* Media query for larger screens: Desktop/Tablet Landscape */
 @media (min-width: 768px) {
+    /* Main content wrapper now handles the full-screen layout */
     .main-content-wrapper {
-        flex-direction: row;
-        align-items: stretch; /* Stretch items to fill height */
+        flex-direction: row; /* Keep row for desktop */
+        align-items: stretch; /* Stretch children to fill height */
         justify-content: center;
         padding: 20px;
         flex-wrap: nowrap;
         height: 100%;
     }
 
+    /* Game Panel & Right Panel - now fill the entire main-content-wrapper */
+    .game-panel, .right-panel {
+        position: absolute; /* Keep absolute to overlap */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 30px; /* Increased padding for larger screens */
+        gap: 20px; /* Increased gap between internal elements */
+    }
+
+    /* Specific adjustments for game-panel content during gameplay */
     .game-panel {
-        flex-grow: 2; /* Game panel takes 2/3 of available space */
-        flex-shrink: 1;
-        flex-basis: auto;
-        max-width: 900px; /* Increased max-width for game panel on larger screens */
-        height: 100%; /* Fill height */
-        margin: 0 15px; /* Added more horizontal margin between panels */
-        overflow-y: auto; /* Allow scrolling for internal content if needed */
-        align-self: center; /* Vertically center itself within main-content-wrapper */
-        padding: 30px; /* Increased padding */
-        gap: 20px; /* Increased gap between elements */
+        /* When game is active, it will contain canvas, score, buttons */
+        display: flex; /* Ensure it's a flex container */
+        flex-direction: column; /* Stack elements vertically */
+        justify-content: space-between; /* Push header/stats to top, buttons to bottom, canvas in middle */
+        align-items: center; /* Center horizontally */
     }
 
+    /* Specific adjustments for right-panel content during math challenge */
     .right-panel {
-        flex-grow: 1; /* Right panel takes 1/3 of available space */
-        flex-shrink: 1;
-        flex-basis: auto;
-        max-width: 450px; /* Increased max-width for right panel */
-        height: 100%; /* Fill height */
-        margin: 0 15px; /* Added more horizontal margin between panels */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        align-self: center;
+        /* When math challenge is active, it will contain math problem, input, keyboard */
+        display: flex; /* Ensure it's a flex container */
+        flex-direction: column; /* Stack elements vertically */
+        justify-content: center; /* Center content vertically */
+        align-items: center; /* Center content horizontally */
     }
 
+    /* Canvas sizing for desktop - ensure it adapts within its parent */
     canvas {
-        flex-grow: 1;
+        flex-grow: 1; /* Allow canvas to grow and take space */
         flex-shrink: 1;
         flex-basis: auto;
         max-width: 100%;
         max-height: 100%;
+        margin: auto; /* Ensure it's centered within the available space */
     }
 
+    /* Adjust elements within game-panel to ensure canvas has max space */
+    .header, .stats-panel, .control-panel, .difficulty-panel, .operation-selection-panel, #message-area, #start-game-btn {
+        flex-shrink: 0; /* Prevent these from shrinking */
+        width: auto; /* Allow content-based width if not 100% */
+        max-width: 100%; /* Ensure they don't overflow */
+    }
+    .header h1 { font-size: 2.8rem; letter-spacing: 4px; }
+    .game-panel h2 { font-size: 1.5rem; }
+    .stats-panel { font-size: 1.5rem; padding: 15px 25px; }
+    .operation-category-summary { font-size: 1.1rem; padding: 12px 20px; }
+    .operation-selection-panel details[open] > .operation-buttons { padding: 15px 20px 20px; }
+    .btn { padding: 15px 30px; font-size: 1.2rem; }
+
+    /* Adjust elements within right-panel */
     .math-challenge, .custom-keyboard {
-        width: 100%;
-        margin: 0 auto;
+        flex-shrink: 0; /* Prevent these from shrinking */
+        width: auto; /* Allow content-based width */
+        max-width: 100%; /* Ensure they don't overflow */
+        margin: 0 auto; /* Center them */
     }
-    .custom-keyboard {
-         margin-top: 20px; /* Increased spacing */
-    }
-
-    h1 {
-        font-size: 2.8rem; /* Increased font size for larger screens */
-        letter-spacing: 4px;
-    }
-    .game-panel h2 {
-        font-size: 1.5rem; /* Increased font size */
-    }
-    .stats-panel {
-        font-size: 1.5rem; /* Increased font size */
-        padding: 15px 25px; /* Increased padding */
-    }
-    .operation-category-summary {
-        font-size: 1.1rem; /* Increased font size */
-        padding: 12px 20px;
-    }
-    .operation-selection-panel details[open] > .operation-buttons {
-        padding: 15px 20px 20px;
-    }
-    .math-challenge {
-        font-size: 1.6rem; /* Increased font size */
-        padding: 25px 20px;
-    }
-    .math-challenge input {
-        font-size: 1.4rem; /* Increased font size */
-        padding: 12px 18px;
-    }
-    .math-challenge button {
-        padding: 12px 20px;
-        font-size: 1.1rem;
-    }
-    .math-challenge #timer-display {
-        font-size: 1.3rem;
-    }
-    .btn {
-        padding: 15px 30px;
-        font-size: 1.2rem;
-    }
-    .custom-keyboard .key-btn {
-        padding: 12px 0;
-        font-size: 1.1rem;
-    }
-    .custom-keyboard .key-btn.wide {
-        font-size: 0.9rem;
-    }
+    .math-challenge { font-size: 1.6rem; padding: 25px 20px; }
+    .math-challenge input { font-size: 1.4rem; padding: 12px 18px; }
+    .math-challenge button { padding: 12px 20px; font-size: 1.1rem; }
+    .math-challenge #timer-display { font-size: 1.3rem; }
+    .custom-keyboard { max-width: 300px; margin-top: 20px; }
+    .custom-keyboard .key-btn { padding: 12px 0; font-size: 1.1rem; }
+    .custom-keyboard .key-btn.wide { font-size: 0.9rem; }
 }
 
 /* Optional: Additional media query for very large screens (e.g., 1440p and above) */
@@ -730,31 +717,17 @@ input[type="number"] {
     .main-wrapper {
         padding: 30px; /* More padding on very large screens */
     }
-    .game-panel {
-        max-width: 1000px; /* Allow game panel to be even wider */
+    .game-panel, .right-panel {
+        max-width: 1200px; /* Limit max width for overall panels on very large screens */
+        max-height: 900px; /* Limit max height for overall panels */
         padding: 40px;
     }
-    .right-panel {
-        max-width: 500px; /* Allow right panel to be even wider */
-    }
-    h1 {
-        font-size: 3.5rem;
-    }
-    .game-panel h2 {
-        font-size: 1.8rem;
-    }
-    .stats-panel {
-        font-size: 1.8rem;
-    }
-    .btn {
-        font-size: 1.4rem;
-    }
-    .math-challenge {
-        font-size: 1.8rem;
-    }
-    .math-challenge input {
-        font-size: 1.6rem;
-    }
+    h1 { font-size: 3.5rem; }
+    .game-panel h2 { font-size: 1.8rem; }
+    .stats-panel { font-size: 1.8rem; }
+    .btn { font-size: 1.4rem; }
+    .math-challenge { font-size: 1.8rem; }
+    .math-challenge input { font-size: 1.6rem; }
 }
 
 
@@ -767,106 +740,45 @@ input[type="number"] {
     .main-wrapper {
         padding: 5px;
         height: auto;
-        overflow-y: auto;
+        overflow-y: auto; /* Allow scrolling for the whole wrapper on mobile */
     }
     .main-content-wrapper {
-        gap: 15px;
+        gap: 0; /* No gap needed with absolute positioning */
         padding: 0;
         height: auto;
         flex-direction: column;
         justify-content: flex-start;
     }
-    .game-panel {
+    .game-panel, .right-panel {
         padding: 15px;
         gap: 10px;
         max-height: none;
-        overflow-y: visible;
-        margin: 0 auto;
+        overflow-y: visible; /* Content flows naturally */
+        margin: auto; /* Center horizontally */
     }
-    .right-panel {
-        width: 95%;
-        max-width: 320px;
-        margin: 0 auto;
-    }
-    h1 {
-        font-size: 1.2rem;
-        letter-spacing: 1px;
-    }
-    .game-panel p {
-        font-size: 0.9rem;
-    }
-    .game-panel h2 {
-        font-size: 0.95rem;
-    }
-    .stats-panel {
-        font-size: 1rem;
-        padding: 8px 12px;
-    }
-    .operation-category-summary {
-        font-size: 0.85rem;
-        padding: 8px 12px;
-    }
-    .operation-selection-panel details[open] > .operation-buttons {
-        padding: 8px 12px 12px;
-    }
-    .math-challenge {
-        font-size: 1.1rem;
-        padding: 12px 15px;
-    }
-    .math-challenge input {
-        font-size: 1rem;
-        padding: 8px 12px;
-        width: calc(100% - 24px);
-    }
-    .math-challenge button {
-        padding: 8px 15px;
-        font-size: 0.9rem;
-    }
-    .math-challenge #timer-display {
-        font-size: 0.9rem;
-    }
-    .btn {
-        padding: 10px 18px;
-        font-size: 0.9rem;
-    }
-    .modal-content {
-        padding: 25px;
-    }
-    .modal-content h2 {
-        font-size: 2rem;
-    }
-    .modal-content p {
-        font-size: 1rem;
-    }
-    .custom-keyboard {
-        max-width: 100%;
-        padding: 6px;
-        gap: 5px;
-    }
-    .key-btn {
-        padding: 8px 0;
-        font-size: 1rem;
-        min-width: 30px;
-    }
-    .key-btn.wide {
-        font-size: 0.8rem;
-    }
+    /* Typography adjustments for small screens */
+    h1 { font-size: 1.2rem; letter-spacing: 1px; }
+    .game-panel p { font-size: 0.9rem; }
+    .game-panel h2 { font-size: 0.95rem; }
+    .stats-panel { font-size: 1rem; padding: 8px 12px; }
+    .operation-category-summary { font-size: 0.85rem; padding: 8px 12px; }
+    .operation-selection-panel details[open] > .operation-buttons { padding: 8px 12px 12px; }
+    .math-challenge { font-size: 1.1rem; padding: 12px 15px; }
+    .math-challenge input { font-size: 1rem; padding: 8px 12px; width: calc(100% - 24px); }
+    .math-challenge button { padding: 8px 15px; font-size: 0.9rem; }
+    .math-challenge #timer-display { font-size: 0.9rem; }
+    .btn { padding: 10px 18px; font-size: 0.9rem; }
+    .modal-content { padding: 25px; }
+    .modal-content h2 { font-size: 2rem; }
+    .modal-content p { font-size: 1rem; }
+    .custom-keyboard { max-width: 100%; padding: 6px; gap: 5px; }
+    .key-btn { padding: 8px 0; font-size: 1rem; min-width: 30px; }
+    .key-btn.wide { font-size: 0.8rem; }
 
     /* Cheat Sheet Modal Styles - kept but not used by current JS/HTML */
-    .cheat-sheet-modal-content h2 {
-        font-size: 1.5rem;
-    }
-    .cheat-sheet-content h3 {
-        font-size: 1rem;
-    }
-    .cheat-sheet-content p {
-        font-size: 0.85rem;
-    }
-    .cheat-sheet-content .formula {
-        font-size: 1rem;
-    }
-    .cheat-sheet-content .example,
-    .cheat-sheet-content .solution {
-        font-size: 0.8rem;
-    }
+    .cheat-sheet-modal-content h2 { font-size: 1.5rem; }
+    .cheat-sheet-content h3 { font-size: 1rem; }
+    .cheat-sheet-content p { font-size: 0.85rem; }
+    .cheat-sheet-content .formula { font-size: 1rem; }
+    .cheat-sheet-content .example, .cheat-sheet-content .solution { font-size: 0.8rem; }
 }
