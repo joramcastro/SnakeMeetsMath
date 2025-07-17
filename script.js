@@ -480,7 +480,7 @@ function startGame() {
 
     // Show elements needed during gameplay
     controlPanel.style.display = 'flex'; // Show control panel (contains pause/reset)
-    pauseGameBtn.style.display = 'none'; // Pause button initially hidden
+    pauseGameBtn.style.display = 'inline-block'; // Show pause button during snake gameplay
     resetGameBtn.style.display = 'inline-block'; // Reset button visible
     canvas.style.display = 'block'; // Canvas visible
     scoreDisplay.parentElement.style.display = 'flex'; // Score visible
@@ -498,9 +498,14 @@ function pauseGame() {
         return;
     }
 
-    if (timeLeftForMath > 10 || score < 1) {
+    // Pause is now available during snake gameplay (not just math challenge)
+    // Check if it's during math challenge for the time-based fuel logic
+    if (awaitingMathAnswer && (timeLeftForMath > 10 || score < 1)) {
         let currentMessage = `Pause is only available when time left is 10s or less and you have points to fuel it. Current time left: ${timeLeftForMath}s, Current points: ${score}.`;
         setMessage(currentMessage);
+        return;
+    } else if (!awaitingMathAnswer && score < 1) { // During snake gameplay, only check score
+        setMessage(`You need at least 1 point to use pause during gameplay. Current points: ${score}.`);
         return;
     }
 
@@ -1236,10 +1241,9 @@ function startChallenge() {
     if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
     }
-    // Move pause button to math challenge area for conditional display
-    controlPanel.style.display = 'flex'; // Ensure control panel is visible
-    pauseGameBtn.style.display = 'none'; // Initially hide pause button
-    resetGameBtn.style.display = 'none'; // Hide reset button during math challenge
+    // Pause button is managed by startMathTimer based on time left
+    // Reset button is hidden during math challenge
+    resetGameBtn.style.display = 'none'; 
 
     let allowDecimalInput = false;
 
@@ -1315,6 +1319,7 @@ function startMathTimer() {
         timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
 
         // Show pause button if time is 10s or less AND player has points
+        // This condition is for the math challenge timer.
         if (timeLeftForMath <= 10 && !isPaused && score > 0) {
             pauseGameBtn.style.display = 'inline-block';
         } else {
@@ -1435,7 +1440,7 @@ function handleKeyboardInput(value) {
             mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
         } else if (value === '.') {
             const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
-            if (!mathAnswerInput.value.includes('.') && isDecimalAllowed) {
+            if (!mathAnswerInput.value.includes('.') && mathAnswerInput.value.indexOf('.') === -1 && isDecimalAllowed) { // Added check for existing decimal point
                 mathAnswerInput.value += value;
             }
         } else if (value === '-') {
