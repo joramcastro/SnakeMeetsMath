@@ -242,7 +242,7 @@ function endGame() {
     }
     
     startGameBtn.style.display = 'inline-block';
-    pauseGameBtn.style.display = 'none';
+    pauseGameBtn.style.display = 'none'; // Ensure pause button is hidden in end game
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'flex';
     operationSelectionPanel.style.display = 'flex';
@@ -295,7 +295,7 @@ function initializeGame() {
 
     startGameBtn.style.display = 'inline-block';
     startGameBtn.disabled = true;
-    pauseGameBtn.style.display = 'none';
+    pauseGameBtn.style.display = 'none'; // Ensure pause button is hidden in initial state
     resetGameBtn.style.display = 'none';
     difficultyPanel.style.display = 'flex';
     operationSelectionPanel.style.display = 'flex';
@@ -480,7 +480,7 @@ function startGame() {
 
     // Show elements needed during gameplay
     controlPanel.style.display = 'flex'; // Show control panel (contains pause/reset)
-    pauseGameBtn.style.display = 'inline-block'; // Show pause button during snake gameplay
+    pauseGameBtn.style.display = 'none'; // Pause button is ONLY visible during math challenge (time < 10s)
     resetGameBtn.style.display = 'inline-block'; // Reset button visible
     canvas.style.display = 'block'; // Canvas visible
     scoreDisplay.parentElement.style.display = 'flex'; // Score visible
@@ -498,14 +498,17 @@ function pauseGame() {
         return;
     }
 
-    // Pause is now available during snake gameplay (not just math challenge)
-    // Check if it's during math challenge for the time-based fuel logic
-    if (awaitingMathAnswer && (timeLeftForMath > 10 || score < 1)) {
+    // This pause logic is now only for the math challenge timer.
+    // Pause during snake gameplay is not allowed by this button.
+    if (!awaitingMathAnswer) {
+        // This condition should ideally not be met if the button is hidden during snake gameplay
+        setMessage('Pause is only available during math challenges when time is low.');
+        return;
+    }
+
+    if (timeLeftForMath > 10 || score < 1) {
         let currentMessage = `Pause is only available when time left is 10s or less and you have points to fuel it. Current time left: ${timeLeftForMath}s, Current points: ${score}.`;
         setMessage(currentMessage);
-        return;
-    } else if (!awaitingMathAnswer && score < 1) { // During snake gameplay, only check score
-        setMessage(`You need at least 1 point to use pause during gameplay. Current points: ${score}.`);
         return;
     }
 
@@ -1244,6 +1247,9 @@ function startChallenge() {
     // Pause button is managed by startMathTimer based on time left
     // Reset button is hidden during math challenge
     resetGameBtn.style.display = 'none'; 
+
+    // Clear input field for new question
+    mathAnswerInput.value = '';
 
     let allowDecimalInput = false;
 
