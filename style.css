@@ -734,17 +734,26 @@ input[type="number"] {
         width: auto; /* Allow content to dictate width */
         max-width: 45%; /* Limit math challenge width */
         margin: 0; /* Remove auto margins */
+        /* Ensure text is not hidden by setting flex-shrink to 0 and allowing width auto */
+        flex-shrink: 0;
     }
 
     .custom-keyboard {
         width: auto; /* Allow content to dictate width */
-        max-width: 300px; /* Keep keyboard compact */
+        max-width: 400px; /* Increased max-width for keyboard */
         margin: 0; /* Remove auto margins */
+        /* Ensure text is not hidden by setting flex-shrink to 0 and allowing width auto */
+        flex-shrink: 0;
     }
 
     h1 { font-size: 4rem; }
     .game-panel h2 { font-size: 2rem; }
-    .stats-panel { font-size: 1.8rem; }
+    .stats-panel { 
+        font-size: 2rem; /* Increased font size for stats */
+        padding: 20px 30px; /* Adjusted padding for stats */
+        /* Ensure numbers are emphasized with proper spacing */
+        justify-content: space-around; /* Distribute space evenly */
+    }
     .btn { font-size: 1.5rem; }
     .math-challenge { font-size: 1.8rem; }
     .math-challenge input { font-size: 1.6rem; }
