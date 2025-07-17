@@ -14,7 +14,7 @@ const mathChallengeArea = document.getElementById('math-challenge-area');
 const mathProblemDisplay = document.getElementById('math-problem');
 const mathAnswerInput = document.getElementById('math-answer-input');
 const submitAnswerBtn = document.getElementById('submit-answer-btn');
-const timerDisplay = document.getElementById('timer-display');
+const timerDisplay = document.getElementById('timer-display'); // This is the timer in mathChallengeArea
 const startGameBtn = document.getElementById('start-game-btn');
 const pauseGameBtn = document.getElementById('pause-game-btn');
 const resetGameBtn = document.getElementById('reset-game-btn');
@@ -25,7 +25,7 @@ const finalScoreDisplay = document.getElementById('finalScore');
 const restartGameBtn = document.getElementById('restartGameBtn');
 const installButton = document.getElementById('install-button');
 const customKeyboard = document.getElementById('custom-keyboard');
-const messageArea = document.getElementById('message-area');
+const messageArea = document.getElementById('message-area'); // This is the general message area
 
 const operationSelectionPanel = document.getElementById('operation-selection-panel');
 const operationButtons = document.querySelectorAll('.operation-btn');
@@ -518,13 +518,15 @@ function pauseGame() {
     scoreDisplay.textContent = score;
     
     pauseTimeLeft = 20; // Pause for 20 seconds
-    setMessage(`Game Paused. 2 points deducted. Resuming in ${pauseTimeLeft}s. Pause fuel: ${Math.floor(score / 2)} pauses available`); // Show available pauses
+    
+    // Display pause countdown directly in timerDisplay
+    timerDisplay.textContent = `Paused: ${pauseTimeLeft}s. Fuel: ${Math.floor(score / 2)} pauses`;
     
     // Clear any existing countdown to prevent multiple intervals running
     clearInterval(pauseCountdownInterval);
     pauseCountdownInterval = setInterval(() => {
         pauseTimeLeft--;
-        setMessage(`Game Paused. 2 points deducted. Resuming in ${pauseTimeLeft}s. Pause fuel: ${Math.floor(score / 2)} pauses available`); // Update message with countdown
+        timerDisplay.textContent = `Paused: ${pauseTimeLeft}s. Fuel: ${Math.floor(score / 2)} pauses`; // Update message with countdown
         
         if (pauseTimeLeft <= 0) {
             clearInterval(pauseCountdownInterval);
@@ -540,9 +542,9 @@ function resumeGame() {
         gameInterval = setInterval(moveSnake, GAME_SPEED);
     }
     if (awaitingMathAnswer) {
-        startMathTimer();
+        startMathTimer(); // Resume math timer with original timeLeftForMath
     }
-    messageArea.style.display = 'none';
+    messageArea.style.display = 'none'; // Hide general message area
 }
 
 
@@ -1316,7 +1318,9 @@ function startChallenge() {
     lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-decimal' || selectedOperationType === 'binary-addition') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
 
     startMathTimer();
-    setMessage('Answer the problem to proceed!');
+    // The message area is global and should be hidden during math challenge,
+    // as timerDisplay will show the relevant info.
+    messageArea.style.display = 'none'; 
 }
 
 function startMathTimer() {
@@ -1326,7 +1330,7 @@ function startMathTimer() {
         timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
 
         // Show pause button if time is 10s or less AND player has at least 2 points
-        if (timeLeftForMath <= 10 && !isPaused && score >= 2) { // Changed score check to >= 2
+        if (timeLeftForMath <= 10 && !isPaused && score >= 2) {
             pauseGameBtn.style.display = 'inline-block';
         } else {
             pauseGameBtn.style.display = 'none';
