@@ -9,7 +9,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
 const highScoreDisplay = document.getElementById('high-score');
-const highScoreContainer = document.getElementById('high-score-container');
+const highScoreContainer = document.getElementById('high-score-container'); // Current game type high score
 const mathChallengeArea = document.getElementById('math-challenge-area');
 const mathProblemDisplay = document.getElementById('math-problem');
 const mathAnswerInput = document.getElementById('math-answer-input');
@@ -43,6 +43,7 @@ const header = document.querySelector('.header'); // Get reference to the header
 const controlPanel = document.getElementById('control-panel'); // Get reference to control panel
 
 // New elements for all-time high score display
+const allTimeHighScoreContainer = document.getElementById('all-time-high-score-container'); // Get reference to the new container
 const allTimeHighScoreDisplay = document.getElementById('all-time-high-score');
 const allTimeHighScoreProblemTypeDisplay = document.getElementById('all-time-high-score-problem-type');
 
@@ -139,7 +140,6 @@ function resizeCanvas() {
                 const startGameBtnHeight = startGameBtn.offsetHeight || 0;
                 
                 // All-time high score display is also visible in menu, account for its height
-                const allTimeHighScoreContainer = document.getElementById('all-time-high-score-container');
                 const allTimeHighScoreContainerHeight = allTimeHighScoreContainer ? allTimeHighScoreContainer.offsetHeight : 0;
 
 
@@ -247,6 +247,9 @@ function endGame() {
     if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
     }
+    if (allTimeHighScoreContainer) { // Ensure all-time high score is visible on end game
+        allTimeHighScoreContainer.style.display = 'flex';
+    }
 
     if (lastProblemText && lastCorrectAnswerDisplay) {
         setMessage(`Game Over! The correct answer for "${lastProblemText}" was **${lastCorrectAnswerDisplay}**. Keep practicing, you'll get it next time!`);
@@ -316,6 +319,10 @@ function initializeGame() {
     messageArea.style.display = 'block';
     header.style.display = 'block'; // Show header in menu state
     controlPanel.style.display = 'flex'; // Ensure control panel is visible in menu state
+    if (allTimeHighScoreContainer) { // Ensure all-time high score is visible on initialize
+        allTimeHighScoreContainer.style.display = 'flex';
+    }
+
 
     currentDifficulty = null;
     selectedOperationType = null;
@@ -492,6 +499,10 @@ function startGame() {
     operationSelectionPanel.style.display = 'none';
     messageArea.style.display = 'none';
     installButton.style.display = 'none'; // Hide install button during gameplay
+    if (allTimeHighScoreContainer) { // Hide all-time high score during gameplay
+        allTimeHighScoreContainer.style.display = 'none';
+    }
+
 
     // Show elements needed during gameplay
     controlPanel.style.display = 'flex'; // Show control panel (contains pause/reset)
@@ -1423,7 +1434,9 @@ function submitMathAnswer() {
         // Update all-time high score
         if (score > allTimeHighScore.score) {
             allTimeHighScore.score = score;
-            allTimeHighScore.problemType = document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent;
+            // Get the display text of the selected operation type from the button
+            const selectedProblemTypeText = document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent;
+            allTimeHighScore.problemType = selectedProblemTypeText;
             localStorage.setItem('allTimeMathSnakeHighScore', JSON.stringify(allTimeHighScore));
             updateAllTimeHighScoreDisplay();
         }
