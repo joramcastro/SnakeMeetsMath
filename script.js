@@ -505,8 +505,8 @@ function pauseGame() {
         return;
     }
 
-    if (timeLeftForMath > 10 || score < 3) { // Changed score check to 3 points
-        let currentMessage = `Pause is only available when time left is 10s or less and you have at least 3 points. Current time left: ${timeLeftForMath}s, Current points: ${score}.`;
+    if (timeLeftForMath > 10 || score < 2) { // Changed score check to 2 points
+        let currentMessage = `Pause is only available when time left is 10s or less and you have at least 2 points. Current time left: ${timeLeftForMath}s, Current points: ${score}.`;
         setMessage(currentMessage);
         return;
     }
@@ -514,17 +514,17 @@ function pauseGame() {
     isPaused = true;
     clearInterval(gameInterval);
     clearInterval(mathTimerInterval);
-    score = Math.max(0, score - 3); // Deduct 3 points
+    score = Math.max(0, score - 2); // Deduct 2 points
     scoreDisplay.textContent = score;
     
     pauseTimeLeft = 20; // Pause for 20 seconds
-    setMessage(`Game Paused. 3 points deducted. Resuming in ${pauseTimeLeft}s. Pause fuel: ${score} points`);
+    setMessage(`Game Paused. 2 points deducted. Resuming in ${pauseTimeLeft}s. Pause fuel: ${Math.floor(score / 2)} pauses available`); // Show available pauses
     
     // Clear any existing countdown to prevent multiple intervals running
     clearInterval(pauseCountdownInterval);
     pauseCountdownInterval = setInterval(() => {
         pauseTimeLeft--;
-        setMessage(`Game Paused. 3 points deducted. Resuming in ${pauseTimeLeft}s. Pause fuel: ${score} points`);
+        setMessage(`Game Paused. 2 points deducted. Resuming in ${pauseTimeLeft}s. Pause fuel: ${Math.floor(score / 2)} pauses available`); // Update message with countdown
         
         if (pauseTimeLeft <= 0) {
             clearInterval(pauseCountdownInterval);
@@ -1325,8 +1325,8 @@ function startMathTimer() {
         timeLeftForMath--;
         timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
 
-        // Show pause button if time is 10s or less AND player has at least 3 points
-        if (timeLeftForMath <= 10 && !isPaused && score >= 3) { // Changed score check to >= 3
+        // Show pause button if time is 10s or less AND player has at least 2 points
+        if (timeLeftForMath <= 10 && !isPaused && score >= 2) { // Changed score check to >= 2
             pauseGameBtn.style.display = 'inline-block';
         } else {
             pauseGameBtn.style.display = 'none';
