@@ -644,7 +644,7 @@ input[type="number"] {
         height: 100%;
     }
 
-    /* Game Panel & Right Panel - now fill the entire main-content-wrapper */
+    /* Game Panel & Right Panel - Absolute positioning to fill parent and overlap */
     .game-panel, .right-panel {
         position: absolute; /* Keep absolute to overlap */
         top: 0;
@@ -668,7 +668,7 @@ input[type="number"] {
     .right-panel {
         /* When math challenge is active, it will contain math problem, input, keyboard */
         display: flex; /* Ensure it's a flex container */
-        flex-direction: column; /* Stack elements vertically */
+        flex-direction: column; /* Default to column for smaller desktop widths */
         justify-content: center; /* Center content vertically */
         align-items: center; /* Center content horizontally */
     }
@@ -712,22 +712,46 @@ input[type="number"] {
     .custom-keyboard .key-btn.wide { font-size: 0.9rem; }
 }
 
-/* Optional: Additional media query for very large screens (e.g., 1440p and above) */
-@media (min-width: 1440px) {
+/* Specific media query for 1920x1080p and larger for right-panel layout */
+@media (min-width: 1920px) {
     .main-wrapper {
-        padding: 30px; /* More padding on very large screens */
+        padding: 40px; /* Increase overall padding for very large screens */
     }
     .game-panel, .right-panel {
-        max-width: 1200px; /* Limit max width for overall panels on very large screens */
-        max-height: 900px; /* Limit max height for overall panels */
-        padding: 40px;
+        max-width: 1400px; /* Allow panels to be wider on very large screens */
+        max-height: 900px; /* Adjust max height for 1080p to fit well */
+        padding: 50px; /* More padding inside panels */
     }
-    h1 { font-size: 3.5rem; }
-    .game-panel h2 { font-size: 1.8rem; }
+
+    .right-panel {
+        flex-direction: row; /* Arrange math challenge and keyboard side-by-side */
+        justify-content: center; /* Center content horizontally */
+        align-items: center; /* Center content vertically */
+        gap: 40px; /* Space between math challenge and keyboard */
+    }
+
+    .math-challenge {
+        width: auto; /* Allow content to dictate width */
+        max-width: 45%; /* Limit math challenge width */
+        margin: 0; /* Remove auto margins */
+    }
+
+    .custom-keyboard {
+        width: auto; /* Allow content to dictate width */
+        max-width: 300px; /* Keep keyboard compact */
+        margin: 0; /* Remove auto margins */
+    }
+
+    h1 { font-size: 4rem; }
+    .game-panel h2 { font-size: 2rem; }
     .stats-panel { font-size: 1.8rem; }
-    .btn { font-size: 1.4rem; }
+    .btn { font-size: 1.5rem; }
     .math-challenge { font-size: 1.8rem; }
     .math-challenge input { font-size: 1.6rem; }
+    .math-challenge button { font-size: 1.2rem; }
+    .math-challenge #timer-display { font-size: 1.4rem; }
+    .custom-keyboard .key-btn { font-size: 1.2rem; }
+    .custom-keyboard .key-btn.wide { font-size: 1rem; }
 }
 
 
@@ -740,10 +764,10 @@ input[type="number"] {
     .main-wrapper {
         padding: 5px;
         height: auto;
-        overflow-y: auto; /* Allow scrolling for the whole wrapper on mobile */
+        overflow-y: auto;
     }
     .main-content-wrapper {
-        gap: 0; /* No gap needed with absolute positioning */
+        gap: 0;
         padding: 0;
         height: auto;
         flex-direction: column;
@@ -753,8 +777,8 @@ input[type="number"] {
         padding: 15px;
         gap: 10px;
         max-height: none;
-        overflow-y: visible; /* Content flows naturally */
-        margin: auto; /* Center horizontally */
+        overflow-y: visible;
+        margin: auto;
     }
     /* Typography adjustments for small screens */
     h1 { font-size: 1.2rem; letter-spacing: 1px; }
