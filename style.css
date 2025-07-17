@@ -701,14 +701,14 @@ input[type="number"] {
     .math-challenge, .custom-keyboard {
         flex-shrink: 0; /* Prevent these from shrinking */
         width: auto; /* Allow content-based width */
-        max-width: 100%; /* Ensure they don't overflow */
+        max-width: 45%; /* Limit math challenge width */
         margin: 0; /* Remove auto margins */
     }
     .math-challenge { font-size: 1.6rem; padding: 25px 20px; }
     .math-challenge input { font-size: 1.4rem; padding: 12px 18px; }
     .math-challenge button { padding: 12px 20px; font-size: 1.1rem; }
     .math-challenge #timer-display { font-size: 1.3rem; }
-    .custom-keyboard { max-width: 400px; /* Increased max-width for keyboard */ }
+    .custom-keyboard { max-width: 450px; /* Increased max-width for keyboard (50% wider) */ }
     .custom-keyboard .key-btn { padding: 12px 0; font-size: 1.1rem; }
     .custom-keyboard .key-btn.wide { font-size: 0.9rem; }
 }
@@ -735,14 +735,12 @@ input[type="number"] {
         width: auto;
         max-width: 45%; /* Keep proportional width */
         margin: 0;
-        flex-shrink: 0;
     }
 
     .custom-keyboard {
         width: auto;
         max-width: 450px; /* Adjusted max-width for keyboard to be 50% wider (from 300px to 450px) */
         margin: 0;
-        flex-shrink: 0;
     }
 
     h1 { font-size: 4rem; }
