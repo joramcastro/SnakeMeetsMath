@@ -40,6 +40,7 @@ const startPlayingBtn = document.getElementById('startPlayingBtn');
 const gamePanel = document.querySelector('.game-panel');
 const rightPanel = document.querySelector('.right-panel');
 const header = document.querySelector('.header'); // Get reference to the header
+const controlPanel = document.getElementById('control-panel'); // Get reference to control panel
 
 
 let snake = [];
@@ -99,8 +100,8 @@ function resizeCanvas() {
             } else {
                 // Header is hidden during gameplay, so don't include its height in calculation
                 const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
-                const controlPanel = document.getElementById('control-panel');
-                const controlPanelHeight = controlPanel.style.display !== 'none' ? controlPanel.offsetHeight : 0;
+                // controlPanel is now explicitly shown/hidden, so its offsetHeight is reliable
+                const controlPanelHeight = controlPanel.offsetHeight || 0; 
                 
                 // Approximate total height of elements above canvas within the game-panel
                 const fixedTopElementsHeight = statsPanelHeight + controlPanelHeight; // Header excluded
@@ -246,6 +247,7 @@ function endGame() {
     difficultyPanel.style.display = 'flex';
     operationSelectionPanel.style.display = 'flex';
     header.style.display = 'block'; // Show header when game ends
+    controlPanel.style.display = 'flex'; // Ensure control panel is visible in menu/end state
 
     startGameBtn.disabled = true;
     currentDifficulty = null;
@@ -299,6 +301,7 @@ function initializeGame() {
     operationSelectionPanel.style.display = 'flex';
     messageArea.style.display = 'block';
     header.style.display = 'block'; // Show header in menu state
+    controlPanel.style.display = 'flex'; // Ensure control panel is visible in menu state
 
     currentDifficulty = null;
     selectedOperationType = null;
@@ -475,6 +478,8 @@ function startGame() {
     messageArea.style.display = 'none';
     installButton.style.display = 'none'; // Hide install button during gameplay
 
+    // Show elements needed during gameplay
+    controlPanel.style.display = 'flex'; // Show control panel (contains pause/reset)
     pauseGameBtn.style.display = 'none'; // Pause button initially hidden
     resetGameBtn.style.display = 'inline-block'; // Reset button visible
     canvas.style.display = 'block'; // Canvas visible
@@ -1590,9 +1595,9 @@ function updateDifficultyAndOperationDisplay() {
     if (highScoreDisplay) {
         highScoreDisplay.textContent = highScores[highScoreKey] || 0;
     }
-    if (currentDifficulty && selectedOperationType && highScoreContainer) {
+    if (highScoreContainer) {
         highScoreContainer.style.display = 'flex';
-    } else if (highScoreContainer) {
+    } else {
         highScoreContainer.style.display = 'none';
     }
 }
