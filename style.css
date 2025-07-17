@@ -806,6 +806,8 @@ input[type="number"] {
         max-height: none;
         overflow-y: visible;
         margin: auto;
+        /* Ensure content starts from the top on mobile */
+        justify-content: flex-start; 
     }
     /* Typography adjustments for small screens */
     h1 { font-size: 1.2rem; letter-spacing: 1px; }
