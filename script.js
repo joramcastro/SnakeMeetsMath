@@ -1,10 +1,9 @@
-// Removed CANVAS_SIZE and CELL_SIZE as fixed constants
-let currentCanvasSize; // Will be set dynamically
-let currentCellSize;   // Will be set dynamically
-const CELLS_PER_SIDE = 20; // Represents the desired number of cells along one side of the canvas
+let currentCanvasSize;
+let currentCellSize;
+const CELLS_PER_SIDE = 40;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 350;
+const GAME_SPEED = 450;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -73,80 +72,123 @@ const difficultyTimes = {
     expert: 240
 };
 
-// Function to resize the canvas dynamically
 function resizeCanvas() {
-    const headerHeight = document.querySelector('.header').offsetHeight || 0;
-    const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
-    const controlPanelHeight = document.querySelector('.control-panel').offsetHeight || 0;
-    const operationSelectionPanelHeight = operationSelectionPanel.offsetHeight || 0;
-    const difficultyPanelHeight = difficultyPanel.offsetHeight || 0;
-    const messageAreaHeight = messageArea.offsetHeight || 0;
-    const startGameBtnHeight = startGameBtn.offsetHeight || 0;
-    const footerHeight = document.querySelector('footer').offsetHeight || 0;
-    const totalUIHeight = headerHeight + statsPanelHeight + controlPanelHeight +
-                          operationSelectionPanelHeight + difficultyPanelHeight +
-                          messageAreaHeight + startGameBtnHeight + footerHeight +
-                          (10 * 2) + // body padding-top and padding-bottom
-                          (20 * 2); // approximate vertical gap/margins in game-panel
+    let parentElement;
+    let targetWidth, targetHeight;
+    const gamePanelPadding = 20; // Padding for the game-panel as defined in CSS
 
-    // Determine available width and height, accounting for padding/margins
-    const availableWidth = window.innerWidth - (20 * 2); // Total padding/margins on sides
-    const availableHeight = window.innerHeight - totalUIHeight;
+    if (isGameRunning && !awaitingMathAnswer) {
+        // Game is running, canvas is visible inside .game-panel
+        parentElement = document.querySelector('.game-panel');
+        if (!parentElement) { // Fallback if element not found
+            console.error("Game panel not found during resize. Using window dimensions.");
+            targetWidth = window.innerWidth - (gamePanelPadding * 2);
+            targetHeight = window.innerHeight - (gamePanelPadding * 2);
+        } else {
+            const headerHeight = document.querySelector('.header').offsetHeight || 0;
+            const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
+            const controlPanel = document.getElementById('control-panel');
+            const controlPanelHeight = controlPanel.style.display !== 'none' ? controlPanel.offsetHeight : 0;
+            
+            // Approximate total height of elements above canvas within the game-panel
+            // Adjust these values based on your exact CSS gaps/margins between elements
+            const fixedTopElementsHeight = headerHeight + statsPanelHeight + controlPanelHeight;
+            const estimatedGaps = 12 * 3; // Example: gap after header, after stats, after control panel
 
-    // Set a maximum size to prevent it from getting too big on very large screens, or keep it responsive.
-    // For simplicity, let's target a max of 400px x 400px, or fill available space if smaller.
-    // However, the request is "to fit the screen", so let's try to fill more.
-    let desiredSize = Math.min(availableWidth, availableHeight);
+            targetWidth = parentElement.clientWidth - (gamePanelPadding * 2);
+            targetHeight = parentElement.clientHeight - fixedTopElementsHeight - estimatedGaps - (gamePanelPadding * 2);
+        }
+        
+    } else if (awaitingMathAnswer) {
+        // Math challenge is active, canvas is hidden. No need to resize canvas.
+        return; 
+    } else {
+        // Initial state / Menu state, canvas is hidden, .game-panel contains selections
+        parentElement = document.querySelector('.game-panel');
+        if (!parentElement) { // Fallback if element not found
+            console.error("Game panel not found during menu resize. Using window dimensions.");
+            targetWidth = window.innerWidth - (gamePanelPadding * 2);
+            targetHeight = window.innerHeight - (gamePanelPadding * 2);
+        } else {
+            const headerHeight = document.querySelector('.header').offsetHeight || 0;
+            const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
+            const operationSelectionPanelHeight = operationSelectionPanel.offsetHeight || 0;
+            const difficultyPanelHeight = difficultyPanel.offsetHeight || 0;
+            const messageAreaHeight = messageArea.offsetHeight || 0;
+            const startGameBtnHeight = startGameBtn.offsetHeight || 0;
+            
+            // Approximate total height of menu elements within the game-panel
+            // Adjust these values based on your exact CSS gaps/margins between elements
+            const menuElementsHeight = headerHeight + statsPanelHeight + operationSelectionPanelHeight +
+                                       difficultyPanelHeight + messageAreaHeight + startGameBtnHeight;
+            const estimatedGaps = 12 * 6; // Example: sum of various gaps/margins
 
-    // Apply some limits, don't let it be too small or too big
-    const minSize = 200;
-    const maxSize = 800; // You can adjust this max size
+            targetWidth = parentElement.clientWidth - (gamePanelPadding * 2);
+            targetHeight = parentElement.clientHeight - menuElementsHeight - estimatedGaps - (gamePanelPadding * 2);
+        }
+    }
 
-    currentCanvasSize = Math.max(minSize, Math.min(desiredSize, maxSize));
-    // Ensure currentCanvasSize is a multiple of CELLS_PER_SIDE for clean grid
+    targetWidth = Math.max(0, targetWidth);
+    targetHeight = Math.max(0, targetHeight);
+
+    let desiredSize = Math.min(targetWidth, targetHeight);
+
+    const minCanvasSize = CELLS_PER_SIDE * 5;
+    const maxCanvasSize = 800; // Cap the canvas size for very large displays
+
+    currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
     currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
-    currentCanvasSize = Math.max(currentCanvasSize, CELLS_PER_SIDE); // Ensure it's at least one cell
+    currentCanvasSize = Math.max(currentCanvasSize, CELLS_PER_SIDE);
 
     canvas.width = currentCanvasSize;
     canvas.height = currentCanvasSize;
     currentCellSize = currentCanvasSize / CELLS_PER_SIDE;
 
-    // Recalculate snake and food positions based on the new cell size
-    // This is crucial for responsiveness: convert existing (x,y) to grid units, then back to new pixel units.
     if (snake && snake.length > 0) {
-        // Store current snake positions in grid units
+        const oldCellSizeForSnake = snake[0].x / (snake.findIndex(s => s.x !== snake[0].x || s.y !== snake[0].y) > 0 ? snake[1].x - snake[0].x : (currentCanvasSize / CELLS_PER_SIDE));
+        
+        // Handle initial state where oldCellSizeForSnake might be 0 or undefined
+        let effectiveOldCellSize = oldCellSizeForSnake;
+        if (isNaN(effectiveOldCellSize) || effectiveOldCellSize <= 0) {
+            // If snake is at (0,0) or hasn't moved, default old cell size to initial expected currentCellSize
+            effectiveOldCellSize = currentCanvasSize / CELLS_PER_SIDE; // This is a heuristic
+            // Or better, assume it was based on the original 400px canvas size if this is very early load
+            if (currentCanvasSize === 0) effectiveOldCellSize = 20; // Fallback to original 20px
+        }
+
         const oldSnakeGrid = snake.map(segment => ({
-            x: Math.round(segment.x / (canvas.width / CELLS_PER_SIDE)),
-            y: Math.round(segment.y / (canvas.height / CELLS_PER_SIDE))
+            x: Math.round(segment.x / effectiveOldCellSize),
+            y: Math.round(segment.y / effectiveOldCellSize)
         }));
 
-        // Re-initialize snake with new pixel positions
         snake = oldSnakeGrid.map(segment => ({
             x: segment.x * currentCellSize,
             y: segment.y * currentCellSize
         }));
+    } else {
+        snake = [];
+        for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
+            snake.push({ x: (INITIAL_SNAKE_LENGTH - 1 - i) * currentCellSize, y: 0 });
+        }
     }
 
     if (food && food.x !== undefined && food.y !== undefined) {
-        // Store current food position in grid units
-        const oldFoodGridX = Math.round(food.x / (canvas.width / CELLS_PER_SIDE));
-        const oldFoodGridY = Math.round(food.y / (canvas.height / CELLS_PER_SIDE));
+        const oldCellSizeForFood = currentCellSize; // Assume food is always positioned correctly relative to the current grid
+        const oldFoodGridX = Math.round(food.x / oldCellSizeForFood);
+        const oldFoodGridY = Math.round(food.y / oldCellSizeForFood);
 
-        // Re-generate food based on new pixel positions, ensuring it's on the grid
         food = {
             x: oldFoodGridX * currentCellSize,
             y: oldFoodGridY * currentCellSize
         };
-        // If the food went off-screen due to extreme resize, regenerate it entirely
         if (food.x >= currentCanvasSize || food.y >= currentCanvasSize || isFoodOnSnake(food)) {
-             generateFood(); // Re-generate food if it falls out of bounds or on snake after resize
+             generateFood();
         }
     } else {
-        generateFood(); // Generate initial food if not present
+        generateFood();
     }
 
-
-    drawGame(); // Redraw game after resizing
+    drawGame();
 }
 
 
@@ -190,11 +232,9 @@ function endGame() {
 
 
 function initializeGame() {
-    // Call resizeCanvas here to set up initial canvas dimensions and cell size
-    resizeCanvas();
+    resizeCanvas(); // Set initial canvas dimensions and cell size
 
     snake = [];
-    // Initialize snake using currentCellSize for positions
     for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
         snake.push({ x: (INITIAL_SNAKE_LENGTH - 1 - i) * currentCellSize, y: 0 });
     }
@@ -234,21 +274,21 @@ function initializeGame() {
     currentDifficulty = null;
     selectedOperationType = null;
 
-    generateFood(); // Generate food using the newly set currentCellSize
+    generateFood();
     drawGame();
     updateDifficultyAndOperationDisplay();
     setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
 }
 
 function drawGame() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Use dynamic canvas dimensions
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     snake.forEach((segment, index) => {
         ctx.fillStyle = index === 0 ? '#4CAF50' : '#8BC34A';
         ctx.strokeStyle = '#2E7D32';
         ctx.lineWidth = 2;
 
-        const cornerRadius = currentCellSize / 4; // Use dynamic currentCellSize
+        const cornerRadius = currentCellSize / 4;
 
         ctx.beginPath();
         ctx.moveTo(segment.x + cornerRadius, segment.y);
@@ -268,8 +308,8 @@ function drawGame() {
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 1;
-            const eyeOffset = currentCellSize / 4; // Use dynamic currentCellSize
-            const eyeRadius = currentCellSize / 8; // Use dynamic currentCellSize
+            const eyeOffset = currentCellSize / 4;
+            const eyeRadius = currentCellSize / 8;
 
             let eye1X, eye1Y, eye2X, eye2Y;
 
@@ -307,7 +347,7 @@ function drawGame() {
     ctx.strokeStyle = '#FF8F00';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(food.x + currentCellSize / 2, food.y + currentCellSize / 2, currentCellSize / 2 - 2, 0, Math.PI * 2); // Use dynamic currentCellSize
+    ctx.arc(food.x + currentCellSize / 2, food.y + currentCellSize / 2, currentCellSize / 2 - 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 }
@@ -319,20 +359,19 @@ function moveSnake() {
 
     switch (direction) {
         case 'up':
-            head.y -= currentCellSize; // Use dynamic currentCellSize
+            head.y -= currentCellSize;
             break;
         case 'down':
-            head.y += currentCellSize; // Use dynamic currentCellSize
+            head.y += currentCellSize;
             break;
         case 'left':
-            head.x -= currentCellSize; // Use dynamic currentCellSize
+            head.x -= currentCellSize;
             break;
         case 'right':
-            head.x += currentCellSize; // Use dynamic currentCellSize
+            head.x += currentCellSize;
             break;
     }
 
-    // Wrap around logic using dynamic canvas size
     if (head.x < 0) {
         head.x = currentCanvasSize - currentCellSize;
     } else if (head.x >= currentCanvasSize) {
@@ -394,7 +433,7 @@ function startGame() {
     }
 
     isGameRunning = true;
-    pauseGameBtn.style.display = 'none'; // Will show during math challenges
+    pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'none';
     operationSelectionPanel.style.display = 'none';
@@ -799,13 +838,11 @@ function generateBinaryAdditionProblem() {
         bitLength = generateRandomNum(8, 10);
     }
 
-    // Generate two random binary strings of specified length
     const generateRandomBinary = (length) => {
         let binary = '';
         for (let i = 0; i < length; i++) {
             binary += Math.round(Math.random());
         }
-        // Ensure at least one '1' for non-zero numbers
         if (parseInt(binary, 2) === 0 && length > 0) {
             binary = binary.substring(0, length - 1) + '1';
         }
@@ -821,27 +858,23 @@ function generateBinaryAdditionProblem() {
         binaryNum1 = generateRandomBinary(bitLength);
         binaryNum2 = generateRandomBinary(bitLength);
 
-        // Convert to decimal, add, then convert back to binary
         const dec1 = parseInt(binaryNum1, 2);
         const dec2 = parseInt(binaryNum2, 2);
         const sumDec = dec1 + dec2;
         sumBinary = sumDec.toString(2);
 
-        // Ensure the sum doesn't exceed a reasonable length for the current difficulty
-        // (e.g., prevent extremely long sums from smaller initial numbers if they carry a lot)
-        if (sumBinary.length <= bitLength + 1) { // sum can be 1 bit longer due to carry
+        if (sumBinary.length <= bitLength + 1) {
              problemGenerated = true;
         }
     }
 
     if (!problemGenerated) {
-        binaryNum1 = '101'; // Fallback to a simple example
+        binaryNum1 = '101';
         binaryNum2 = '011';
         sumBinary = (parseInt(binaryNum1, 2) + parseInt(binaryNum2, 2)).toString(2);
         setMessage('Binary Addition problem generation fallback. Please continue.');
     }
 
-    // Format for display - using <br> for visual stacking
     mathProblemDisplay.innerHTML = `Add binary:<br>${binaryNum1}<br>+ ${binaryNum2}<br>= ?`;
     correctMathAnswer = sumBinary;
     mathAnswerInput.value = '';
@@ -1217,7 +1250,7 @@ function startChallenge() {
     timeLeftForMath = initialTimeForCurrentChallenge;
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
     
-    lastProblemText = mathProblemDisplay.textContent; // Note: for binary addition, this will be HTML not just text
+    lastProblemText = mathProblemDisplay.textContent;
     lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-decimal' || selectedOperationType === 'binary-addition') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
 
     startMathTimer();
@@ -1577,11 +1610,9 @@ installButton.addEventListener('click', () => {
     }
 });
 
-// Initial call to resize canvas on window load
 window.addEventListener('load', function() {
     welcomeModal.style.display = 'flex';
-    resizeCanvas(); // Set initial canvas size
+    initializeGame(); // This will call resizeCanvas internally
 });
 
-// Listen for window resize events to adjust canvas
 window.addEventListener('resize', resizeCanvas);
