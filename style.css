@@ -22,13 +22,12 @@
     --shadow-heavy: rgba(0, 0, 0, 0.3);
 }
 
-/* Ensure html and body take up 100% of the viewport */
 html, body {
     height: 100%;
     width: 100%;
     margin: 0;
-    padding: 0; /* Remove body padding */
-    overflow: hidden; /* Prevent native scrollbars */
+    padding: 0;
+    overflow: hidden;
 }
 
 body {
@@ -42,34 +41,31 @@ body {
     box-sizing: border-box;
 }
 
-/* Main wrapper to occupy entire available space */
 .main-wrapper {
     display: flex;
-    flex-direction: column; /* Stacks contents vertically by default */
+    flex-direction: column;
     align-items: center;
     width: 100%;
-    height: 100%; /* Fill height */
-    max-width: none; /* Remove horizontal limits */
+    height: 100%;
+    max-width: none; /* Removed max-width to allow it to spread on large screens */
     flex-grow: 1;
-    padding: 10px; /* Add some overall padding for the content inside */
+    padding: 10px;
     box-sizing: border-box;
 }
 
-/* Main content wrapper to also occupy entire available space */
 .main-content-wrapper {
     display: flex;
-    flex-direction: column; /* Default to column for small screens */
+    flex-direction: column;
     gap: 20px;
     width: 100%;
-    height: 100%; /* Fill height */
+    height: 100%;
     box-sizing: border-box;
-    padding: 0; /* No internal padding here, main-wrapper has it */
+    padding: 0;
     flex-grow: 1;
-    justify-content: center; /* Center content vertically */
-    align-items: center; /* Center content horizontally */
+    justify-content: center;
+    align-items: center;
 }
 
-/* Game Panel - Make it the primary full-screen element */
 .game-panel {
     display: flex;
     flex-direction: column;
@@ -79,23 +75,21 @@ body {
     background-color: var(--bg-light);
     border-radius: 20px;
     box-shadow: 0 18px 45px var(--shadow-heavy);
-    width: 100%; /* Take full width of its parent */
-    height: 100%; /* Take full height of its parent */
-    max-width: none; /* Remove fixed max-width */
-    max-height: none; /* Remove fixed max-height */
+    width: 100%;
+    height: 100%; /* Default to full height on small screens */
+    max-width: 450px; /* Keep for mobile/default single column */
+    max-height: none; /* Removed fixed max-height */
     box-sizing: border-box;
     border: 2px solid var(--bg-gradient-start);
     transition: all 0.3s ease;
-    flex-shrink: 1; /* Allow to shrink if content overflows slightly */
-    overflow-y: auto; /* Allow scrolling if its internal content is too tall */
+    flex-shrink: 1;
+    overflow-y: auto; /* Allow scrolling if internal content is too tall */
 }
 .game-panel:hover {
     transform: translateY(-3px);
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
 }
 
-/* Right Panel - Will only be visible when math challenge is active.
-   It should also take full available space, essentially overlaying/replacing the game panel area. */
 .right-panel {
     display: flex;
     flex-direction: column;
@@ -103,25 +97,21 @@ body {
     gap: 12px;
     width: 100%;
     height: 100%; /* Fill height when active */
-    max-width: none; /* Remove fixed max-width */
+    max-width: 180px; /* Keep for mobile/default single column */
     box-sizing: border-box;
     flex-grow: 1;
-    justify-content: center; /* Vertically center content */
-    align-items: center; /* Horizontally center content */
-    /* When active, it will essentially fill the same space as game-panel */
+    justify-content: center;
+    align-items: center;
 }
 
-/* Canvas styling - REMOVED fixed width/height properties */
 canvas {
     background-color: var(--bg-medium);
     border: 6px solid #81e6d9;
     display: block;
-    margin: 0 auto; /* Center the canvas */
+    margin: 0 auto;
     border-radius: 12px;
     box-shadow: 0 10px 25px var(--shadow-medium);
     transition: transform 0.3s ease;
-    /* JS will set actual width/height attributes */
-    /* Ensure it scales visually without distortion, but JS controls resolution */
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
@@ -330,8 +320,6 @@ details[open] > summary.operation-category-summary::after {
 }
 
 .info-btn {
-    /* If this button should always be visible regardless of panel,
-       it might need to be outside main-wrapper in HTML and position: fixed */
     position: absolute;
     right: 20px;
     bottom: 10px;
@@ -487,7 +475,7 @@ footer #footer-text {
     flex-direction: column;
     gap: 6px;
     width: 100%;
-    max-width: 180px; /* This can be adjusted further */
+    max-width: 180px; /* Keep for smaller screens and as a base */
     margin-top: 0;
     flex-shrink: 0;
 }
@@ -639,45 +627,42 @@ input[type="number"] {
 
 /* Media query for larger screens: Desktop/Tablet Landscape */
 @media (min-width: 768px) {
-    /* Main content wrapper shifts to row layout */
     .main-content-wrapper {
         flex-direction: row;
         align-items: stretch; /* Stretch items to fill height */
         justify-content: center;
         padding: 20px;
         flex-wrap: nowrap;
-        height: 100%; /* Ensure it takes full height */
+        height: 100%;
     }
 
-    /* Game Panel to occupy most of the width */
     .game-panel {
-        flex-grow: 2; /* Takes a larger share */
+        flex-grow: 2; /* Game panel takes 2/3 of available space */
         flex-shrink: 1;
         flex-basis: auto;
-        max-width: 75%; /* Limit its max width a bit to leave room for right panel */
+        max-width: 900px; /* Increased max-width for game panel on larger screens */
         height: 100%; /* Fill height */
-        margin: 0 10px; /* Add horizontal margin between panels */
+        margin: 0 15px; /* Added more horizontal margin between panels */
         overflow-y: auto; /* Allow scrolling for internal content if needed */
-        /* Center content horizontally within the panel, might override align-items: center on flex-direction: column */
         align-self: center; /* Vertically center itself within main-content-wrapper */
+        padding: 30px; /* Increased padding */
+        gap: 20px; /* Increased gap between elements */
     }
 
-    /* Right Panel to occupy remaining space */
     .right-panel {
-        flex-grow: 1; /* Takes remaining share */
+        flex-grow: 1; /* Right panel takes 1/3 of available space */
         flex-shrink: 1;
         flex-basis: auto;
-        max-width: 25%; /* Limit its max width */
+        max-width: 450px; /* Increased max-width for right panel */
         height: 100%; /* Fill height */
-        margin: 0 10px; /* Add horizontal margin between panels */
+        margin: 0 15px; /* Added more horizontal margin between panels */
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        align-self: center; /* Vertically center itself within main-content-wrapper */
+        align-self: center;
     }
 
-    /* Canvas sizing for desktop - ensure it adapts within its parent */
     canvas {
         flex-grow: 1;
         flex-shrink: 1;
@@ -686,56 +671,123 @@ input[type="number"] {
         max-height: 100%;
     }
 
-    /* Ensure math challenge and keyboard also adapt within right-panel */
     .math-challenge, .custom-keyboard {
-        width: 100%; /* Fill the width of right-panel */
-        margin: 0 auto; /* Center if content is smaller than panel */
+        width: 100%;
+        margin: 0 auto;
     }
     .custom-keyboard {
-         margin-top: 15px; /* Spacing between math challenge and keyboard */
+         margin-top: 20px; /* Increased spacing */
     }
 
-
-    /* Typography adjustments for larger screens */
     h1 {
-        font-size: 2.2rem;
+        font-size: 2.8rem; /* Increased font size for larger screens */
+        letter-spacing: 4px;
     }
     .game-panel h2 {
+        font-size: 1.5rem; /* Increased font size */
+    }
+    .stats-panel {
+        font-size: 1.5rem; /* Increased font size */
+        padding: 15px 25px; /* Increased padding */
+    }
+    .operation-category-summary {
+        font-size: 1.1rem; /* Increased font size */
+        padding: 12px 20px;
+    }
+    .operation-selection-panel details[open] > .operation-buttons {
+        padding: 15px 20px 20px;
+    }
+    .math-challenge {
+        font-size: 1.6rem; /* Increased font size */
+        padding: 25px 20px;
+    }
+    .math-challenge input {
+        font-size: 1.4rem; /* Increased font size */
+        padding: 12px 18px;
+    }
+    .math-challenge button {
+        padding: 12px 20px;
+        font-size: 1.1rem;
+    }
+    .math-challenge #timer-display {
+        font-size: 1.3rem;
+    }
+    .btn {
+        padding: 15px 30px;
         font-size: 1.2rem;
     }
+    .custom-keyboard .key-btn {
+        padding: 12px 0;
+        font-size: 1.1rem;
+    }
+    .custom-keyboard .key-btn.wide {
+        font-size: 0.9rem;
+    }
 }
+
+/* Optional: Additional media query for very large screens (e.g., 1440p and above) */
+@media (min-width: 1440px) {
+    .main-wrapper {
+        padding: 30px; /* More padding on very large screens */
+    }
+    .game-panel {
+        max-width: 1000px; /* Allow game panel to be even wider */
+        padding: 40px;
+    }
+    .right-panel {
+        max-width: 500px; /* Allow right panel to be even wider */
+    }
+    h1 {
+        font-size: 3.5rem;
+    }
+    .game-panel h2 {
+        font-size: 1.8rem;
+    }
+    .stats-panel {
+        font-size: 1.8rem;
+    }
+    .btn {
+        font-size: 1.4rem;
+    }
+    .math-challenge {
+        font-size: 1.8rem;
+    }
+    .math-challenge input {
+        font-size: 1.6rem;
+    }
+}
+
 
 /* Media query for small screens: Mobile */
 @media (max-width: 767px) {
     body {
-        padding: 0; /* Remove body padding */
-        justify-content: flex-start; /* Align content to top */
+        padding: 0;
+        justify-content: flex-start;
     }
     .main-wrapper {
-        padding: 5px; /* Small padding for the whole wrapper */
-        height: auto; /* Allow height to be determined by content */
-        overflow-y: auto; /* Enable scrolling for the whole wrapper on mobile */
+        padding: 5px;
+        height: auto;
+        overflow-y: auto;
     }
     .main-content-wrapper {
         gap: 15px;
         padding: 0;
         height: auto;
-        flex-direction: column; /* Stack vertically */
-        justify-content: flex-start; /* Align content to top */
+        flex-direction: column;
+        justify-content: flex-start;
     }
     .game-panel {
         padding: 15px;
         gap: 10px;
         max-height: none;
-        overflow-y: visible; /* Content flows naturally */
-        margin: 0 auto; /* Center horizontally */
+        overflow-y: visible;
+        margin: 0 auto;
     }
     .right-panel {
         width: 95%;
-        max-width: 320px; /* Keep a reasonable max width for readability */
-        margin: 0 auto; /* Center horizontally */
+        max-width: 320px;
+        margin: 0 auto;
     }
-    /* Typography adjustments for small screens */
     h1 {
         font-size: 1.2rem;
         letter-spacing: 1px;
