@@ -1,9 +1,9 @@
 let currentCanvasSize;
 let currentCellSize;
-const CELLS_PER_SIDE = 15; // Decreased from 20 to make snake/food bigger
+const CELLS_PER_SIDE = 18;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 350;
+const GAME_SPEED = 400;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -31,7 +31,7 @@ const operationSelectionPanel = document.getElementById('operation-selection-pan
 const operationButtons = document.querySelectorAll('.operation-btn');
 
 const infoModal = document.getElementById('infoModal');
-const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
+const closeInfoModalBtn = document = document.getElementById('closeInfoModalBtn');
 
 const welcomeModal = document.getElementById('welcomeModal');
 const startPlayingBtn = document.getElementById('startPlayingBtn');
@@ -284,7 +284,8 @@ function initializeGame() {
     direction = 'right';
     score = 0;
     scoreDisplay.textContent = score;
-    // Always hide highScoreContainer in the main menu
+    
+    // In initializeGame (main menu state), hide current game high score
     if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
     }
@@ -317,7 +318,7 @@ function initializeGame() {
     messageArea.style.display = 'block';
     header.style.display = 'block'; // Show header in menu state
     controlPanel.style.display = 'flex'; // Ensure control panel is visible in menu state
-    // Always show allTimeHighScoreContainer in the main menu
+    // In initializeGame (main menu state), show all-time high score
     if (allTimeHighScoreContainer) {
         allTimeHighScoreContainer.style.display = 'flex';
     }
