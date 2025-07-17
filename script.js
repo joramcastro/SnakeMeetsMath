@@ -1,9 +1,9 @@
 let currentCanvasSize;
 let currentCellSize;
-const CELLS_PER_SIDE = 18;
+const CELLS_PER_SIDE = 15; // Decreased from 20 to make snake/food bigger
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 400;
+const GAME_SPEED = 350;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -565,9 +565,13 @@ function resumeGame() {
     isPaused = false;
     clearInterval(pauseCountdownInterval); // Ensure countdown is cleared
     if (isGameRunning) {
+        // Clear any existing gameInterval before setting a new one to prevent speed-up
+        clearInterval(gameInterval); 
         gameInterval = setInterval(moveSnake, GAME_SPEED);
     }
     if (awaitingMathAnswer) {
+        // Clear any existing mathTimerInterval before setting a new one
+        clearInterval(mathTimerInterval);
         startMathTimer(); // Resume math timer with original timeLeftForMath
     }
     messageArea.style.display = 'none'; // Hide general message area
@@ -1459,6 +1463,8 @@ function submitMathAnswer() {
         }
         pauseGameBtn.style.display = 'none'; // Hide pause button after challenge
 
+        // Clear any existing gameInterval before setting a new one to prevent speed-up
+        clearInterval(gameInterval); 
         gameInterval = setInterval(moveSnake, GAME_SPEED);
         generateFood();
         drawGame();
