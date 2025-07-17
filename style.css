@@ -724,22 +724,22 @@ input[type="number"] {
     }
 
     .right-panel {
-        flex-direction: column; /* Revert to column for math challenge and keyboard */
-        justify-content: center; /* Center content vertically */
-        align-items: center; /* Center content horizontally */
+        flex-direction: row; /* Arrange math challenge and keyboard side-by-side */
+        justify-content: center; /* Center content horizontally */
+        align-items: center; /* Center content vertically */
         gap: 40px; /* Space between math challenge and keyboard */
     }
 
     .math-challenge {
         width: auto; /* Allow content to dictate width */
-        max-width: 600px; /* Increased max-width for math challenge question area */
+        max-width: 45%; /* Limit math challenge width */
         margin: 0; /* Remove auto margins */
         flex-shrink: 0;
     }
 
     .custom-keyboard {
         width: auto; /* Allow content to dictate width */
-        max-width: 600px; /* Increased max-width for keyboard (50% wider than 400px = 600px) */
+        max-width: 400px; /* Increased max-width for keyboard */
         margin: 0; /* Remove auto margins */
         flex-shrink: 0;
     }
