@@ -22,51 +22,48 @@
     --shadow-heavy: rgba(0, 0, 0, 0.3);
 }
 
-html {
-    height: 100%;
+html, body {
+    height: 100%; /* Make html and body fill viewport height */
+    width: 100%; /* Make html and body fill viewport width */
+    margin: 0;
+    padding: 0; /* Remove padding from body to truly use 100% */
+    overflow: hidden; /* Prevent overall scrolling */
 }
 
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Start with column for small screens */
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    height: 100vh;
     color: var(--text-primary);
-    margin: 0;
-    padding: 10px;
     box-sizing: border-box;
-    overflow: hidden;
 }
 
 .main-wrapper {
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Default to column */
     align-items: center;
-    width: 100%;
-    /* Adjusted max-width to allow more horizontal space */
-    max-width: 1400px; /* Increased from 1200px. Adjust as desired or remove for full width. */
-    flex-grow: 1;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    height: 100%;
+    width: 100%; /* Take full width */
+    height: 100%; /* Take full height within body */
+    max-width: none; /* Remove any max-width constraints */
+    flex-grow: 1; /* Allow it to grow */
+    padding: 10px; /* Add some padding here for inner spacing */
     box-sizing: border-box;
 }
 
 .main-content-wrapper {
     display: flex;
-    flex-direction: column;
-    /* Added centering for single column layout on small screens */
-    justify-content: center;
-    align-items: center;
+    flex-direction: column; /* Default to column for small screens */
     gap: 20px;
-    width: 100%;
+    width: 100%; /* Take full width */
+    height: 100%; /* Take full height */
     box-sizing: border-box;
-    padding: 10px;
-    flex-grow: 1;
+    padding: 0; /* No internal padding here, main-wrapper has it */
+    flex-grow: 1; /* Allow it to grow */
+    justify-content: center; /* Center content vertically in single column */
+    align-items: center; /* Center content horizontally in single column */
 }
 
 .game-panel {
@@ -78,11 +75,13 @@ body {
     background-color: var(--bg-light);
     border-radius: 20px;
     box-shadow: 0 18px 45px var(--shadow-heavy);
-    max-width: 450px; /* Kept for mobile/default single column */
-    width: 100%;
+    width: 100%; /* Takes full width available in column */
+    max-width: 450px; /* Keep a max-width for aesthetic on mobile */
     box-sizing: border-box;
     border: 2px solid var(--bg-gradient-start);
     transition: all 0.3s ease;
+    flex-shrink: 0; /* Prevent it from shrinking too much when space is tight */
+    margin: auto; /* Center it horizontally within the column */
 }
 .game-panel:hover {
     transform: translateY(-3px);
@@ -94,9 +93,11 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    width: 100%;
-    max-width: 180px; /* Kept for mobile/default single column */
+    width: 100%; /* Takes full width available in column */
+    max-width: 180px; /* Keep a max-width for aesthetic on mobile */
     box-sizing: border-box;
+    flex-shrink: 0; /* Prevent it from shrinking too much when space is tight */
+    margin: auto; /* Center it horizontally within the column */
 }
 
 /* Canvas styling - REMOVED fixed width/height properties */
@@ -104,11 +105,15 @@ canvas {
     background-color: var(--bg-medium);
     border: 6px solid #81e6d9;
     display: block;
-    margin: 0 auto;
+    margin: 0 auto; /* Center the canvas */
     border-radius: 12px;
     box-shadow: 0 10px 25px var(--shadow-medium);
     transition: transform 0.3s ease;
-    /* width, height, max-width, max-height, object-fit removed to allow JS to control */
+    /* JS will set actual width/height attributes */
+    /* Ensure it scales without distortion */
+    max-width: 100%; /* Max width relative to its parent */
+    max-height: 100%; /* Max height relative to its parent */
+    object-fit: contain; /* Maintain aspect ratio without stretching */
 }
 canvas:hover {
     transform: translateY(-8px);
@@ -238,6 +243,7 @@ details[open] > summary.operation-category-summary::after {
     color: #0d9488;
     box-shadow: 0 6px 20px rgba(0,0,0,0.2);
     border: 2px dashed #64748b;
+    flex-shrink: 0; /* Prevents shrinking too much */
 }
 
 .math-challenge input {
@@ -313,7 +319,7 @@ details[open] > summary.operation-category-summary::after {
 }
 
 .info-btn {
-    position: absolute;
+    position: absolute; /* Kept for general placement, but consider if it should be outside main-wrapper */
     right: 20px;
     bottom: 10px;
     width: 35px;
@@ -369,7 +375,6 @@ details[open] > summary.operation-category-summary::after {
 .welcome-modal-content h2 {
     color: #0d9488;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    /* Corrected font size to match original scale relative to 2.5rem base for h2 */
     font-size: 2.5rem; /* Revert to original size or adjust for welcome modal specifically if needed */
 }
 .welcome-modal-content p {
@@ -469,8 +474,9 @@ footer #footer-text {
     flex-direction: column;
     gap: 6px;
     width: 100%;
-    max-width: 180px; /* Kept for smaller screens and as a base */
+    max-width: 180px; /* This can be adjusted further */
     margin-top: 0;
+    flex-shrink: 0; /* Prevents shrinking too much */
 }
 
 .keyboard-row {
@@ -619,68 +625,60 @@ input[type="number"] {
 
 
 @media (min-width: 768px) {
+    /* Main container should now use flex for row layout */
     .main-content-wrapper {
         flex-direction: row;
-        align-items: flex-start;
-        padding: 20px;
-        height: 100%;
-        width: 100%;
-        max-width: none;
-        margin: 0;
+        align-items: center; /* Vertically center content when in row mode */
+        justify-content: center; /* Horizontally center content when in row mode */
+        padding: 20px; /* Add overall padding for desktop */
+        flex-wrap: nowrap; /* Prevent wrapping in row layout */
     }
 
+    /* Game Panel takes a larger flexible share */
     .game-panel {
-        flex-grow: 2; /* Game panel takes 2/3 of available space */
-        flex-basis: 0;
-        max-width: 700px; /* Adjusted: Max width for game panel */
-        width: auto;
-        gap: 15px;
-        max-height: calc(100vh - 90px); /* This calculation might need fine-tuning based on actual header/footer size */
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: var(--primary-blue) transparent;
+        flex-grow: 2; /* Takes 2 parts of the available space */
+        flex-shrink: 1; /* Can shrink if needed */
+        flex-basis: auto; /* Base size adapts to content */
+        max-width: 700px; /* Max width to prevent it from getting too wide */
+        height: 100%; /* Make it fill height of its parent (main-content-wrapper) */
+        margin: 0; /* Remove auto margins to let flex handle spacing */
+        max-height: none; /* Remove fixed max-height if it prevents full fill */
+        overflow-y: auto; /* Re-enable scrolling if content overflows vertically */
     }
 
-    .game-panel::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .game-panel::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .game-panel::-webkit-scrollbar-thumb {
-        background-color: var(--primary-blue);
-        border-radius: 10px;
-        border: 2px solid transparent;
-    }
-
+    /* Right Panel takes a smaller flexible share */
     .right-panel {
-        flex-grow: 1; /* Right panel takes 1/3 of available space */
-        flex-basis: 0;
-        max-width: 400px; /* Adjusted: Max width for right panel */
-        width: auto;
-        padding-top: 0;
-        gap: 15px;
-        align-self: stretch; /* Stretch to fill height of its flex container */
+        flex-grow: 1; /* Takes 1 part of the available space */
+        flex-shrink: 1; /* Can shrink if needed */
+        flex-basis: auto; /* Base size adapts to content */
+        max-width: 400px; /* Max width to prevent it from getting too wide */
+        height: 100%; /* Make it fill height of its parent (main-content-wrapper) */
+        margin: 0; /* Remove auto margins */
         display: flex;
         flex-direction: column;
-        justify-content: center; /* Vertically center content in the right panel */
+        justify-content: center; /* Vertically center content within right panel */
+        align-items: center; /* Horizontally center content within right panel */
     }
 
-    /* Ensure canvas and custom keyboard can expand within their panels */
+    /* Ensure canvas fills available space within its flexible parent */
     canvas {
-        max-width: 100%; /* Ensure canvas doesn't exceed its parent's width */
-        height: auto; /* Allow height to adjust proportionally */
+        flex-grow: 1; /* Allow canvas to grow and take space */
+        flex-shrink: 1;
+        flex-basis: auto;
+        margin: auto; /* Keep centering within its container */
+        max-width: 100%;
+        max-height: 100%;
     }
 
-    .custom-keyboard {
-        max-width: 300px; /* Adjusted: Give keyboard more space but not too wide */
-        margin: 0 auto;
+    /* Adjust math challenge and keyboard to fill right panel better */
+    .math-challenge, .custom-keyboard {
+        width: 100%; /* Should take full width of right-panel */
+        margin: 0; /* Remove auto margins as right-panel centers its content */
+        flex-shrink: 0; /* Prevent them from shrinking */
     }
-    .math-challenge {
-        max-width: 100%; /* Allow math challenge to fill its parent */
-        margin: 0 auto;
+    .custom-keyboard {
+         max-width: 300px; /* Reapply a reasonable max-width for keyboard on desktop */
+         margin-top: 15px; /* Add some margin between math challenge and keyboard */
     }
 
     h1 {
@@ -693,24 +691,26 @@ input[type="number"] {
 
 @media (max-width: 767px) {
     body {
-        padding: 10px;
+        padding: 0; /* Remove padding from body on mobile */
         justify-content: flex-start;
     }
     .main-wrapper {
+        padding: 5px; /* Add minimal padding to wrapper on mobile */
         height: auto;
-        overflow-y: auto;
+        overflow-y: auto; /* Allow scrolling for content on small screens */
     }
     .main-content-wrapper {
-        flex-direction: column;
         gap: 15px;
         padding: 0;
         height: auto;
+        /* Keep centering for single column */
     }
     .game-panel {
         padding: 15px;
         gap: 10px;
         max-height: none;
         overflow-y: visible;
+        margin: 0 auto; /* Ensure centering in column */
     }
     .right-panel {
         width: 95%;
