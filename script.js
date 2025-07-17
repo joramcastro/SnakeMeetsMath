@@ -1,6 +1,6 @@
 let currentCanvasSize;
 let currentCellSize;
-const CELLS_PER_SIDE = 40;
+const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
 const GAME_SPEED = 450;
