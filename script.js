@@ -3,7 +3,7 @@ let currentCellSize;
 const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 450;
+const GAME_SPEED = 400;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -303,44 +303,97 @@ function initializeGame() {
     updateAllTimeHighScoreDisplay();
 }
 
+// Helper function to draw a rounded rectangle
+function drawRoundedRect(ctx, x, y, width, height, radius) {
+    radius = { tl: radius, tr: radius, br: radius, bl: radius };
+    ctx.beginPath();
+    ctx.moveTo(x + radius.tl, y);
+    ctx.lineTo(x + width - radius.tr, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+    ctx.lineTo(x + width, y + height - radius.br);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+    ctx.lineTo(x + radius.bl, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+    ctx.lineTo(x, y + radius.tl);
+    ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+}
+
+
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Draw the food with a more realistic, round, and shaded look
+    ctx.beginPath();
+    const foodRadius = currentCellSize / 2 - 2; // Slightly smaller than cell
+    const foodCenterX = food.x + currentCellSize / 2;
+    const foodCenterY = food.y + currentCellSize / 2;
+
+    // Radial gradient for 3D effect
+    const foodGradient = ctx.createRadialGradient(
+        foodCenterX - foodRadius * 0.3, // Highlight offset
+        foodCenterY - foodRadius * 0.3,
+        foodRadius * 0.1, // Small inner circle for highlight
+        foodCenterX,
+        foodCenterY,
+        foodRadius // Outer circle for full gradient
+    );
+    foodGradient.addColorStop(0, '#FFEB3B'); // Bright yellow (highlight)
+    foodGradient.addColorStop(0.5, '#FFC107'); // Orange-yellow
+    foodGradient.addColorStop(1, '#FF8F00'); // Deep orange (shadow)
+    
+    ctx.fillStyle = foodGradient;
+    ctx.strokeStyle = '#D57C00'; // Darker orange border
+    ctx.lineWidth = 2;
+    ctx.arc(foodCenterX, foodCenterY, foodRadius, 0, Math.PI * 2);
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)'; // Add a subtle shadow
+    ctx.shadowBlur = 5;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    ctx.fill();
+    ctx.stroke();
+
+    // Reset shadow properties after drawing food
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Draw the snake segments with a more realistic, rounded, and textured look
     snake.forEach((segment, index) => {
         const baseColor = index === 0 ? '#4CAF50' : '#8BC34A'; // Head: Dark Green, Body: Light Green
+        const innerColor = index === 0 ? '#388E3C' : '#689F38'; // Darker shade for inner part
         const borderColor = '#2E7D32'; // Darker green border
 
-        // Draw main segment (rounded rectangle)
-        ctx.fillStyle = baseColor;
+        // Segment dimensions
+        const segmentX = segment.x;
+        const segmentY = segment.y;
+        const segmentWidth = currentCellSize;
+        const segmentHeight = currentCellSize;
+        const borderRadius = currentCellSize / 4; // Rounded corners
+
+        // Draw main segment background with gradient for depth
+        const segmentGradient = ctx.createLinearGradient(segmentX, segmentY, segmentX + segmentWidth, segmentY + segmentHeight);
+        segmentGradient.addColorStop(0, index === 0 ? '#66BB6A' : '#A5D6A7'); // Top-left highlight
+        segmentGradient.addColorStop(1, baseColor); // Bottom-right darker shade
+        ctx.fillStyle = segmentGradient;
         ctx.strokeStyle = borderColor;
         ctx.lineWidth = 2;
-        const cornerRadius = currentCellSize / 4;
+        
+        drawRoundedRect(ctx, segmentX, segmentY, segmentWidth, segmentHeight, borderRadius);
 
-        ctx.beginPath();
-        ctx.moveTo(segment.x + cornerRadius, segment.y);
-        ctx.lineTo(segment.x + currentCellSize - cornerRadius, segment.y);
-        ctx.arcTo(segment.x + currentCellSize, segment.y, segment.x + currentCellSize, segment.y + cornerRadius, cornerRadius);
-        ctx.lineTo(segment.x + currentCellSize, segment.y + currentCellSize - cornerRadius);
-        ctx.arcTo(segment.x + currentCellSize, segment.y + currentCellSize, segment.x + currentCellSize - cornerRadius, segment.y + currentCellSize, cornerRadius);
-        ctx.lineTo(segment.x + cornerRadius, segment.y + currentCellSize);
-        ctx.arcTo(segment.x, segment.y + currentCellSize, segment.x, segment.y + currentCellSize - cornerRadius, cornerRadius);
-        ctx.lineTo(segment.x, segment.y + cornerRadius);
-        ctx.arcTo(segment.x, segment.y, segment.x + cornerRadius, segment.y, cornerRadius);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-        // Add subtle inner shading/texture
+        // Add subtle inner detail for scales/texture
         const textureInset = currentCellSize * 0.15; // Inset amount for the inner rectangle
-        const innerRectX = segment.x + textureInset;
-        const innerRectY = segment.y + textureInset;
+        const innerRectX = segmentX + textureInset;
+        const innerRectY = segmentY + textureInset;
         const innerRectSize = currentCellSize - (textureInset * 2);
 
-        // Darker inner fill (resembling scales/depth)
-        ctx.fillStyle = index === 0 ? '#388E3C' : '#689F38'; // Slightly darker shades
+        ctx.fillStyle = innerColor; // Use the darker inner color
         ctx.fillRect(innerRectX, innerRectY, innerRectSize, innerRectSize);
 
-        // Eyes for the snake head
+        // Eyes for the snake head (only for the head segment)
         if (index === 0) {
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
@@ -379,16 +432,8 @@ function drawGame() {
             ctx.stroke();
         }
     });
-
-    // Draw food
-    ctx.fillStyle = '#FFC107';
-    ctx.strokeStyle = '#FF8F00';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(food.x + currentCellSize / 2, food.y + currentCellSize / 2, currentCellSize / 2 - 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
 }
+
 
 function moveSnake() {
     if (!isGameRunning || isPaused || awaitingMathAnswer) return;
@@ -2661,7 +2706,6 @@ function handleKeyboardInput(value) {
             mathAnswerInput.value += value;
         }
     } else if (isTextAnswer) {
-        // Special handling for 'Yes' and 'No' from custom keyboard
         if (value === 'yes') {
             mathAnswerInput.value = 'Yes';
         } else if (value === 'no') {
