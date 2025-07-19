@@ -3,7 +3,7 @@ let currentCellSize;
 const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 400;
+const GAME_SPEED = 350;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -138,7 +138,7 @@ function resizeCanvas() {
         let desiredSize = Math.min(targetWidth, targetHeight);
 
         const minCanvasSize = CELLS_PER_SIDE * 5;
-        const maxCanvasSize = 850; // Increased max canvas size for more space
+        const maxCanvasSize = 850;
 
         currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
         currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
@@ -303,7 +303,6 @@ function initializeGame() {
     updateAllTimeHighScoreDisplay();
 }
 
-// Helper function to draw a rounded rectangle
 function drawRoundedRect(ctx, x, y, width, height, radius) {
     radius = { tl: radius, tr: radius, br: radius, bl: radius };
     ctx.beginPath();
@@ -325,75 +324,67 @@ function drawRoundedRect(ctx, x, y, width, height, radius) {
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw the food with a more realistic, round, and shaded look
     ctx.beginPath();
-    const foodRadius = currentCellSize / 2 - 2; // Slightly smaller than cell
+    const foodRadius = currentCellSize / 2 - 2;
     const foodCenterX = food.x + currentCellSize / 2;
     const foodCenterY = food.y + currentCellSize / 2;
 
-    // Radial gradient for 3D effect
     const foodGradient = ctx.createRadialGradient(
-        foodCenterX - foodRadius * 0.3, // Highlight offset
+        foodCenterX - foodRadius * 0.3,
         foodCenterY - foodRadius * 0.3,
-        foodRadius * 0.1, // Small inner circle for highlight
+        foodRadius * 0.1,
         foodCenterX,
         foodCenterY,
-        foodRadius // Outer circle for full gradient
+        foodRadius
     );
-    foodGradient.addColorStop(0, '#FFEB3B'); // Bright yellow (highlight)
-    foodGradient.addColorStop(0.5, '#FFC107'); // Orange-yellow
-    foodGradient.addColorStop(1, '#FF8F00'); // Deep orange (shadow)
+    foodGradient.addColorStop(0, '#FFEB3B');
+    foodGradient.addColorStop(0.5, '#FFC107');
+    foodGradient.addColorStop(1, '#FF8F00');
     
     ctx.fillStyle = foodGradient;
-    ctx.strokeStyle = '#D57C00'; // Darker orange border
+    ctx.strokeStyle = '#D57C00';
     ctx.lineWidth = 2;
     ctx.arc(foodCenterX, foodCenterY, foodRadius, 0, Math.PI * 2);
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)'; // Add a subtle shadow
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
     ctx.shadowBlur = 5;
     ctx.shadowOffsetX = 2;
     ctx.shadowOffsetY = 2;
     ctx.fill();
     ctx.stroke();
 
-    // Reset shadow properties after drawing food
     ctx.shadowColor = 'transparent';
     ctx.shadowBlur = 0;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
 
-    // Draw the snake segments with a more realistic, rounded, and textured look
     snake.forEach((segment, index) => {
-        const baseColor = index === 0 ? '#4CAF50' : '#8BC34A'; // Head: Dark Green, Body: Light Green
-        const innerColor = index === 0 ? '#388E3C' : '#689F38'; // Darker shade for inner part
-        const borderColor = '#2E7D32'; // Darker green border
+        const baseColor = index === 0 ? '#4CAF50' : '#8BC34A';
+        const innerColor = index === 0 ? '#388E3C' : '#689F38';
+        const borderColor = '#2E7D32';
 
-        // Segment dimensions
         const segmentX = segment.x;
         const segmentY = segment.y;
         const segmentWidth = currentCellSize;
         const segmentHeight = currentCellSize;
-        const borderRadius = currentCellSize / 4; // Rounded corners
+        const borderRadius = currentCellSize / 4;
 
-        // Draw main segment background with gradient for depth
         const segmentGradient = ctx.createLinearGradient(segmentX, segmentY, segmentX + segmentWidth, segmentY + segmentHeight);
-        segmentGradient.addColorStop(0, index === 0 ? '#66BB6A' : '#A5D6A7'); // Top-left highlight
-        segmentGradient.addColorStop(1, baseColor); // Bottom-right darker shade
+        segmentGradient.addColorStop(0, index === 0 ? '#66BB6A' : '#A5D6A7');
+        segmentGradient.addColorStop(1, baseColor);
         ctx.fillStyle = segmentGradient;
         ctx.strokeStyle = borderColor;
         ctx.lineWidth = 2;
         
         drawRoundedRect(ctx, segmentX, segmentY, segmentWidth, segmentHeight, borderRadius);
 
-        // Add subtle inner detail for scales/texture
-        const textureInset = currentCellSize * 0.15; // Inset amount for the inner rectangle
+        const textureInset = currentCellSize * 0.15;
         const innerRectX = segmentX + textureInset;
         const innerRectY = segmentY + textureInset;
         const innerRectSize = currentCellSize - (textureInset * 2);
 
-        ctx.fillStyle = innerColor; // Use the darker inner color
+        ctx.fillStyle = innerColor;
         ctx.fillRect(innerRectX, innerRectY, innerRectSize, innerRectSize);
 
-        // Eyes for the snake head (only for the head segment)
         if (index === 0) {
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
@@ -772,6 +763,148 @@ function generateArithmeticProblem() {
     correctMathAnswer = Math.round(answer);
 }
 
+// New Pure Arithmetic Problems
+function generatePureAdditionProblem() {
+    let num1, num2, answer;
+    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        num1 = generateRandomNum(1, maxVal);
+        num2 = generateRandomNum(1, maxVal);
+        answer = num1 + num2;
+
+        if (answer > 0 && answer < 1000000) { // Keep answers within a reasonable positive range
+            problemGenerated = true;
+        }
+    }
+    if (!problemGenerated) {
+        num1 = 5; num2 = 3; answer = 8;
+        setMessage('Pure Addition fallback. Please continue.');
+    }
+    mathProblemDisplay.textContent = `${num1} + ${num2} = ?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false');
+}
+
+function generatePureSubtractionProblem() {
+    let num1, num2, answer;
+    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        num1 = generateRandomNum(minVal * 2, maxVal * 2); // Ensure num1 is generally larger
+        num2 = generateRandomNum(minVal, num1 - minVal); // Ensure positive result
+
+        if (num1 <= num2 || num2 === 0) continue; // Ensure num1 > num2 and num2 is not zero
+        
+        answer = num1 - num2;
+
+        if (answer > 0 && answer < 1000000) {
+            problemGenerated = true;
+        }
+    }
+    if (!problemGenerated) {
+        num1 = 8; num2 = 3; answer = 5;
+        setMessage('Pure Subtraction fallback. Please continue.');
+    }
+    mathProblemDisplay.textContent = `${num1} - ${num2} = ?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false');
+}
+
+function generatePureMultiplicationProblem() {
+    let num1, num2, answer;
+    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        // Keep numbers smaller for multiplication to prevent excessively large answers
+        if (currentDifficulty === 'easy') {
+            num1 = generateRandomNum(1, 9);
+            num2 = generateRandomNum(1, 9);
+        } else if (currentDifficulty === 'medium') {
+            num1 = generateRandomNum(1, 20);
+            num2 = generateRandomNum(1, 15);
+        } else if (currentDifficulty === 'hard') {
+            num1 = generateRandomNum(10, 50);
+            num2 = generateRandomNum(10, 20);
+        } else { // expert
+            num1 = generateRandomNum(10, 100);
+            num2 = generateRandomNum(10, 50);
+        }
+        answer = num1 * num2;
+
+        if (answer > 0 && answer < 1000000) {
+            problemGenerated = true;
+        }
+    }
+    if (!problemGenerated) {
+        num1 = 5; num2 = 3; answer = 15;
+        setMessage('Pure Multiplication fallback. Please continue.');
+    }
+    mathProblemDisplay.textContent = `${num1} x ${num2} = ?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false');
+}
+
+function generatePureDivisionProblem() {
+    let num1, num2, answer;
+    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        // Generate divisor first, then quotient, then dividend to ensure integer result
+        let quotientCandidate;
+        let divisorCandidate;
+
+        if (currentDifficulty === 'easy') {
+            divisorCandidate = generateRandomNum(2, 9);
+            quotientCandidate = generateRandomNum(1, 9);
+        } else if (currentDifficulty === 'medium') {
+            divisorCandidate = generateRandomNum(2, 15);
+            quotientCandidate = generateRandomNum(2, 12);
+        } else if (currentDifficulty === 'hard') {
+            divisorCandidate = generateRandomNum(5, 25);
+            quotientCandidate = generateRandomNum(5, 20);
+        } else { // expert
+            divisorCandidate = generateRandomNum(10, 40);
+            quotientCandidate = generateRandomNum(10, 30);
+        }
+        
+        num1 = divisorCandidate * quotientCandidate;
+        num2 = divisorCandidate;
+        answer = quotientCandidate;
+
+        if (num1 > 0 && num2 > 0 && answer > 0 && num1 <= maxVal * maxVal && answer < 1000000) { // Max dividend might be high
+            problemGenerated = true;
+        }
+    }
+    if (!problemGenerated) {
+        num1 = 15; num2 = 3; answer = 5;
+        setMessage('Pure Division fallback. Please continue.');
+    }
+    mathProblemDisplay.textContent = `${num1} ÷ ${num2} = ?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false');
+}
+
 function generateExponentiationProblem() {
     let base, exponent, answer;
     const MAX_ATTEMPTS = 200;
@@ -1020,12 +1153,9 @@ function generatePercentageProblem() {
         } else if (currentDifficulty === 'medium') {
             base = generateRandomNum(50, 500) * 10;
             percentage = generateRandomNum(1, 100);
-        } else if (currentDifficulty === 'hard') {
+        } else {
             base = generateRandomNum(100, 1000) * 10;
             percentage = generateRandomNum(1, 200);
-        } else {
-            base = generateRandomNum(500, 2000) * 10;
-            percentage = generateRandomNum(1, 300);
         }
 
         switch (problemType) {
@@ -2358,6 +2488,18 @@ function startChallenge() {
     switch (selectedOperationType) {
         case 'arithmetic':
             generateArithmeticProblem();
+            break;
+        case 'pure-addition':
+            generatePureAdditionProblem();
+            break;
+        case 'pure-subtraction':
+            generatePureSubtractionProblem();
+            break;
+        case 'pure-multiplication':
+            generatePureMultiplicationProblem();
+            break;
+        case 'pure-division':
+            generatePureDivisionProblem();
             break;
         case 'exponentiation':
             generateExponentiationProblem();
