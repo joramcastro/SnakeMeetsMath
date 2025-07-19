@@ -22,7 +22,7 @@ const difficultyPanel = document.getElementById('difficulty-panel');
 const difficultyButtons = document.querySelectorAll('.difficulty-btn');
 const gameOverModal = document.getElementById('gameOverModal');
 const finalScoreDisplay = document.getElementById('finalScore');
-const restartGameBtn = document.getElementById('restartGameBtn');
+const restartGameBtn = document = document.getElementById('restartGameBtn');
 const installButton = document.getElementById('install-button');
 const customKeyboard = document.getElementById('custom-keyboard');
 const messageArea = document.getElementById('message-area');
@@ -952,35 +952,35 @@ function generatePercentageProblem() {
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
-        problemType = generateRandomNum(1, 3); // 1: What is X% of Y?, 2: X is what % of Y?, 3: X is Y% of what?
+        problemType = generateRandomNum(1, 3);
 
         if (currentDifficulty === 'easy') {
-            base = generateRandomNum(10, 100) * 10; // e.g., 100, 200, ... 1000
-            percentage = generateRandomNum(5, 50) * 5; // e.g., 5, 10, ... 50
+            base = generateRandomNum(10, 100) * 10;
+            percentage = generateRandomNum(5, 50) * 5;
         } else if (currentDifficulty === 'medium') {
             base = generateRandomNum(50, 500) * 10;
             percentage = generateRandomNum(1, 100);
         } else if (currentDifficulty === 'hard') {
             base = generateRandomNum(100, 1000) * 10;
             percentage = generateRandomNum(1, 200);
-        } else { // expert
+        } else {
             base = generateRandomNum(500, 2000) * 10;
             percentage = generateRandomNum(1, 300);
         }
 
         switch (problemType) {
-            case 1: // What is X% of Y? (e.g., What is 20% of 150?)
+            case 1:
                 answer = (percentage / 100) * base;
                 mathProblemDisplay.textContent = `What is ${percentage}% of ${base}?`;
                 break;
-            case 2: // X is what % of Y? (e.g., 30 is what % of 150?)
+            case 2:
                 let part = generateRandomNum(1, base / 2);
-                base = generateRandomNum(part * 2, part * 10); // Ensure percentage is reasonable
+                base = generateRandomNum(part * 2, part * 10);
                 if (base === 0) continue;
                 answer = (part / base) * 100;
                 mathProblemDisplay.textContent = `${part} is what percent of ${base}?`;
                 break;
-            case 3: // X is Y% of what? (e.g., 30 is 20% of what?)
+            case 3:
                 let result = generateRandomNum(10, 500);
                 percentage = generateRandomNum(5, 100);
                 if (percentage === 0) continue;
@@ -989,7 +989,7 @@ function generatePercentageProblem() {
                 break;
         }
 
-        if (Math.abs(answer) < 100000 && answer % 1 === 0 || (answer * 10) % 1 === 0 || (answer * 100) % 1 === 0) {
+        if (Math.abs(answer) < 100000 && (answer % 1 === 0 || (answer * 10) % 1 === 0 || (answer * 100) % 1 === 0)) {
             problemGenerated = true;
         }
     }
@@ -1020,21 +1020,20 @@ function generateSquareRootProblem() {
             minBase = 5; maxBase = 20;
         } else if (currentDifficulty === 'hard') {
             minBase = 10; maxBase = 30;
-        } else { // expert
+        } else {
             minBase = 20; maxBase = 50;
         }
         
         answer = generateRandomNum(minBase, maxBase);
         number = answer * answer;
 
-        // Optionally, for hard/expert, introduce non-perfect squares to round
         if (currentDifficulty === 'hard' || currentDifficulty === 'expert') {
-            if (Math.random() < 0.5) { // 50% chance for non-perfect square
+            if (Math.random() < 0.5) {
                 let offset = Math.random() < 0.5 ? -generateRandomNum(1, 3) : generateRandomNum(1, 3);
                 number += offset;
-                if (number < 1) number = 1; // Ensure non-negative
+                if (number < 1) number = 1;
                 answer = Math.sqrt(number);
-                if (answer % 1 === 0) continue; // Ensure it's not a perfect square by accident
+                if (answer % 1 === 0) continue;
             }
         }
         
@@ -1067,8 +1066,8 @@ function generateOrderOfOperationsProblem() {
 
         if (allowMultiplyDivide && Math.random() < 0.5) {
             op = Math.random() < 0.5 ? '*' : '/';
-            if (op === '/' && num2 === 0) num2 = 1; // Avoid division by zero
-            if (op === '/' && num1 % num2 !== 0) { // Ensure integer division if needed
+            if (op === '/' && num2 === 0) num2 = 1;
+            if (op === '/' && num1 % num2 !== 0) {
                 num1 = num2 * generateRandomNum(1, Math.floor(max / num2));
             }
         } else {
@@ -1078,7 +1077,6 @@ function generateOrderOfOperationsProblem() {
     };
 
     const evaluateExpression = (expr) => {
-        // Replace 'x' with '*' and '÷' with '/' for evaluation
         expr = expr.replace(/x/g, '*').replace(/÷/g, '/');
         try {
             return eval(expr);
@@ -1104,7 +1102,7 @@ function generateOrderOfOperationsProblem() {
             minVal = 1; maxVal = 20;
             numTerms = generateRandomNum(3, 5);
             includeParentheses = Math.random() < 0.7;
-        } else { // expert
+        } else {
             minVal = 1; maxVal = 25;
             numTerms = generateRandomNum(4, 6);
             includeParentheses = Math.random() < 0.9;
@@ -1117,7 +1115,7 @@ function generateOrderOfOperationsProblem() {
                 const operators = ['+', '-', '*', '/'];
                 let op = operators[Math.floor(Math.random() * operators.length)];
                 if (currentDifficulty === 'easy' && (op === '*' || op === '/')) {
-                    op = Math.random() < 0.5 ? '+' : '-'; // Reduce complex ops for easy
+                    op = Math.random() < 0.5 ? '+' : '-';
                 }
                 parts.push(op === '*' ? 'x' : op === '/' ? '÷' : op);
             }
@@ -1126,11 +1124,9 @@ function generateOrderOfOperationsProblem() {
         problemString = parts.join(' ');
 
         if (includeParentheses && parts.length >= 3) {
-            let startIdx = generateRandomNum(0, parts.length - 3); // Must leave at least 2 elements after
-            // Find a place to put parentheses that covers at least two numbers and an operator
+            let startIdx = generateRandomNum(0, parts.length - 3);
             let parenStart = -1, parenEnd = -1;
             
-            // Try to enclose a small sub-expression
             for(let i = 0; i < parts.length - 2; i++) {
                 if (typeof parts[i] === 'number' && typeof parts[i+1] === 'string' && typeof parts[i+2] === 'number') {
                     parenStart = i;
@@ -1147,12 +1143,10 @@ function generateOrderOfOperationsProblem() {
             }
         }
 
-        // Clean up double spaces from empty parts due to random parentheses placement
         problemString = problemString.replace(/\s+/g, ' ').trim();
 
         answer = evaluateExpression(problemString);
 
-        // Validate answer: finite, not NaN, not too large/small, prefer integers for easy/medium
         const isIntegerAnswer = answer % 1 === 0;
         const isManageableAnswer = Math.abs(answer) < 10000 && isFinite(answer) && !isNaN(answer);
 
@@ -1162,7 +1156,7 @@ function generateOrderOfOperationsProblem() {
                     problemGenerated = true;
                 }
             } else {
-                problemGenerated = true; // Allow decimals for hard/expert
+                problemGenerated = true;
             }
         }
     }
@@ -1197,7 +1191,7 @@ function generateLCMProblem() {
         } else if (currentDifficulty === 'hard') {
             num1 = generateRandomNum(10, 25);
             num2 = generateRandomNum(10, 25);
-        } else { // expert
+        } else {
             num1 = generateRandomNum(15, 40);
             num2 = generateRandomNum(15, 40);
         }
@@ -1236,7 +1230,7 @@ function generateGCDProblem() {
         } else if (currentDifficulty === 'hard') {
             num1 = generateRandomNum(50, 200);
             num2 = generateRandomNum(50, 200);
-        } else { // expert
+        } else {
             num1 = generateRandomNum(100, 500);
             num2 = generateRandomNum(100, 500);
         }
@@ -1281,11 +1275,10 @@ function generatePrimeNumberProblem() {
         number = generateRandomNum(minVal, maxVal);
         isItPrime = isPrime(number);
 
-        // Ensure a good mix of prime and non-prime numbers
-        if (attempts % 2 === 0 && isItPrime) { // Try to get a non-prime
+        if (attempts % 2 === 0 && isItPrime) {
             if (number > 4) number = Math.max(4, number + generateRandomNum(-3, 3));
             if (isPrime(number)) continue;
-        } else if (attempts % 2 !== 0 && !isItPrime) { // Try to get a prime
+        } else if (attempts % 2 !== 0 && !isItPrime) {
             let foundPrime = false;
             for (let i = number; i <= maxVal; i++) {
                 if (isPrime(i)) {
@@ -1294,15 +1287,15 @@ function generatePrimeNumberProblem() {
                     break;
                 }
             }
-            if (!foundPrime) { // If no prime found, pick a smaller known prime
+            if (!foundPrime) {
                 const smallPrimes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
                 number = smallPrimes[Math.floor(Math.random() * smallPrimes.length)];
                 if (number > maxVal) continue;
             }
         }
-        isItPrime = isPrime(number); // Re-evaluate after adjustment
+        isItPrime = isPrime(number);
 
-        if (number > 1) { // Ensure number is valid
+        if (number > 1) {
             problemGenerated = true;
         }
     }
@@ -1315,9 +1308,288 @@ function generatePrimeNumberProblem() {
     mathProblemDisplay.textContent = `Is ${number} a prime number? (Yes/No)`;
     correctMathAnswer = isItPrime ? 'Yes' : 'No';
     mathAnswerInput.value = '';
-    mathAnswerInput.setAttribute('data-allow-decimal', 'false'); // Not numeric
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false');
     mathAnswerInput.setAttribute('data-allow-fraction', 'false');
-    mathAnswerInput.setAttribute('data-allow-text-answer', 'true'); // For Yes/No
+    mathAnswerInput.setAttribute('data-allow-text-answer', 'true');
+}
+
+
+function generateAreaPerimeterProblem() {
+    let shape, val1, val2, problemText, answer;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    const shapes = ['rectangle', 'square', 'circle'];
+    const properties = ['area', 'perimeter'];
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        shape = shapes[Math.floor(Math.random() * shapes.length)];
+        let property = properties[Math.floor(Math.random() * properties.length)];
+
+        if (currentDifficulty === 'easy') {
+            val1 = generateRandomNum(2, 10);
+            val2 = generateRandomNum(2, 10);
+        } else if (currentDifficulty === 'medium') {
+            val1 = generateRandomNum(5, 15);
+            val2 = generateRandomNum(5, 15);
+        } else if (currentDifficulty === 'hard') {
+            val1 = generateRandomNum(10, 25);
+            val2 = generateRandomNum(10, 25);
+        } else { // expert
+            val1 = generateRandomNum(15, 30);
+            val2 = generateRandomNum(15, 30);
+        }
+
+        if (shape === 'square') {
+            val2 = val1; // For square, length and width are same
+            property = properties[Math.floor(Math.random() * properties.length)]; // Square can ask for area or perimeter
+        } else if (shape === 'circle') {
+            property = 'area'; // Or 'circumference' for circle (similar to perimeter)
+            if (Math.random() < 0.5) property = 'circumference';
+            val1 = generateRandomNum(2, currentDifficulty === 'easy' ? 7 : currentDifficulty === 'medium' ? 10 : 15); // radius
+        }
+        
+        switch (shape) {
+            case 'rectangle':
+                problemText = `${property === 'area' ? 'Area' : 'Perimeter'} of a rectangle with L=${val1} and W=${val2}?`;
+                answer = property === 'area' ? val1 * val2 : 2 * (val1 + val2);
+                break;
+            case 'square':
+                problemText = `${property === 'area' ? 'Area' : 'Perimeter'} of a square with side=${val1}?`;
+                answer = property === 'area' ? val1 * val1 : 4 * val1;
+                break;
+            case 'circle':
+                problemText = `${property === 'area' ? 'Area' : 'Circumference'} of a circle with R=${val1}? (Use π=3.14)`;
+                answer = property === 'area' ? Math.PI * val1 * val1 : 2 * Math.PI * val1;
+                answer = parseFloat(answer.toFixed(2)); // Round to 2 decimal places for Pi
+                break;
+        }
+
+        if (answer > 0 && Math.abs(answer) < 10000 && (answer % 1 === 0 || (answer * 100) % 1 === 0)) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        problemText = `Area of a rectangle with L=5 and W=4?`;
+        answer = 20;
+        setMessage('Area/Perimeter problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = problemText;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'true');
+}
+
+function generateUnitConversionProblem() {
+    let value, fromUnit, toUnit, factor, answer, problemText;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    const units = {
+        length: {
+            m: { to: { cm: 100, km: 0.001 }, display: 'meters' },
+            cm: { to: { m: 0.01, mm: 10 }, display: 'centimeters' },
+            km: { to: { m: 1000 }, display: 'kilometers' },
+            ft: { to: { in: 12, yd: 1/3 }, display: 'feet' },
+            in: { to: { ft: 1/12 }, display: 'inches' },
+            yd: { to: { ft: 3 }, display: 'yards' }
+        },
+        mass: {
+            kg: { to: { g: 1000, lb: 2.20462 }, display: 'kilograms' },
+            g: { to: { kg: 0.001 }, display: 'grams' },
+            lb: { to: { kg: 0.453592 }, display: 'pounds' }
+        },
+        volume: {
+            l: { to: { ml: 1000, gal: 0.264172 }, display: 'liters' },
+            ml: { to: { l: 0.001 }, display: 'milliliters' },
+            gal: { to: { l: 3.78541 }, display: 'gallons' }
+        }
+    };
+
+    const categories = Object.keys(units);
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        const categoryName = categories[Math.floor(Math.random() * categories.length)];
+        const category = units[categoryName];
+        const fromUnitKey = Object.keys(category)[Math.floor(Math.random() * Object.keys(category).length)];
+        const fromUnitData = category[fromUnitKey];
+        const toUnitKeys = Object.keys(fromUnitData.to);
+        const toUnitKey = toUnitKeys[Math.floor(Math.random() * toUnitKeys.length)];
+        
+        value = generateRandomNum(1, currentDifficulty === 'easy' ? 20 : currentDifficulty === 'medium' ? 100 : currentDifficulty === 'hard' ? 500 : 1000);
+        factor = fromUnitData.to[toUnitKey];
+        
+        answer = value * factor;
+
+        // Ensure reasonable numbers for display and answer
+        if (Math.abs(answer) > 0.001 && Math.abs(answer) < 100000 && (answer % 1 === 0 || (answer * 100) % 1 === 0)) {
+            problemGenerated = true;
+            fromUnit = fromUnitData.display;
+            toUnit = units[categoryName][toUnitKey].display;
+        }
+    }
+
+    if (!problemGenerated) {
+        value = 1; fromUnit = 'meters'; toUnit = 'centimeters'; answer = 100;
+        setMessage('Unit Conversion problem generation fallback. Please continue.');
+    }
+    
+    problemText = `Convert ${value} ${fromUnit} to ${toUnit}: ?`;
+    correctMathAnswer = parseFloat(answer.toFixed(2));
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'true');
+}
+
+function generatePythagoreanTheoremProblem() {
+    let a, b, c, sideToFind, answer;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        const pythagoreanTriples = [
+            [3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25], [20, 21, 29],
+            [9, 40, 41], [11, 60, 61], [12, 35, 37]
+        ];
+
+        let chosenTriple;
+        if (currentDifficulty === 'easy') {
+            chosenTriple = pythagoreanTriples[generateRandomNum(0, 1)]; // Basic triples
+        } else if (currentDifficulty === 'medium') {
+            chosenTriple = pythagoreanTriples[generateRandomNum(0, 3)];
+        } else { // Hard and Expert can also use multiples or non-perfect
+            chosenTriple = pythagoreanTriples[generateRandomNum(0, pythagoreanTriples.length - 1)];
+            let multiplier = currentDifficulty === 'hard' ? generateRandomNum(1, 3) : generateRandomNum(1, 5);
+            chosenTriple = chosenTriple.map(val => val * multiplier);
+        }
+
+        [a, b, c] = chosenTriple; // a, b are legs, c is hypotenuse
+
+        sideToFind = generateRandomNum(1, 3); // 1: a, 2: b, 3: c
+
+        if (currentDifficulty === 'expert' && Math.random() < 0.3) {
+             // Introduce non-perfect for expert
+            let nonPerfectAdjust = generateRandomNum(1, 3);
+            if (sideToFind === 1) { // find a
+                b += nonPerfectAdjust;
+            } else if (sideToFind === 2) { // find b
+                a += nonPerfectAdjust;
+            } else { // find c
+                a += nonPerfectAdjust;
+            }
+        }
+
+        let problemText;
+        let calculatedAnswer;
+
+        switch (sideToFind) {
+            case 1: // Find a
+                problemText = `Leg b = ${b}, Hypotenuse c = ${c}. Find leg a: ?`;
+                calculatedAnswer = Math.sqrt(c * c - b * b);
+                break;
+            case 2: // Find b
+                problemText = `Leg a = ${a}, Hypotenuse c = ${c}. Find leg b: ?`;
+                calculatedAnswer = Math.sqrt(c * c - a * a);
+                break;
+            case 3: // Find c (hypotenuse)
+                problemText = `Leg a = ${a}, Leg b = ${b}. Find hypotenuse c: ?`;
+                calculatedAnswer = Math.sqrt(a * a + b * b);
+                break;
+        }
+
+        // Validate calculated answer for integers or simple decimals
+        if (calculatedAnswer > 0 && Math.abs(calculatedAnswer) < 500 && isFinite(calculatedAnswer)) {
+            // For Pythagorean, if answer is not integer, round to 2 dec places
+            if (calculatedAnswer % 1 !== 0 && (currentDifficulty === 'hard' || currentDifficulty === 'expert')) {
+                answer = parseFloat(calculatedAnswer.toFixed(2));
+                problemText += " (2 dec places)";
+                problemGenerated = true;
+            } else if (calculatedAnswer % 1 === 0) {
+                answer = calculatedAnswer;
+                problemGenerated = true;
+            }
+        }
+    }
+
+    if (!problemGenerated) {
+        problemText = `Leg a = 3, Leg b = 4. Find hypotenuse c: ?`;
+        answer = 5;
+        setMessage('Pythagorean Theorem problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = problemText;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'true');
+}
+
+function generateTrigonometryProblem() {
+    let angle, func, answer, problemText;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    const commonAngles = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330, 360];
+    const functions = ['sin', 'cos', 'tan'];
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        func = functions[Math.floor(Math.random() * functions.length)];
+        
+        let anglePool;
+        if (currentDifficulty === 'easy') {
+            anglePool = [0, 30, 45, 60, 90];
+        } else if (currentDifficulty === 'medium') {
+            anglePool = [0, 30, 45, 60, 90, 120, 135, 150, 180];
+        } else if (currentDifficulty === 'hard') {
+            anglePool = commonAngles;
+        } else { // expert - also introduce random angles for rounding
+            anglePool = commonAngles.concat(Array.from({ length: 10 }, () => generateRandomNum(0, 360)));
+        }
+
+        angle = anglePool[Math.floor(Math.random() * anglePool.length)];
+
+        let calculatedAnswer;
+        const angleRad = angle * (Math.PI / 180);
+
+        switch (func) {
+            case 'sin':
+                calculatedAnswer = Math.sin(angleRad);
+                break;
+            case 'cos':
+                calculatedAnswer = Math.cos(angleRad);
+                break;
+            case 'tan':
+                if (angle === 90 || angle === 270) continue; // tan(90) and tan(270) are undefined
+                calculatedAnswer = Math.tan(angleRad);
+                break;
+        }
+        
+        // Ensure values are not too small/large and can be reasonably rounded
+        if (isFinite(calculatedAnswer) && !isNaN(calculatedAnswer) && Math.abs(calculatedAnswer) < 1000) {
+            answer = parseFloat(calculatedAnswer.toFixed(3)); // Round to 3 decimal places
+            problemText = `${func}(${angle}°) = ? (3 dec places)`;
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        problemText = `sin(30°) = ? (3 dec places)`;
+        answer = 0.5;
+        setMessage('Trigonometry problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = problemText;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'true');
 }
 
 
@@ -1811,6 +2083,22 @@ function startChallenge() {
             generatePrimeNumberProblem();
             allowTextAnswer = true;
             break;
+        case 'area-perimeter':
+            generateAreaPerimeterProblem();
+            allowDecimalInput = true;
+            break;
+        case 'unit-conversion':
+            generateUnitConversionProblem();
+            allowDecimalInput = true;
+            break;
+        case 'pythagorean-theorem':
+            generatePythagoreanTheoremProblem();
+            allowDecimalInput = true;
+            break;
+        case 'trigonometry':
+            generateTrigonometryProblem();
+            allowDecimalInput = true;
+            break;
         case 'binary-decimal':
             generateBinaryToDecimalProblem();
             break;
@@ -1903,7 +2191,7 @@ function submitMathAnswer() {
     }
 
     if (isTextAnswerAllowed) {
-        userAnswer = userAnswerRaw.toLowerCase(); // Convert to lowercase for case-insensitive comparison
+        userAnswer = userAnswerRaw.toLowerCase();
         if (userAnswer === correctMathAnswer.toLowerCase()) {
             // Correct, proceed to score
         } else {
@@ -1984,10 +2272,12 @@ function submitMathAnswer() {
     }
     
     let isCorrect = false;
-    if (isTextAnswerAllowed || selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') {
-        isCorrect = userAnswer === correctMathAnswer.toLowerCase(); // Already lowercased for comparison
+    if (isTextAnswerAllowed) {
+        isCorrect = userAnswer === correctMathAnswer.toLowerCase();
+    } else if (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') {
+        isCorrect = userAnswer === correctMathAnswer;
     } else if (selectedOperationType === 'fractions') {
-        isCorrect = true; // Logic handled above
+        isCorrect = true;
     } else {
         isCorrect = userAnswer === parseFloat(correctMathAnswer.toFixed(2));
     }
@@ -2065,7 +2355,7 @@ function handleKeyboardInput(value) {
     } else if (value === 'backspace') {
         mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
     } else if (value === '-') {
-        if (!isTextAnswer) { // Only allow negative sign for numeric inputs
+        if (!isTextAnswer) {
             if (mathAnswerInput.value === '') {
                 mathAnswerInput.value = '-';
             } else if (mathAnswerInput.value === '-') {
@@ -2090,10 +2380,9 @@ function handleKeyboardInput(value) {
             mathAnswerInput.value += value;
         }
     } else if (isTextAnswer) {
-        // For text answers (like Yes/No), allow any characters for typing if needed,
-        // but for now, we only have custom keyboard for numbers.
-        // If a full keyboard input is ever needed, this might need expansion.
-        // For now, custom keyboard handles only numbers, so text input is via physical keyboard.
+        // For text answers (like Yes/No), the custom keyboard only provides numbers.
+        // If 'Yes' or 'No' buttons were added to custom keyboard, this would be adjusted.
+        // For now, letter input is handled by the physical keyboard event listener.
     } else {
         if (value >= '0' && value <= '9') {
             mathAnswerInput.value += value;
@@ -2125,7 +2414,7 @@ document.addEventListener('keydown', e => {
             if (isFractionAllowed) {
                  handleKeyboardInput(e.key);
             }
-        } else if (e.key.length === 1 && e.key.match(/[a-zA-Z]/)) { // Allow letter input for text answers
+        } else if (e.key.length === 1 && e.key.match(/[a-zA-Z]/)) {
             const isTextAnswerAllowed = mathAnswerInput.getAttribute('data-allow-text-answer') === 'true';
             if (isTextAnswerAllowed) {
                 mathAnswerInput.value += e.key;
@@ -2198,7 +2487,7 @@ startGameBtn.addEventListener('click', () => {
 pauseGameBtn.addEventListener('click', pauseGame);
 resetGameBtn.addEventListener('click', resetGame);
 submitAnswerBtn.addEventListener('click', submitMathAnswer);
-restartGameBtn.addEventListener('click', resetGame);
+restartGameBtn.addEventListener('click', restartGameBtn);
 
 closeInfoModalBtn.addEventListener('click', () => {
     infoModal.style.display = 'none';
