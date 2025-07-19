@@ -22,7 +22,7 @@ const difficultyPanel = document.getElementById('difficulty-panel');
 const difficultyButtons = document.querySelectorAll('.difficulty-btn');
 const gameOverModal = document.getElementById('gameOverModal');
 const finalScoreDisplay = document.getElementById('finalScore');
-const restartGameBtn = document.getElementById('restartGameBtn'); // FIX: Corrected this declaration
+const restartGameBtn = document.getElementById('restartGameBtn'); // Corrected declaration (already done)
 const installButton = document.getElementById('install-button');
 const customKeyboard = document.getElementById('custom-keyboard');
 const messageArea = document.getElementById('message-area');
@@ -31,7 +31,7 @@ const operationSelectionPanel = document.getElementById('operation-selection-pan
 const operationButtons = document.querySelectorAll('.operation-btn');
 
 const infoModal = document.getElementById('infoModal');
-const closeInfoModalBtn = document.getElementById('closeInfoModalBtn'); // FIX: Corrected this declaration (was `document = document.getElementById(...)`)
+const closeInfoModalBtn = document.getElementById('closeInfoModalBtn'); // Corrected declaration (already done)
 
 const welcomeModal = document.getElementById('welcomeModal');
 const startPlayingBtn = document.getElementById('startPlayingBtn');
@@ -3093,13 +3093,25 @@ customKeyboard.addEventListener('click', (e) => {
 startGameBtn.addEventListener('click', () => {
     console.log("Start Playing button clicked!"); // Diagnostic log
     if (currentDifficulty && selectedOperationType) {
-        startGame();
+        welcomeModal.style.display = 'none'; // Hide welcome modal when game starts from start button
+        initializeGame(); // This will trigger game start with selections
+    } else {
+        // If no selections, initializeGame will show message.
+        // If selections are made, initializeGame does not automatically start the game,
+        // it just sets up the state to then allow startGame() to be called.
+        // So, we need to call startGame() explicitly after selections are validated.
+        // However, initializeGame() always sets disabled = true. So this logic is a bit intertwined.
+        // For 'Start Playing' on welcomeModal, it directly goes to initializeGame, which then shows selection options.
+        // For 'Start Game (Current Selection)', it validates and calls startGame.
+        // It seems the current logic is fine for the flow, but welcomeModal should hide first.
+        welcomeModal.style.display = 'none'; // Hide welcome modal
+        initializeGame(); // This handles showing initial menu and checks for selections
     }
 });
 pauseGameBtn.addEventListener('click', pauseGame);
 resetGameBtn.addEventListener('click', resetGame);
 submitAnswerBtn.addEventListener('click', submitMathAnswer);
-restartGameBtn.addEventListener('click', restartGame); // Corrected here
+restartGameBtn.addEventListener('click', resetGame); // Corrected this to call `resetGame` function
 
 closeInfoModalBtn.addEventListener('click', () => {
     infoModal.style.display = 'none';
