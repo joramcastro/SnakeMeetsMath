@@ -22,7 +22,6 @@
                     <span id="high-score-container" style="display:none;">High Score: <span id="high-score">0</span></span>
                 </div>
 
-                <!-- New section for All-Time High Score -->
                 <div id="all-time-high-score-container" class="stats-panel mt-4">
                     <span>All-Time High: <span id="all-time-high-score">0</span></span>
                     <span class="text-sm text-gray-600">(<span id="all-time-high-score-problem-type">N/A</span>)</span>
@@ -31,7 +30,6 @@
                 <canvas id="gameCanvas" width="400" height="400" style="display:none;"></canvas>
 
                 <div class="control-panel" id="control-panel">
-                    <!-- PAUSE BUTTON MOVED TO RIGHT-PANEL/MATH-CHALLENGE-AREA -->
                     <button id="reset-game-btn" class="btn btn-red" style="display:none;">Reset Game</button>
                     <button id="install-button" class="btn" style="display:none;">Install Game</button>
                 </div>
@@ -45,6 +43,13 @@
                             <button class="btn operation-btn" data-operation-type="exponentiation">Exponentiation (xⁿ)</button>
                             <button class="btn operation-btn" data-operation-type="modulus">Modulus (X mod Y)</button>
                             <button class="btn operation-btn" data-operation-type="absolute-value">Absolute Value (|x|)</button>
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary class="operation-category-summary">Number Theory & Fractions</summary>
+                        <div class="operation-buttons">
+                            <button class="btn operation-btn" data-operation-type="fractions">Fractions (Operations)</button>
                         </div>
                     </details>
 
@@ -96,7 +101,6 @@
                     <input type="text" id="math-answer-input" placeholder="Your Answer" autocomplete="off" inputmode="none" readonly />
                     <button id="submit-answer-btn" class="btn">Submit Answer</button>
                     <p id="timer-display" class="mt-2 text-sm text-yellow-300">Time left: 10s</p>
-                    <!-- PAUSE BUTTON MOVED HERE -->
                     <button id="pause-game-btn" class="btn" style="display:none;">Pause</button>
                 </div>
 
