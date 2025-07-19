@@ -576,6 +576,21 @@ function simplifyFraction(numerator, denominator) {
     };
 }
 
+function lcm(a, b) {
+    if (a === 0 || b === 0) return 0;
+    return Math.abs(a * b) / gcd(a, b);
+}
+
+function isPrime(num) {
+    if (num <= 1) return false;
+    if (num <= 3) return true;
+    if (num % 2 === 0 || num % 3 === 0) return false;
+    for (let i = 5; i * i <= num; i = i + 6) {
+        if (num % i === 0 || num % (i + 2) === 0) return false;
+    }
+    return true;
+}
+
 function generateArithmeticProblem() {
     const operators = ['+', '-', '*', '/'];
     let op = operators[Math.floor(Math.random() * operators.length)];
@@ -927,6 +942,382 @@ function generateFractionsProblem() {
     mathAnswerInput.value = '';
     mathAnswerInput.setAttribute('data-allow-decimal', 'true');
     mathAnswerInput.setAttribute('data-allow-fraction', 'true');
+}
+
+function generatePercentageProblem() {
+    let base, percentage, answer, problemType;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        problemType = generateRandomNum(1, 3); // 1: What is X% of Y?, 2: X is what % of Y?, 3: X is Y% of what?
+
+        if (currentDifficulty === 'easy') {
+            base = generateRandomNum(10, 100) * 10; // e.g., 100, 200, ... 1000
+            percentage = generateRandomNum(5, 50) * 5; // e.g., 5, 10, ... 50
+        } else if (currentDifficulty === 'medium') {
+            base = generateRandomNum(50, 500) * 10;
+            percentage = generateRandomNum(1, 100);
+        } else if (currentDifficulty === 'hard') {
+            base = generateRandomNum(100, 1000) * 10;
+            percentage = generateRandomNum(1, 200);
+        } else { // expert
+            base = generateRandomNum(500, 2000) * 10;
+            percentage = generateRandomNum(1, 300);
+        }
+
+        switch (problemType) {
+            case 1: // What is X% of Y? (e.g., What is 20% of 150?)
+                answer = (percentage / 100) * base;
+                mathProblemDisplay.textContent = `What is ${percentage}% of ${base}?`;
+                break;
+            case 2: // X is what % of Y? (e.g., 30 is what % of 150?)
+                let part = generateRandomNum(1, base / 2);
+                base = generateRandomNum(part * 2, part * 10); // Ensure percentage is reasonable
+                if (base === 0) continue;
+                answer = (part / base) * 100;
+                mathProblemDisplay.textContent = `${part} is what percent of ${base}?`;
+                break;
+            case 3: // X is Y% of what? (e.g., 30 is 20% of what?)
+                let result = generateRandomNum(10, 500);
+                percentage = generateRandomNum(5, 100);
+                if (percentage === 0) continue;
+                answer = (result / percentage) * 100;
+                mathProblemDisplay.textContent = `${result} is ${percentage}% of what number?`;
+                break;
+        }
+
+        if (Math.abs(answer) < 100000 && answer % 1 === 0 || (answer * 10) % 1 === 0 || (answer * 100) % 1 === 0) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        mathProblemDisplay.textContent = `What is 20% of 150?`;
+        answer = 30;
+        setMessage('Percentage problem generation fallback. Please continue.');
+    }
+
+    correctMathAnswer = parseFloat(answer.toFixed(2));
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'true');
+}
+
+function generateSquareRootProblem() {
+    let number, answer;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        let minBase, maxBase;
+        if (currentDifficulty === 'easy') {
+            minBase = 2; maxBase = 10;
+        } else if (currentDifficulty === 'medium') {
+            minBase = 5; maxBase = 20;
+        } else if (currentDifficulty === 'hard') {
+            minBase = 10; maxBase = 30;
+        } else { // expert
+            minBase = 20; maxBase = 50;
+        }
+        
+        answer = generateRandomNum(minBase, maxBase);
+        number = answer * answer;
+
+        // Optionally, for hard/expert, introduce non-perfect squares to round
+        if (currentDifficulty === 'hard' || currentDifficulty === 'expert') {
+            if (Math.random() < 0.5) { // 50% chance for non-perfect square
+                let offset = Math.random() < 0.5 ? -generateRandomNum(1, 3) : generateRandomNum(1, 3);
+                number += offset;
+                if (number < 1) number = 1; // Ensure non-negative
+                answer = Math.sqrt(number);
+                if (answer % 1 === 0) continue; // Ensure it's not a perfect square by accident
+            }
+        }
+        
+        if (answer > 0 && answer < 1000 && (answer % 1 === 0 || (answer * 100) % 1 === 0)) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        number = 81; answer = 9;
+        setMessage('Square Root problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `√${number} = ? (2 dec places if needed)`;
+    correctMathAnswer = parseFloat(answer.toFixed(2));
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'true');
+}
+
+function generateOrderOfOperationsProblem() {
+    let problemString, answer;
+    const MAX_ATTEMPTS = 200;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    const generateSimpleExpression = (min, max, allowMultiplyDivide = true) => {
+        let num1 = generateRandomNum(min, max);
+        let num2 = generateRandomNum(min, max);
+        let op;
+
+        if (allowMultiplyDivide && Math.random() < 0.5) {
+            op = Math.random() < 0.5 ? '*' : '/';
+            if (op === '/' && num2 === 0) num2 = 1; // Avoid division by zero
+            if (op === '/' && num1 % num2 !== 0) { // Ensure integer division if needed
+                num1 = num2 * generateRandomNum(1, Math.floor(max / num2));
+            }
+        } else {
+            op = Math.random() < 0.5 ? '+' : '-';
+        }
+        return `${num1} ${op === '*' ? 'x' : op === '/' ? '÷' : op} ${num2}`;
+    };
+
+    const evaluateExpression = (expr) => {
+        // Replace 'x' with '*' and '÷' with '/' for evaluation
+        expr = expr.replace(/x/g, '*').replace(/÷/g, '/');
+        try {
+            return eval(expr);
+        } catch (e) {
+            return NaN;
+        }
+    };
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        let minVal, maxVal;
+        let numTerms = 2;
+        let includeParentheses = false;
+
+        if (currentDifficulty === 'easy') {
+            minVal = 1; maxVal = 10;
+            numTerms = generateRandomNum(2, 3);
+        } else if (currentDifficulty === 'medium') {
+            minVal = 1; maxVal = 15;
+            numTerms = generateRandomNum(3, 4);
+            includeParentheses = Math.random() < 0.4;
+        } else if (currentDifficulty === 'hard') {
+            minVal = 1; maxVal = 20;
+            numTerms = generateRandomNum(3, 5);
+            includeParentheses = Math.random() < 0.7;
+        } else { // expert
+            minVal = 1; maxVal = 25;
+            numTerms = generateRandomNum(4, 6);
+            includeParentheses = Math.random() < 0.9;
+        }
+
+        let parts = [];
+        for (let i = 0; i < numTerms; i++) {
+            parts.push(generateRandomNum(minVal, maxVal));
+            if (i < numTerms - 1) {
+                const operators = ['+', '-', '*', '/'];
+                let op = operators[Math.floor(Math.random() * operators.length)];
+                if (currentDifficulty === 'easy' && (op === '*' || op === '/')) {
+                    op = Math.random() < 0.5 ? '+' : '-'; // Reduce complex ops for easy
+                }
+                parts.push(op === '*' ? 'x' : op === '/' ? '÷' : op);
+            }
+        }
+
+        problemString = parts.join(' ');
+
+        if (includeParentheses && parts.length >= 3) {
+            let startIdx = generateRandomNum(0, parts.length - 3); // Must leave at least 2 elements after
+            // Find a place to put parentheses that covers at least two numbers and an operator
+            let parenStart = -1, parenEnd = -1;
+            
+            // Try to enclose a small sub-expression
+            for(let i = 0; i < parts.length - 2; i++) {
+                if (typeof parts[i] === 'number' && typeof parts[i+1] === 'string' && typeof parts[i+2] === 'number') {
+                    parenStart = i;
+                    parenEnd = i + 2;
+                    break;
+                }
+            }
+            if (parenStart !== -1) {
+                problemString = parts.slice(0, parenStart).join(' ') + 
+                                (parts.slice(0, parenStart).length > 0 ? ' ' : '') + 
+                                `(${parts.slice(parenStart, parenEnd + 1).join(' ')})` + 
+                                (parts.slice(parenEnd + 1).length > 0 ? ' ' : '') +
+                                parts.slice(parenEnd + 1).join(' ');
+            }
+        }
+
+        // Clean up double spaces from empty parts due to random parentheses placement
+        problemString = problemString.replace(/\s+/g, ' ').trim();
+
+        answer = evaluateExpression(problemString);
+
+        // Validate answer: finite, not NaN, not too large/small, prefer integers for easy/medium
+        const isIntegerAnswer = answer % 1 === 0;
+        const isManageableAnswer = Math.abs(answer) < 10000 && isFinite(answer) && !isNaN(answer);
+
+        if (isManageableAnswer) {
+            if (currentDifficulty === 'easy' || currentDifficulty === 'medium') {
+                if (isIntegerAnswer) {
+                    problemGenerated = true;
+                }
+            } else {
+                problemGenerated = true; // Allow decimals for hard/expert
+            }
+        }
+    }
+
+    if (!problemGenerated) {
+        problemString = '(5 + 3) x 2 - 4';
+        answer = 12;
+        setMessage('Order of Operations problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `${problemString} = ?`;
+    correctMathAnswer = parseFloat(answer.toFixed(2));
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'true');
+}
+
+
+function generateLCMProblem() {
+    let num1, num2, answer;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        if (currentDifficulty === 'easy') {
+            num1 = generateRandomNum(2, 10);
+            num2 = generateRandomNum(2, 10);
+        } else if (currentDifficulty === 'medium') {
+            num1 = generateRandomNum(5, 15);
+            num2 = generateRandomNum(5, 15);
+        } else if (currentDifficulty === 'hard') {
+            num1 = generateRandomNum(10, 25);
+            num2 = generateRandomNum(10, 25);
+        } else { // expert
+            num1 = generateRandomNum(15, 40);
+            num2 = generateRandomNum(15, 40);
+        }
+
+        answer = lcm(num1, num2);
+
+        if (answer <= 5000 && answer > 0) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        num1 = 4; num2 = 6; answer = 12;
+        setMessage('LCM problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `What is the LCM of ${num1} and ${num2}?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+}
+
+function generateGCDProblem() {
+    let num1, num2, answer;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        if (currentDifficulty === 'easy') {
+            num1 = generateRandomNum(10, 50);
+            num2 = generateRandomNum(10, 50);
+        } else if (currentDifficulty === 'medium') {
+            num1 = generateRandomNum(30, 100);
+            num2 = generateRandomNum(30, 100);
+        } else if (currentDifficulty === 'hard') {
+            num1 = generateRandomNum(50, 200);
+            num2 = generateRandomNum(50, 200);
+        } else { // expert
+            num1 = generateRandomNum(100, 500);
+            num2 = generateRandomNum(100, 500);
+        }
+
+        answer = gcd(num1, num2);
+
+        if (answer > 0 && answer <= Math.min(num1, num2)) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        num1 = 12; num2 = 18; answer = 6;
+        setMessage('GCD problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `What is the GCD of ${num1} and ${num2}?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+}
+
+function generatePrimeNumberProblem() {
+    let number, isItPrime, problemType;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    const getPrimeRange = (difficulty) => {
+        switch (difficulty) {
+            case 'easy': return { min: 2, max: 50 };
+            case 'medium': return { min: 2, max: 100 };
+            case 'hard': return { min: 2, max: 200 };
+            case 'expert': return { min: 2, max: 500 };
+            default: return { min: 2, max: 50 };
+        }
+    };
+
+    const { min: minVal, max: maxVal } = getPrimeRange(currentDifficulty);
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        number = generateRandomNum(minVal, maxVal);
+        isItPrime = isPrime(number);
+
+        // Ensure a good mix of prime and non-prime numbers
+        if (attempts % 2 === 0 && isItPrime) { // Try to get a non-prime
+            if (number > 4) number = Math.max(4, number + generateRandomNum(-3, 3));
+            if (isPrime(number)) continue;
+        } else if (attempts % 2 !== 0 && !isItPrime) { // Try to get a prime
+            let foundPrime = false;
+            for (let i = number; i <= maxVal; i++) {
+                if (isPrime(i)) {
+                    number = i;
+                    foundPrime = true;
+                    break;
+                }
+            }
+            if (!foundPrime) { // If no prime found, pick a smaller known prime
+                const smallPrimes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+                number = smallPrimes[Math.floor(Math.random() * smallPrimes.length)];
+                if (number > maxVal) continue;
+            }
+        }
+        isItPrime = isPrime(number); // Re-evaluate after adjustment
+
+        if (number > 1) { // Ensure number is valid
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        number = 17; isItPrime = true;
+        setMessage('Prime Number problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = `Is ${number} a prime number? (Yes/No)`;
+    correctMathAnswer = isItPrime ? 'Yes' : 'No';
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false'); // Not numeric
+    mathAnswerInput.setAttribute('data-allow-fraction', 'false');
+    mathAnswerInput.setAttribute('data-allow-text-answer', 'true'); // For Yes/No
 }
 
 
@@ -1378,6 +1769,7 @@ function startChallenge() {
 
     let allowDecimalInput = false;
     let allowFractionInput = false;
+    let allowTextAnswer = false;
 
     switch (selectedOperationType) {
         case 'arithmetic':
@@ -1392,10 +1784,32 @@ function startChallenge() {
         case 'absolute-value':
             generateAbsoluteValueProblem();
             break;
+        case 'percentage':
+            generatePercentageProblem();
+            allowDecimalInput = true;
+            break;
+        case 'square-root':
+            generateSquareRootProblem();
+            allowDecimalInput = true;
+            break;
+        case 'order-of-operations':
+            generateOrderOfOperationsProblem();
+            allowDecimalInput = true;
+            break;
         case 'fractions':
             generateFractionsProblem();
             allowDecimalInput = true;
             allowFractionInput = true;
+            break;
+        case 'lcm':
+            generateLCMProblem();
+            break;
+        case 'gcd':
+            generateGCDProblem();
+            break;
+        case 'prime-number':
+            generatePrimeNumberProblem();
+            allowTextAnswer = true;
             break;
         case 'binary-decimal':
             generateBinaryToDecimalProblem();
@@ -1439,13 +1853,14 @@ function startChallenge() {
 
     mathAnswerInput.setAttribute('data-allow-decimal', allowDecimalInput ? 'true' : 'false');
     mathAnswerInput.setAttribute('data-allow-fraction', allowFractionInput ? 'true' : 'false');
+    mathAnswerInput.setAttribute('data-allow-text-answer', allowTextAnswer ? 'true' : 'false');
 
 
     timeLeftForMath = initialTimeForCurrentChallenge;
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
     
     lastProblemText = mathProblemDisplay.textContent;
-    lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition' || selectedOperationType === 'fractions') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
+    lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition' || selectedOperationType === 'fractions' || selectedOperationType === 'prime-number') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
 
     startMathTimer();
     messageArea.style.display = 'none';
@@ -1475,6 +1890,8 @@ function submitMathAnswer() {
 
     const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
     const isFractionAllowed = mathAnswerInput.getAttribute('data-allow-fraction') === 'true';
+    const isTextAnswerAllowed = mathAnswerInput.getAttribute('data-allow-text-answer') === 'true';
+
     const userAnswerRaw = mathAnswerInput.value.trim();
     let userAnswer;
 
@@ -1485,7 +1902,17 @@ function submitMathAnswer() {
         return;
     }
 
-    if (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') {
+    if (isTextAnswerAllowed) {
+        userAnswer = userAnswerRaw.toLowerCase(); // Convert to lowercase for case-insensitive comparison
+        if (userAnswer === correctMathAnswer.toLowerCase()) {
+            // Correct, proceed to score
+        } else {
+            setMessage('Incorrect answer! Try again. (e.g., "Yes" or "No")');
+            mathAnswerInput.value = '';
+            mathAnswerInput.focus();
+            return;
+        }
+    } else if (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') {
         userAnswer = userAnswerRaw;
         if (!/^[01]+$/.test(userAnswer)) {
             setMessage('For Binary conversion/addition, please enter only 0s and 1s!');
@@ -1495,7 +1922,6 @@ function submitMathAnswer() {
         }
     } else if (selectedOperationType === 'fractions') {
         userAnswer = userAnswerRaw;
-        // Handle fraction input "X/Y"
         const fractionParts = userAnswer.split('/').map(s => s.trim());
         if (fractionParts.length === 2 && !isNaN(parseInt(fractionParts[0])) && !isNaN(parseInt(fractionParts[1]))) {
             const userNum = parseInt(fractionParts[0]);
@@ -1512,14 +1938,13 @@ function submitMathAnswer() {
                 const correctParts = correctMathAnswer.split('/').map(s => s.trim());
                 correctNum = parseInt(correctParts[0]);
                 correctDen = parseInt(correctParts[1]);
-            } else { // Correct answer is a whole number
+            } else {
                 correctNum = parseInt(correctMathAnswer);
                 correctDen = 1;
             }
             const simplifiedCorrect = simplifyFraction(correctNum, correctDen);
             
             if (simplifiedUser.num === simplifiedCorrect.num && simplifiedUser.den === simplifiedCorrect.den) {
-                // It's a match!
             } else {
                 setMessage('Incorrect answer! Try again. Remember to simplify if necessary.');
                 mathAnswerInput.value = '';
@@ -1527,7 +1952,6 @@ function submitMathAnswer() {
                 return;
             }
         } else if (isDecimalAllowed && !isNaN(parseFloat(userAnswer))) {
-            // Allow decimal input for fractions too, compare as floats
             userAnswer = parseFloat(userAnswer);
             let correctFloat;
             if (typeof correctMathAnswer === 'string' && correctMathAnswer.includes('/')) {
@@ -1537,7 +1961,7 @@ function submitMathAnswer() {
                 correctFloat = parseFloat(correctMathAnswer);
             }
             
-            if (Math.abs(userAnswer - correctFloat) > 0.001) { // Tolerance for float comparison
+            if (Math.abs(userAnswer - correctFloat) > 0.001) {
                 setMessage('Incorrect answer! Try again.');
                 mathAnswerInput.value = '';
                 mathAnswerInput.focus();
@@ -1560,8 +1984,8 @@ function submitMathAnswer() {
     }
     
     let isCorrect = false;
-    if (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') {
-        isCorrect = userAnswer === correctMathAnswer;
+    if (isTextAnswerAllowed || selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') {
+        isCorrect = userAnswer === correctMathAnswer.toLowerCase(); // Already lowercased for comparison
     } else if (selectedOperationType === 'fractions') {
         isCorrect = true; // Logic handled above
     } else {
@@ -1634,20 +2058,23 @@ function handleKeyboardInput(value) {
 
     const isBinaryInput = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition');
     const isFractionInput = (selectedOperationType === 'fractions');
+    const isTextAnswer = mathAnswerInput.getAttribute('data-allow-text-answer') === 'true';
 
     if (value === 'clear') {
         mathAnswerInput.value = '';
     } else if (value === 'backspace') {
         mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
     } else if (value === '-') {
-        if (mathAnswerInput.value === '') {
-            mathAnswerInput.value = '-';
-        } else if (mathAnswerInput.value === '-') {
-            mathAnswerInput.value = '';
-        } else if (mathAnswerInput.value.startsWith('-')) {
-            mathAnswerInput.value = mathAnswerInput.value.substring(1);
-        } else {
-            mathAnswerInput.value = '-' + mathAnswerInput.value;
+        if (!isTextAnswer) { // Only allow negative sign for numeric inputs
+            if (mathAnswerInput.value === '') {
+                mathAnswerInput.value = '-';
+            } else if (mathAnswerInput.value === '-') {
+                mathAnswerInput.value = '';
+            } else if (mathAnswerInput.value.startsWith('-')) {
+                mathAnswerInput.value = mathAnswerInput.value.substring(1);
+            } else {
+                mathAnswerInput.value = '-' + mathAnswerInput.value;
+            }
         }
     } else if (value === '.') {
         const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
@@ -1662,6 +2089,11 @@ function handleKeyboardInput(value) {
         if ((value >= '0' && value <= '9') || value === '/') {
             mathAnswerInput.value += value;
         }
+    } else if (isTextAnswer) {
+        // For text answers (like Yes/No), allow any characters for typing if needed,
+        // but for now, we only have custom keyboard for numbers.
+        // If a full keyboard input is ever needed, this might need expansion.
+        // For now, custom keyboard handles only numbers, so text input is via physical keyboard.
     } else {
         if (value >= '0' && value <= '9') {
             mathAnswerInput.value += value;
@@ -1692,6 +2124,11 @@ document.addEventListener('keydown', e => {
             const isFractionAllowed = mathAnswerInput.getAttribute('data-allow-fraction') === 'true';
             if (isFractionAllowed) {
                  handleKeyboardInput(e.key);
+            }
+        } else if (e.key.length === 1 && e.key.match(/[a-zA-Z]/)) { // Allow letter input for text answers
+            const isTextAnswerAllowed = mathAnswerInput.getAttribute('data-allow-text-answer') === 'true';
+            if (isTextAnswerAllowed) {
+                mathAnswerInput.value += e.key;
             }
         }
         return;
