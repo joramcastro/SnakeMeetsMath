@@ -3,7 +3,7 @@ let currentCellSize;
 const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 450;
+const GAME_SPEED = 350;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -22,7 +22,7 @@ const difficultyPanel = document.getElementById('difficulty-panel');
 const difficultyButtons = document.querySelectorAll('.difficulty-btn');
 const gameOverModal = document.getElementById('gameOverModal');
 const finalScoreDisplay = document.getElementById('finalScore');
-const restartGameBtn = document = document.getElementById('restartGameBtn');
+const restartGameBtn = document.getElementById('restartGameBtn'); // FIX: Corrected this declaration
 const installButton = document.getElementById('install-button');
 const customKeyboard = document.getElementById('custom-keyboard');
 const messageArea = document.getElementById('message-area');
@@ -31,7 +31,7 @@ const operationSelectionPanel = document.getElementById('operation-selection-pan
 const operationButtons = document.querySelectorAll('.operation-btn');
 
 const infoModal = document.getElementById('infoModal');
-const closeInfoModalBtn = document = document.getElementById('closeInfoModalBtn');
+const closeInfoModalBtn = document.getElementById('closeInfoModalBtn'); // FIX: Corrected this declaration (was `document = document.getElementById(...)`)
 
 const welcomeModal = document.getElementById('welcomeModal');
 const startPlayingBtn = document.getElementById('startPlayingBtn');
@@ -89,7 +89,7 @@ function resizeCanvas() {
     const panelPadding = 20;
 
     if (window.innerWidth === 1920 && window.innerHeight === 1080) {
-        currentCanvasSize = 700;
+        currentCanvasSize = 600;
     } else {
         if (isGameRunning && !awaitingMathAnswer) {
             parentElementForCanvas = gamePanel;
@@ -138,7 +138,7 @@ function resizeCanvas() {
         let desiredSize = Math.min(targetWidth, targetHeight);
 
         const minCanvasSize = CELLS_PER_SIDE * 5;
-        const maxCanvasSize = 900;
+        const maxCanvasSize = 850;
 
         currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
         currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
@@ -781,7 +781,7 @@ function generatePureAdditionPositiveProblem() {
         num2 = generateRandomNum(1, maxVal);
         answer = num1 + num2;
 
-        if (answer >= 0 && answer < 1000000) { // Allowed 0 as result
+        if (answer >= 0 && answer < 1000000) {
             problemGenerated = true;
         }
     }
@@ -809,7 +809,7 @@ function generatePureSubtractionPositiveProblem() {
         
         answer = num1 - num2;
 
-        if (answer >= 0 && answer < 1000000) { // Allowed 0 as result
+        if (answer >= 0 && answer < 1000000) {
             problemGenerated = true;
         }
     }
@@ -837,7 +837,7 @@ function generatePureMultiplicationPositiveProblem() {
         
         answer = num1 * num2;
 
-        if (answer >= 0 && answer < 1000000) { // Allowed 0 as result
+        if (answer >= 0 && answer < 1000000) {
             problemGenerated = true;
         }
     }
@@ -867,7 +867,7 @@ function generatePureDivisionPositiveProblem() {
         num2 = divisorCandidate;
         answer = quotientCandidate;
 
-        if (num1 > 0 && num2 > 0 && answer >= 0 && num1 <= maxVal * maxVal && answer < 1000000) { // Allowed 0 as result
+        if (num1 > 0 && num2 > 0 && answer >= 0 && num1 <= maxVal * maxVal && answer < 1000000) {
             problemGenerated = true;
         }
     }
@@ -895,7 +895,7 @@ function generatePureAdditionNegativeProblem() {
         num2 = applyRandomSign(generateRandomNum(1, maxVal));
         answer = num1 + num2;
 
-        if (Math.abs(answer) < 1000000) { // Allowed 0 as result
+        if (Math.abs(answer) < 1000000) {
             problemGenerated = true;
         }
     }
@@ -924,7 +924,7 @@ function generatePureSubtractionNegativeProblem() {
         num2 = applyRandomSign(generateRandomNum(1, maxVal));
         answer = num1 - num2;
 
-        if (Math.abs(answer) < 1000000) { // Allowed 0 as result
+        if (Math.abs(answer) < 1000000) {
             problemGenerated = true;
         }
     }
@@ -957,7 +957,7 @@ function generatePureMultiplicationNegativeProblem() {
 
         answer = num1 * num2;
 
-        if (Math.abs(answer) < 1000000) { // Allowed 0 as result
+        if (Math.abs(answer) < 1000000) {
             problemGenerated = true;
         }
     }
@@ -1004,10 +1004,10 @@ function generatePureDivisionNegativeProblem() {
         num1 = applyRandomSign(rawDividend);
         num2 = applyRandomSign(divisorCandidate);
 
-        if (num2 === 0 || rawDividend % Math.abs(num2) !== 0) continue; // Ensure integer division and avoid division by zero
+        if (num2 === 0 || rawDividend % Math.abs(num2) !== 0) continue;
         answer = num1 / num2;
 
-        if (Math.abs(answer) < 1000000) { // Allowed 0 as result
+        if (Math.abs(answer) < 1000000) {
             problemGenerated = true;
         }
     }
@@ -1733,7 +1733,7 @@ function generateUnitConversionProblem() {
         const fromUnitData = category[fromUnitKey];
         const toUnitKeys = Object.keys(fromUnitData.to);
         
-        if (toUnitKeys.length === 0) continue; // No conversion available for this unit
+        if (toUnitKeys.length === 0) continue;
         
         const toUnitKey = toUnitKeys[Math.floor(Math.random() * toUnitKeys.length)];
         
@@ -1741,7 +1741,7 @@ function generateUnitConversionProblem() {
         factor = fromUnitData.to[toUnitKey];
         
         if (typeof factor !== 'number' || !isFinite(factor) || isNaN(factor) || factor === 0) {
-            continue; // Skip if factor is invalid or zero
+            continue;
         }
 
         answer = value * factor;
@@ -3091,6 +3091,7 @@ customKeyboard.addEventListener('click', (e) => {
 });
 
 startGameBtn.addEventListener('click', () => {
+    console.log("Start Playing button clicked!"); // Diagnostic log
     if (currentDifficulty && selectedOperationType) {
         startGame();
     }
@@ -3098,7 +3099,7 @@ startGameBtn.addEventListener('click', () => {
 pauseGameBtn.addEventListener('click', pauseGame);
 resetGameBtn.addEventListener('click', resetGame);
 submitAnswerBtn.addEventListener('click', submitMathAnswer);
-restartGameBtn.addEventListener('click', restartGameBtn);
+restartGameBtn.addEventListener('click', restartGame); // Corrected here
 
 closeInfoModalBtn.addEventListener('click', () => {
     infoModal.style.display = 'none';
@@ -3107,114 +3108,6 @@ closeInfoModalBtn.addEventListener('click', () => {
 infoModal.addEventListener('click', (e) => {
     if (e.target === infoModal) {
         infoModal.style.display = 'none';
-    }
-});
-
-startPlayingBtn.addEventListener('click', () => {
-    welcomeModal.style.display = 'flex';
-    initializeGame();
-});
-
-difficultyButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        difficultyButtons.forEach(btn => btn.classList.remove('selected'));
-        button.classList.add('selected');
-        currentDifficulty = button.dataset.difficulty;
-        updateDifficultyAndOperationDisplay();
-        checkAndEnableStartGame();
-    });
-});
-
-operationButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        operationButtons.forEach(btn => btn.classList.remove('selected'));
-        button.classList.add('selected');
-        selectedOperationType = button.dataset.operationType;
-        updateDifficultyAndOperationDisplay();
-        checkAndEnableStartGame();
-    });
-});
-
-function updateDifficultyAndOperationDisplay() {
-    difficultyButtons.forEach(btn => {
-        if (btn.dataset.difficulty === currentDifficulty) {
-            btn.classList.add('selected');
-        } else {
-            btn.classList.remove('selected');
-        }
-    });
-
-    operationButtons.forEach(btn => {
-        if (btn.dataset.operationType === selectedOperationType) {
-            btn.classList.add('selected');
-        } else {
-            btn.classList.remove('selected');
-        }
-    });
-
-    const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
-    if (highScoreDisplay) {
-        highScoreDisplay.textContent = highScores[highScoreKey] || 0;
-    }
-}
-
-function updateAllTimeHighScoreDisplay() {
-    if (allTimeHighScoreDisplay && allTimeHighScoreProblemTypeDisplay) {
-        allTimeHighScoreDisplay.textContent = allTimeHighScore.score;
-        allTimeHighScoreProblemTypeDisplay.textContent = allTimeHighScore.problemType;
-    }
-}
-
-function checkAndEnableStartGame() {
-    if (currentDifficulty && selectedOperationType) {
-        startGameBtn.disabled = false;
-        const selectedProblemText = document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent;
-        setMessage(`Ready to play! Selected: **${selectedProblemText}** at **${currentDifficulty.toUpperCase()}** difficulty. Click **Start Game**.`);
-        const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
-        if (highScoreDisplay) {
-            highScoreDisplay.textContent = highScores[highScoreKey] || 0;
-        }
-        startGameBtn.style.display = 'inline-block';
-    } else {
-        startGameBtn.disabled = true;
-        startGameBtn.style.display = 'inline-block';
-        if (!currentDifficulty && !selectedOperationType) {
-            setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
-        } else if (!currentDifficulty) {
-            const problemTypeText = selectedOperationType ? document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent : 'a problem type';
-            setMessage(`Problem type set to **${problemTypeText.toUpperCase()}**. Now choose a **difficulty**.`);
-        } else {
-            const difficultyText = currentDifficulty ? currentDifficulty.toUpperCase() : 'a difficulty';
-            setMessage(`Difficulty set to **${difficultyText}**. Now choose a **problem type**.`);
-        }
-    }
-}
-
-function setMessage(msg) {
-    messageArea.innerHTML = msg;
-    messageArea.style.display = 'block';
-}
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredInstallPrompt = e;
-    installButton.style.display = 'inline-block';
-});
-
-installButton.addEventListener('click', () => {
-    if (deferredInstallPrompt) {
-        deferredInstallPrompt.prompt();
-        deferredInstallPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                setMessage('Game installed successfully!');
-                installButton.style.display = 'none';
-            } else {
-                setMessage('Installation cancelled.');
-            }
-            deferredInstallPrompt = null;
-        });
-    } else {
-        setMessage('Install prompt not available. Use your browser menu to install.');
     }
 });
 
