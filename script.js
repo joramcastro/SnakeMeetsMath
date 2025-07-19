@@ -3,7 +3,7 @@ let currentCellSize;
 const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 350;
+const GAME_SPEED = 450;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -138,7 +138,7 @@ function resizeCanvas() {
         let desiredSize = Math.min(targetWidth, targetHeight);
 
         const minCanvasSize = CELLS_PER_SIDE * 5;
-        const maxCanvasSize = 1000;
+        const maxCanvasSize = 850; // Increased max canvas size for more space
 
         currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
         currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
@@ -307,10 +307,13 @@ function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     snake.forEach((segment, index) => {
-        ctx.fillStyle = index === 0 ? '#4CAF50' : '#8BC34A';
-        ctx.strokeStyle = '#2E7D32';
-        ctx.lineWidth = 2;
+        const baseColor = index === 0 ? '#4CAF50' : '#8BC34A'; // Head: Dark Green, Body: Light Green
+        const borderColor = '#2E7D32'; // Darker green border
 
+        // Draw main segment (rounded rectangle)
+        ctx.fillStyle = baseColor;
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 2;
         const cornerRadius = currentCellSize / 4;
 
         ctx.beginPath();
@@ -327,6 +330,17 @@ function drawGame() {
         ctx.fill();
         ctx.stroke();
 
+        // Add subtle inner shading/texture
+        const textureInset = currentCellSize * 0.15; // Inset amount for the inner rectangle
+        const innerRectX = segment.x + textureInset;
+        const innerRectY = segment.y + textureInset;
+        const innerRectSize = currentCellSize - (textureInset * 2);
+
+        // Darker inner fill (resembling scales/depth)
+        ctx.fillStyle = index === 0 ? '#388E3C' : '#689F38'; // Slightly darker shades
+        ctx.fillRect(innerRectX, innerRectY, innerRectSize, innerRectSize);
+
+        // Eyes for the snake head
         if (index === 0) {
             ctx.fillStyle = 'white';
             ctx.strokeStyle = 'black';
@@ -366,6 +380,7 @@ function drawGame() {
         }
     });
 
+    // Draw food
     ctx.fillStyle = '#FFC107';
     ctx.strokeStyle = '#FF8F00';
     ctx.lineWidth = 2;
@@ -864,7 +879,7 @@ function generateFractionsProblem() {
         }
         
         num2 = generateRandomNum(numMin, numMax);
-        den2 = generateRandomNum(denMin, denMax);
+        den2 = generateRandomNum(denMin, den2);
         if (den2 === 0) continue;
 
         let s2 = simplifyFraction(num2, den2);
@@ -2621,7 +2636,7 @@ function handleKeyboardInput(value) {
     } else if (value === 'backspace') {
         mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
     } else if (value === '-') {
-        if (!isTextAnswer) { // Only allow negative sign for numeric inputs
+        if (!isTextAnswer) {
             if (mathAnswerInput.value === '') {
                 mathAnswerInput.value = '-';
             } else if (mathAnswerInput.value === '-') {
@@ -2646,14 +2661,13 @@ function handleKeyboardInput(value) {
             mathAnswerInput.value += value;
         }
     } else if (isTextAnswer) {
+        // Special handling for 'Yes' and 'No' from custom keyboard
         if (value === 'yes') {
-            mathAnswerInput.value = 'Yes'; // Set the full word
+            mathAnswerInput.value = 'Yes';
         } else if (value === 'no') {
-            mathAnswerInput.value = 'No'; // Set the full word
+            mathAnswerInput.value = 'No';
         }
-        // For actual letter input from physical keyboard, the keydown listener handles it
     } else {
-        // Default for numeric input
         if (value >= '0' && value <= '9') {
             mathAnswerInput.value += value;
         }
