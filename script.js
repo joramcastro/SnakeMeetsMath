@@ -1037,7 +1037,7 @@ function generateSquareRootProblem() {
             }
         }
         
-        if (answer > 0 && answer < 1000 && (answer % 1 === 0 || (answer * 100) % 1 === 0)) {
+        if (answer > 0 && Math.abs(answer) < 1000 && isFinite(answer) && !isNaN(answer)) { // FIXED: Relaxed precision check
             problemGenerated = true;
         }
     }
@@ -1321,7 +1321,7 @@ function generateAreaPerimeterProblem() {
     let problemGenerated = false;
 
     const shapes = ['rectangle', 'square', 'circle'];
-    const properties = ['area', 'perimeter'];
+    const properties = ['area', 'perimeter']; // 'circumference' for circle is handled in code
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
@@ -1367,7 +1367,8 @@ function generateAreaPerimeterProblem() {
                 break;
         }
 
-        if (answer > 0 && Math.abs(answer) < 10000 && (answer % 1 === 0 || (answer * 100) % 1 === 0)) {
+        // FIXED: Relaxed generation check to only ensure it's a valid number within range
+        if (answer > 0 && Math.abs(answer) < 10000 && isFinite(answer) && !isNaN(answer)) {
             problemGenerated = true;
         }
     }
@@ -1427,7 +1428,8 @@ function generateUnitConversionProblem() {
         
         answer = value * factor;
 
-        if (Math.abs(answer) > 0.001 && Math.abs(answer) < 100000 && (answer % 1 === 0 || (answer * 100) % 1 === 0)) {
+        // FIXED: Relaxed generation check to only ensure it's a valid number within range
+        if (Math.abs(answer) > 0.001 && Math.abs(answer) < 100000 && isFinite(answer) && !isNaN(answer)) {
             problemGenerated = true;
             fromUnit = fromUnitData.display;
             toUnit = units[categoryName][toUnitKey].display;
@@ -1489,28 +1491,27 @@ function generatePythagoreanTheoremProblem() {
 
         switch (sideToFind) {
             case 1:
-                problemText = `Leg b = ${b}, Hypotenuse c = ${c}. Find leg a: ?`;
                 calculatedAnswer = Math.sqrt(c * c - b * b);
+                problemText = `Leg b = ${b}, Hypotenuse c = ${c}. Find leg a: ?`;
                 break;
             case 2:
-                problemText = `Leg a = ${a}, Hypotenuse c = ${c}. Find leg b: ?`;
                 calculatedAnswer = Math.sqrt(c * c - a * a);
+                problemText = `Leg a = ${a}, Hypotenuse c = ${c}. Find leg b: ?`;
                 break;
             case 3:
-                problemText = `Leg a = ${a}, Leg b = ${b}. Find hypotenuse c: ?`;
                 calculatedAnswer = Math.sqrt(a * a + b * b);
+                problemText = `Leg a = ${a}, Leg b = ${b}. Find hypotenuse c: ?`;
                 break;
         }
-
-        if (calculatedAnswer > 0 && Math.abs(calculatedAnswer) < 500 && isFinite(calculatedAnswer)) {
-            if (calculatedAnswer % 1 !== 0 && (currentDifficulty === 'hard' || currentDifficulty === 'expert')) {
-                answer = parseFloat(calculatedAnswer.toFixed(2));
-                problemText += " (2 dec places)";
-                problemGenerated = true;
-            } else if (calculatedAnswer % 1 === 0) {
-                answer = calculatedAnswer;
-                problemGenerated = true;
+        
+        // FIXED: Only check for finite, non-NaN answer for problem generation
+        if (calculatedAnswer > 0 && Math.abs(calculatedAnswer) < 500 && isFinite(calculatedAnswer) && !isNaN(calculatedAnswer)) {
+            // Only add "2 dec places" to problem text if it's a non-integer
+            if (calculatedAnswer % 1 !== 0) {
+                 problemText += " (2 dec places)";
             }
+            answer = parseFloat(calculatedAnswer.toFixed(2)); // Always round answer to 2 dec for consistency
+            problemGenerated = true;
         }
     }
 
@@ -1614,14 +1615,12 @@ function generateFactoringProblem() {
         let num1 = commonFactor * term1Coefficient;
         let num2 = commonFactor * term2Coefficient;
 
-        // Ensure common factor is indeed the GCD for a cleaner problem
         if (gcd(num1, num2) !== commonFactor) {
-            commonFactor = gcd(num1, num2); // Adjust common factor to true GCD
+            commonFactor = gcd(num1, num2);
             term1Coefficient = num1 / commonFactor;
             term2Coefficient = num2 / commonFactor;
         }
 
-        // Randomly include a negative sign for the second term
         if (Math.random() < 0.5 && currentDifficulty !== 'easy') {
             num2 *= -1;
             term2Coefficient *= -1;
@@ -1629,13 +1628,11 @@ function generateFactoringProblem() {
 
         let variable = Math.random() < 0.5 ? 'x' : 'y';
 
-        // Choose between Ax + B and Ax + By style
         if (Math.random() < 0.6 || currentDifficulty === 'easy') {
             problemText = `Factor out common: ${num1}${variable} ${num2 >= 0 ? '+' : '-'} ${Math.abs(num2)} = ?(${term1Coefficient}${variable} ${term2Coefficient >= 0 ? '+' : '-'} ${Math.abs(term2Coefficient)})`;
         } else {
-            // Both terms have variables
             problemText = `Factor out common: ${num1}${variable} ${num2 >= 0 ? '+' : '-'} ${Math.abs(num2)}${variable} = ?(${term1Coefficient} ${term2Coefficient >= 0 ? '+' : '-'} ${Math.abs(term2Coefficient)})${variable}`;
-            if (commonFactor % 1 !== 0) continue; // Ensure integer GCF
+            if (commonFactor % 1 !== 0) continue;
         }
         
         answer = commonFactor;
@@ -1674,51 +1671,39 @@ function generateSolvingInequalitiesProblem() {
         if (currentDifficulty === 'easy') {
             a = 1;
             b = generateRandomNum(1, 10);
-            c = generateRandomNum(b + 1, b + 10); // Ensure a solution exists, often positive
+            c = generateRandomNum(b + 1, b + 10);
         } else if (currentDifficulty === 'medium') {
             a = generateRandomNum(1, 5);
             b = generateRandomNum(-5, 10);
             c = generateRandomNum(-10, 20);
-        } else { // Hard and Expert can introduce negative 'a'
+        } else {
             a = generateRandomNum(1, 7);
-            if (Math.random() < 0.5) a *= -1; // Introduce negative coefficient for 'x'
+            if (Math.random() < 0.5) a *= -1;
             b = generateRandomNum(-10, 20);
             c = generateRandomNum(-20, 30);
         }
-        if (a === 0) a = 1; // Avoid division by zero
+        if (a === 0) a = 1;
 
-        let solutionThreshold;
-        if (a > 0) {
-            solutionThreshold = (c - b) / a;
-        } else { // 'a' is negative, so inequality flips
-            solutionThreshold = (c - b) / a;
-            if (op === '>') op = '<';
-            else if (op === '<') op = '>';
-            else if (op === '>=') op = '<=';
-            else if (op === '<=') op = '>=';
-        }
+        let solutionThreshold = (c - b) / a;
 
         // Generate a test value that is sometimes a solution, sometimes not
         testValue = generateRandomNum(Math.floor(solutionThreshold) - 5, Math.ceil(solutionThreshold) + 5);
 
-        // Check if testValue is a solution for the original form (a > 0 or a < 0 handled by 'solutionThreshold')
-        let checkExpression = a * testValue + b;
-        let originalExpression = a * testValue + b; // Use this for display
+        let originalExpressionValue = a * testValue + b;
 
         isSolution = false;
         switch (op) {
-            case '>': isSolution = (originalExpression > c); break;
-            case '<': isSolution = (originalExpression < c); break;
-            case '>=': isSolution = (originalExpression >= c); break;
-            case '<=': isSolution = (originalExpression <= c); break;
+            case '>': isSolution = (originalExpressionValue > c); break;
+            case '<': isSolution = (originalExpressionValue < c); break;
+            case '>=': isSolution = (originalExpressionValue >= c); break;
+            case '<=': isSolution = (originalExpressionValue <= c); break;
         }
         
         problemText = `${a}x ${b >= 0 ? '+' : '-'} ${Math.abs(b)} ${op} ${c}. Is x = ${testValue} a solution? (Yes/No)`;
         answer = isSolution ? 'Yes' : 'No';
 
-        // Filter for integer answers for easy/medium if possible
-        if ((currentDifficulty === 'easy' || currentDifficulty === 'medium') && (solutionThreshold % 1 !== 0)) {
-            continue; // Skip if threshold is not integer for simpler levels
+        if (solutionThreshold % 1 !== 0 && (currentDifficulty === 'easy' || currentDifficulty === 'medium')) {
+            continue;
         }
         
         problemGenerated = true;
@@ -1756,13 +1741,9 @@ function generateMatricesProblem() {
         return matrix;
     };
 
-    const matrixToString = (matrix) => {
-        return '[' + matrix.map(row => '[' + row.join(',') + ']').join(',') + ']';
-    };
-
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
-        operation = Math.random() < 0.5 ? '+' : '-'; // Only addition/subtraction
+        operation = Math.random() < 0.5 ? '+' : '-';
 
         let valMin, valMax;
         if (currentDifficulty === 'easy') {
@@ -1774,7 +1755,7 @@ function generateMatricesProblem() {
         } else if (currentDifficulty === 'hard') {
             rows = generateRandomNum(2, 3); cols = generateRandomNum(2, 3);
             valMin = -10; valMax = 15;
-        } else { // expert
+        } else {
             rows = generateRandomNum(3, 4); cols = generateRandomNum(3, 4);
             valMin = -15; valMax = 20;
         }
@@ -1809,7 +1790,6 @@ function generateMatricesProblem() {
         setMessage('Matrices problem generation fallback. Please continue.');
     }
     
-    // Displaying full matrices is hard in limited space, summarize
     let matrixADisplay = matrixA.map(row => '[' + row.join(' ') + ']').join(' ');
     let matrixBDisplay = matrixB.map(row => '[' + row.join(' ') + ']').join(' ');
 
@@ -1838,10 +1818,10 @@ function generateLogarithmsProblem() {
         } else if (currentDifficulty === 'hard') {
             base = generateRandomNum(2, 10);
             answer = generateRandomNum(2, 6);
-        } else { // expert
+        } else {
             base = generateRandomNum(2, 12);
             answer = generateRandomNum(2, 7);
-            if (Math.random() < 0.3) answer = generateRandomNum(-3, -1); // Negative answers for fractions
+            if (Math.random() < 0.3) answer = generateRandomNum(-3, -1);
         }
 
         number = Math.pow(base, answer);
@@ -1865,7 +1845,7 @@ function generateLogarithmsProblem() {
     mathProblemDisplay.textContent = problemText;
     correctMathAnswer = answer;
     mathAnswerInput.value = '';
-    mathAnswerInput.setAttribute('data-allow-decimal', 'true'); // Logarithms can have decimal answers
+    mathAnswerInput.setAttribute('data-allow-decimal', 'true');
     mathAnswerInput.setAttribute('data-allow-fraction', 'false');
     mathAnswerInput.setAttribute('data-allow-text-answer', 'false');
 }
@@ -2671,9 +2651,14 @@ function handleKeyboardInput(value) {
             mathAnswerInput.value += value;
         }
     } else if (isTextAnswer) {
-        // For text answers (like Yes/No), the custom keyboard only provides numbers.
-        // If 'Yes' or 'No' buttons were added to custom keyboard, this would be adjusted.
-        // For now, letter input is handled by the physical keyboard event listener.
+        // Special handling for 'Yes' and 'No' from custom keyboard
+        if (value === 'yes') {
+            mathAnswerInput.value = 'Yes';
+        } else if (value === 'no') {
+            mathAnswerInput.value = 'No';
+        }
+        // Other number keys from virtual keyboard would still append for these types if allowed
+        // (but for Yes/No, it's better to restrict to specific buttons)
     } else {
         if (value >= '0' && value <= '9') {
             mathAnswerInput.value += value;
