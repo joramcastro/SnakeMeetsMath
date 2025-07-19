@@ -89,7 +89,7 @@ function resizeCanvas() {
     const panelPadding = 20;
 
     if (window.innerWidth === 1920 && window.innerHeight === 1080) {
-        currentCanvasSize = 600;
+        currentCanvasSize = 700;
     } else {
         if (isGameRunning && !awaitingMathAnswer) {
             parentElementForCanvas = gamePanel;
@@ -138,7 +138,7 @@ function resizeCanvas() {
         let desiredSize = Math.min(targetWidth, targetHeight);
 
         const minCanvasSize = CELLS_PER_SIDE * 5;
-        const maxCanvasSize = 850;
+        const maxCanvasSize = 900;
 
         currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
         currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
