@@ -9,12 +9,12 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreDisplay = document.getElementById('score');
 const highScoreDisplay = document.getElementById('high-score');
-const highScoreContainer = document.getElementById('high-score-container'); // Current game type high score
+const highScoreContainer = document.getElementById('high-score-container');
 const mathChallengeArea = document.getElementById('math-challenge-area');
 const mathProblemDisplay = document.getElementById('math-problem');
 const mathAnswerInput = document.getElementById('math-answer-input');
 const submitAnswerBtn = document.getElementById('submit-answer-btn');
-const timerDisplay = document.getElementById('timer-display'); // This is the timer in mathChallengeArea
+const timerDisplay = document.getElementById('timer-display');
 const startGameBtn = document.getElementById('start-game-btn');
 const pauseGameBtn = document.getElementById('pause-game-btn');
 const resetGameBtn = document.getElementById('reset-game-btn');
@@ -25,7 +25,7 @@ const finalScoreDisplay = document.getElementById('finalScore');
 const restartGameBtn = document.getElementById('restartGameBtn');
 const installButton = document.getElementById('install-button');
 const customKeyboard = document.getElementById('custom-keyboard');
-const messageArea = document.getElementById('message-area'); // This is the general message area
+const messageArea = document.getElementById('message-area');
 
 const operationSelectionPanel = document.getElementById('operation-selection-panel');
 const operationButtons = document.querySelectorAll('.operation-btn');
@@ -36,17 +36,14 @@ const closeInfoModalBtn = document = document.getElementById('closeInfoModalBtn'
 const welcomeModal = document.getElementById('welcomeModal');
 const startPlayingBtn = document.getElementById('startPlayingBtn');
 
-// Get references to the main panels
 const gamePanel = document.querySelector('.game-panel');
 const rightPanel = document.querySelector('.right-panel');
-const header = document.querySelector('.header'); // Get reference to the header
-const controlPanel = document.getElementById('control-panel'); // Get reference to control panel
+const header = document.querySelector('.header');
+const controlPanel = document.getElementById('control-panel');
 
-// New elements for all-time high score display
-const allTimeHighScoreContainer = document.getElementById('all-time-high-score-container'); // Get reference to the new container
+const allTimeHighScoreContainer = document.getElementById('all-time-high-score-container');
 const allTimeHighScoreDisplay = document.getElementById('all-time-high-score');
 const allTimeHighScoreProblemTypeDisplay = document.getElementById('all-time-high-score-problem-type');
-
 
 let snake = [];
 let food = {};
@@ -84,69 +81,51 @@ const difficultyTimes = {
     expert: 240
 };
 
-// All-time high score variables
 let allTimeHighScore = JSON.parse(localStorage.getItem('allTimeMathSnakeHighScore')) || { score: 0, problemType: 'N/A' };
 
-
-// Function to resize the canvas dynamically
 function resizeCanvas() {
     let parentElementForCanvas;
     let targetWidth, targetHeight;
-    const panelPadding = 20; // Padding for the game-panel/right-panel as defined in CSS
+    const panelPadding = 20;
 
-    // Check for 1920x1080p resolution specifically
     if (window.innerWidth === 1920 && window.innerHeight === 1080) {
-        currentCanvasSize = 600; // Set fixed size for this resolution
+        currentCanvasSize = 600;
     } else {
-        // Determine the active panel and its available space for the canvas or math challenge
         if (isGameRunning && !awaitingMathAnswer) {
-            // Game is running, canvas is visible inside .game-panel
             parentElementForCanvas = gamePanel;
             if (!parentElementForCanvas) {
                 console.error("Game panel not found during resize. Using window dimensions.");
                 targetWidth = window.innerWidth - (panelPadding * 2);
                 targetHeight = window.innerHeight - (panelPadding * 2);
             } else {
-                // Header is hidden during gameplay, so don't include its height in calculation
                 const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
-                // controlPanel is now explicitly shown/hidden, so its offsetHeight is reliable
-                const controlPanelHeight = controlPanel.offsetHeight || 0; 
-                
-                // Approximate total height of elements above canvas within the game-panel
-                const fixedTopElementsHeight = statsPanelHeight + controlPanelHeight; // Header excluded
-                const estimatedGaps = 12 * 2; // Example: gap after stats, after control panel
+                const controlPanelHeight = controlPanel.offsetHeight || 0;
+                const fixedTopElementsHeight = statsPanelHeight + controlPanelHeight;
+                const estimatedGaps = 12 * 2;
 
                 targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
                 targetHeight = parentElementForCanvas.clientHeight - fixedTopElementsHeight - estimatedGaps - (panelPadding * 2);
             }
-            
         } else if (awaitingMathAnswer) {
-            // Math challenge is active, canvas is hidden. No need to resize canvas.
-            // The right-panel itself will be handled by CSS to fill the screen.
-            return; 
+            return;
         } else {
-            // Initial state / Menu state, canvas is hidden, .game-panel contains selections
             parentElementForCanvas = gamePanel;
             if (!parentElementForCanvas) {
                 console.error("Game panel not found during menu resize. Using window dimensions.");
                 targetWidth = window.innerWidth - (panelPadding * 2);
                 targetHeight = window.innerHeight - (panelPadding * 2);
             } else {
-                const headerHeight = header.offsetHeight || 0; // Header is visible in menu
+                const headerHeight = header.offsetHeight || 0;
                 const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
                 const operationSelectionPanelHeight = operationSelectionPanel.offsetHeight || 0;
                 const difficultyPanelHeight = difficultyPanel.offsetHeight || 0;
                 const messageAreaHeight = messageArea.offsetHeight || 0;
                 const startGameBtnHeight = startGameBtn.offsetHeight || 0;
-                
-                // All-time high score display is also visible in menu, account for its height
                 const allTimeHighScoreContainerHeight = allTimeHighScoreContainer ? allTimeHighScoreContainer.offsetHeight : 0;
 
-
-                // Approximate total height of menu elements within the game-panel
                 const menuElementsHeight = headerHeight + statsPanelHeight + operationSelectionPanelHeight +
-                                       difficultyPanelHeight + messageAreaHeight + startGameBtnHeight + allTimeHighScoreContainerHeight;
-                const estimatedGaps = 12 * 7; // Example: sum of various gaps/margins, adjusted for new element
+                                        difficultyPanelHeight + messageAreaHeight + startGameBtnHeight + allTimeHighScoreContainerHeight;
+                const estimatedGaps = 12 * 7;
 
                 targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
                 targetHeight = parentElementForCanvas.clientHeight - menuElementsHeight - estimatedGaps - (panelPadding * 2);
@@ -158,8 +137,8 @@ function resizeCanvas() {
 
         let desiredSize = Math.min(targetWidth, targetHeight);
 
-        const minCanvasSize = CELLS_PER_SIDE * 5; // Minimum 5x5 cells
-        const maxCanvasSize = 1000; // Increased max canvas size for 1080p optimization
+        const minCanvasSize = CELLS_PER_SIDE * 5;
+        const maxCanvasSize = 1000;
 
         currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
         currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
@@ -170,20 +149,18 @@ function resizeCanvas() {
     canvas.height = currentCanvasSize;
     currentCellSize = currentCanvasSize / CELLS_PER_SIDE;
 
-    // Recalculate snake and food positions based on the new cell size
     if (snake && snake.length > 0) {
-        // Calculate oldCellSize based on existing snake segment positions
-        let effectiveOldCellSize = currentCellSize; // Default to current if no movement yet
+        let effectiveOldCellSize = currentCellSize;
         if (snake[0].x !== 0 && snake[0].y !== 0 && snake.length > 1) {
             effectiveOldCellSize = Math.abs(snake[1].x - snake[0].x) || Math.abs(snake[1].y - snake[0].y);
-        } else if (snake[0].x !== 0) { // For single-segment snake not at (0,0)
-            effectiveOldCellSize = snake[0].x / (INITIAL_SNAKE_LENGTH - 1); // Assuming initial snake is horizontal
-        } else if (snake[0].y !== 0) { // For single-segment snake not at (0,0)
-             effectiveOldCellSize = snake[0].y / (INITIAL_SNAKE_LENGTH - 1); // Assuming initial snake is vertical
+        } else if (snake[0].x !== 0) {
+            effectiveOldCellSize = snake[0].x / (INITIAL_SNAKE_LENGTH - 1);
+        } else if (snake[0].y !== 0) {
+            effectiveOldCellSize = snake[0].y / (INITIAL_SNAKE_LENGTH - 1);
         }
         
         if (isNaN(effectiveOldCellSize) || effectiveOldCellSize <= 0) {
-            effectiveOldCellSize = currentCanvasSize / CELLS_PER_SIDE; // Fallback
+            effectiveOldCellSize = currentCanvasSize / CELLS_PER_SIDE;
         }
 
         const oldSnakeGrid = snake.map(segment => ({
@@ -196,7 +173,6 @@ function resizeCanvas() {
             y: segment.y * currentCellSize
         }));
     } else {
-        // Initialize snake if it's empty (e.g., first load or after reset)
         snake = [];
         for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
             snake.push({ x: (INITIAL_SNAKE_LENGTH - 1 - i) * currentCellSize, y: 0 });
@@ -204,7 +180,7 @@ function resizeCanvas() {
     }
 
     if (food && food.x !== undefined && food.y !== undefined) {
-        const oldFoodGridX = Math.round(food.x / currentCellSize); // Use currentCellSize as base for food grid position
+        const oldFoodGridX = Math.round(food.x / currentCellSize);
         const oldFoodGridY = Math.round(food.y / currentCellSize);
 
         food = {
@@ -212,7 +188,7 @@ function resizeCanvas() {
             y: oldFoodGridY * currentCellSize
         };
         if (food.x >= currentCanvasSize || food.y >= currentCanvasSize || isFoodOnSnake(food)) {
-             generateFood();
+            generateFood();
         }
     } else {
         generateFood();
@@ -220,7 +196,6 @@ function resizeCanvas() {
 
     drawGame();
 }
-
 
 function resetGame() {
     endGame();
@@ -235,19 +210,18 @@ function endGame() {
     finalScoreDisplay.textContent = score;
     gameOverModal.style.display = 'flex';
     
-    // Explicitly hide math challenge and keyboard, show game panel elements
     mathChallengeArea.style.display = 'none';
     customKeyboard.style.display = 'none';
-    rightPanel.style.display = 'none'; // Hide right panel
+    rightPanel.style.display = 'none';
 
-    gamePanel.style.display = 'flex'; // Show game panel
-    canvas.style.display = 'none'; // Canvas is hidden in menu state
-    scoreDisplay.parentElement.style.display = 'none'; // Score hidden in menu state
+    gamePanel.style.display = 'flex';
+    canvas.style.display = 'none';
+    scoreDisplay.parentElement.style.display = 'none';
 
     if (highScoreContainer) {
-        highScoreContainer.style.display = 'none'; // Hide current high score in end game
+        highScoreContainer.style.display = 'none';
     }
-    if (allTimeHighScoreContainer) { // Ensure all-time high score is visible on end game
+    if (allTimeHighScoreContainer) {
         allTimeHighScoreContainer.style.display = 'flex';
     }
 
@@ -258,23 +232,22 @@ function endGame() {
     }
     
     startGameBtn.style.display = 'inline-block';
-    pauseGameBtn.style.display = 'none'; // Ensure pause button is hidden in end game
+    pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'inline-block';
     difficultyPanel.style.display = 'flex';
     operationSelectionPanel.style.display = 'flex';
-    header.style.display = 'block'; // Show header when game ends
-    controlPanel.style.display = 'flex'; // Ensure control panel is visible in menu/end state
+    header.style.display = 'block';
+    controlPanel.style.display = 'flex';
 
     startGameBtn.disabled = true;
     currentDifficulty = null;
     selectedOperationType = null;
     updateDifficultyAndOperationDisplay();
-    updateAllTimeHighScoreDisplay(); // Update display on game end
+    updateAllTimeHighScoreDisplay();
 }
 
-
 function initializeGame() {
-    resizeCanvas(); // Set initial canvas dimensions and cell size
+    resizeCanvas();
 
     snake = [];
     for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
@@ -285,7 +258,6 @@ function initializeGame() {
     score = 0;
     scoreDisplay.textContent = score;
     
-    // In initializeGame (main menu state), hide current game high score
     if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
     }
@@ -294,16 +266,15 @@ function initializeGame() {
     isPaused = false;
     awaitingMathAnswer = false;
     
-    // Explicitly manage panel visibility for initial state
-    gamePanel.style.display = 'flex'; // Show game panel
-    rightPanel.style.display = 'none'; // Hide right panel
+    gamePanel.style.display = 'flex';
+    rightPanel.style.display = 'none';
 
     mathChallengeArea.style.display = 'none';
     customKeyboard.style.display = 'none';
     gameOverModal.style.display = 'none';
     infoModal.style.display = 'none';
-    canvas.style.display = 'none'; // Canvas hidden in menu state
-    scoreDisplay.parentElement.style.display = 'none'; // Score hidden in menu state
+    canvas.style.display = 'none';
+    scoreDisplay.parentElement.style.display = 'none';
 
     clearInterval(gameInterval);
     clearInterval(mathTimerInterval);
@@ -311,18 +282,16 @@ function initializeGame() {
 
     startGameBtn.style.display = 'inline-block';
     startGameBtn.disabled = true;
-    pauseGameBtn.style.display = 'none'; // Ensure pause button is hidden in initial state
+    pauseGameBtn.style.display = 'none';
     resetGameBtn.style.display = 'none';
     difficultyPanel.style.display = 'flex';
     operationSelectionPanel.style.display = 'flex';
     messageArea.style.display = 'block';
-    header.style.display = 'block'; // Show header in menu state
-    controlPanel.style.display = 'flex'; // Ensure control panel is visible in menu state
-    // In initializeGame (main menu state), show all-time high score
+    header.style.display = 'block';
+    controlPanel.style.display = 'flex';
     if (allTimeHighScoreContainer) {
         allTimeHighScoreContainer.style.display = 'flex';
     }
-
 
     currentDifficulty = null;
     selectedOperationType = null;
@@ -331,7 +300,7 @@ function initializeGame() {
     drawGame();
     updateDifficultyAndOperationDisplay();
     setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
-    updateAllTimeHighScoreDisplay(); // Update display on initialize
+    updateAllTimeHighScoreDisplay();
 }
 
 function drawGame() {
@@ -488,30 +457,26 @@ function startGame() {
 
     isGameRunning = true;
     
-    // Explicitly manage panel visibility for game state
-    gamePanel.style.display = 'flex'; // Game panel visible
-    rightPanel.style.display = 'none'; // Right panel hidden
+    gamePanel.style.display = 'flex';
+    rightPanel.style.display = 'none';
 
-    // Hide elements not needed during gameplay
-    header.style.display = 'none'; // Hide header during gameplay
+    header.style.display = 'none';
     startGameBtn.style.display = 'none';
     difficultyPanel.style.display = 'none';
     operationSelectionPanel.style.display = 'none';
     messageArea.style.display = 'none';
-    installButton.style.display = 'none'; // Hide install button during gameplay
-    if (allTimeHighScoreContainer) { // Hide all-time high score during gameplay
+    installButton.style.display = 'none';
+    if (allTimeHighScoreContainer) {
         allTimeHighScoreContainer.style.display = 'none';
     }
 
-
-    // Show elements needed during gameplay
-    controlPanel.style.display = 'flex'; // Show control panel (contains pause/reset)
-    pauseGameBtn.style.display = 'none'; // Pause button is ONLY visible during math challenge (time < 10s)
-    resetGameBtn.style.display = 'inline-block'; // Reset button visible
-    canvas.style.display = 'block'; // Canvas visible
-    scoreDisplay.parentElement.style.display = 'flex'; // Score visible
+    controlPanel.style.display = 'flex';
+    pauseGameBtn.style.display = 'none';
+    resetGameBtn.style.display = 'inline-block';
+    canvas.style.display = 'block';
+    scoreDisplay.parentElement.style.display = 'flex';
     if (highScoreContainer) {
-        highScoreContainer.style.display = 'flex'; // High score visible
+        highScoreContainer.style.display = 'flex';
     }
     gameInterval = setInterval(moveSnake, GAME_SPEED);
 }
@@ -524,14 +489,12 @@ function pauseGame() {
         return;
     }
 
-    // Pause is now ONLY available during math challenge, not snake gameplay.
-    // And only if time is 10s or less AND player has points.
     if (!awaitingMathAnswer) {
         setMessage('Pause is only available during math challenges.');
         return;
     }
 
-    if (timeLeftForMath > 10 || score < 2) { // Changed score check to 2 points
+    if (timeLeftForMath > 10 || score < 2) {
         let currentMessage = `Pause is only available when time left is 10s or less and you have at least 2 points. Current time left: ${timeLeftForMath}s, Current points: ${score}.`;
         setMessage(currentMessage);
         return;
@@ -540,19 +503,17 @@ function pauseGame() {
     isPaused = true;
     clearInterval(gameInterval);
     clearInterval(mathTimerInterval);
-    score = Math.max(0, score - 2); // Deduct 2 points
+    score = Math.max(0, score - 2);
     scoreDisplay.textContent = score;
     
-    pauseTimeLeft = 20; // Pause for 20 seconds
+    pauseTimeLeft = 20;
     
-    // Display pause countdown directly in timerDisplay
     timerDisplay.textContent = `Paused: ${pauseTimeLeft}s. Fuel: ${Math.floor(score / 2)} pauses`;
     
-    // Clear any existing countdown to prevent multiple intervals running
     clearInterval(pauseCountdownInterval);
     pauseCountdownInterval = setInterval(() => {
         pauseTimeLeft--;
-        timerDisplay.textContent = `Paused: ${pauseTimeLeft}s. Fuel: ${Math.floor(score / 2)} pauses`; // Update message with countdown
+        timerDisplay.textContent = `Paused: ${pauseTimeLeft}s. Fuel: ${Math.floor(score / 2)} pauses`;
         
         if (pauseTimeLeft <= 0) {
             clearInterval(pauseCountdownInterval);
@@ -563,20 +524,17 @@ function pauseGame() {
 
 function resumeGame() {
     isPaused = false;
-    clearInterval(pauseCountdownInterval); // Ensure countdown is cleared
+    clearInterval(pauseCountdownInterval);
     if (isGameRunning) {
-        // Clear any existing gameInterval before setting a new one to prevent speed-up
-        clearInterval(gameInterval); 
+        clearInterval(gameInterval);
         gameInterval = setInterval(moveSnake, GAME_SPEED);
     }
     if (awaitingMathAnswer) {
-        // Clear any existing mathTimerInterval before setting a new one
         clearInterval(mathTimerInterval);
-        startMathTimer(); // Resume math timer with original timeLeftForMath
+        startMathTimer();
     }
-    messageArea.style.display = 'none'; // Hide general message area
+    messageArea.style.display = 'none';
 }
-
 
 function getDigitRange(difficulty) {
     switch (difficulty) {
@@ -596,6 +554,26 @@ function decToBin(dec, minLength = 0) {
         bin = '0' + bin;
     }
     return bin;
+}
+
+function gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+    while (b) {
+        [a, b] = [b, a % b];
+    }
+    return a;
+}
+
+function simplifyFraction(numerator, denominator) {
+    if (denominator === 0) throw new Error("Denominator cannot be zero.");
+    if (numerator === 0) return { num: 0, den: 1 };
+
+    const commonDivisor = gcd(numerator, denominator);
+    return {
+        num: numerator / commonDivisor,
+        den: denominator / commonDivisor
+    };
 }
 
 function generateArithmeticProblem() {
@@ -831,6 +809,132 @@ function generateAbsoluteValueProblem() {
     mathAnswerInput.value = '';
 }
 
+function generateFractionsProblem() {
+    let num1, den1, num2, den2, operation, problemText, answerNum, answerDen;
+    const operators = ['+', '-', '*', '/'];
+    const MAX_ATTEMPTS = 500;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    const getFractionRange = (difficulty) => {
+        switch (difficulty) {
+            case 'easy': return { numMin: 1, numMax: 5, denMin: 2, denMax: 5 };
+            case 'medium': return { numMin: 1, numMax: 10, denMin: 2, denMax: 10 };
+            case 'hard': return { numMin: 1, numMax: 15, denMin: 2, denMax: 15 };
+            case 'expert': return { numMin: 1, numMax: 20, denMin: 2, denMax: 20 };
+            default: return { numMin: 1, numMax: 5, denMin: 2, denMax: 5 };
+        }
+    };
+
+    const { numMin, numMax, denMin, denMax } = getFractionRange(currentDifficulty);
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        operation = operators[Math.floor(Math.random() * operators.length)];
+
+        num1 = generateRandomNum(numMin, numMax);
+        den1 = generateRandomNum(denMin, denMax);
+        if (den1 === 0) continue; // Denominator cannot be zero
+
+        // Ensure fractions are not initially simplifiable (or simplify them)
+        let s1 = simplifyFraction(num1, den1);
+        num1 = s1.num;
+        den1 = s1.den;
+
+        if (Math.random() < 0.3) { // Introduce some mixed numbers or improper fractions
+            let whole = 0;
+            if (currentDifficulty !== 'easy') {
+                whole = generateRandomNum(0, 3);
+                num1 += whole * den1;
+            }
+        }
+        
+        num2 = generateRandomNum(numMin, numMax);
+        den2 = generateRandomNum(denMin, denMax);
+        if (den2 === 0) continue; // Denominator cannot be zero
+
+        let s2 = simplifyFraction(num2, den2);
+        num2 = s2.num;
+        den2 = s2.den;
+
+        if (Math.random() < 0.3) {
+            let whole = 0;
+            if (currentDifficulty !== 'easy') {
+                whole = generateRandomNum(0, 3);
+                num2 += whole * den2;
+            }
+        }
+
+        let tempAnswerNum, tempAnswerDen;
+
+        try {
+            switch (operation) {
+                case '+':
+                    tempAnswerNum = num1 * den2 + num2 * den1;
+                    tempAnswerDen = den1 * den2;
+                    break;
+                case '-':
+                    if (currentDifficulty === 'easy' && (num1 / den1 < num2 / den2)) {
+                        continue; // Avoid negative answers for easy difficulty subtraction
+                    }
+                    tempAnswerNum = num1 * den2 - num2 * den1;
+                    tempAnswerDen = den1 * den2;
+                    break;
+                case '*':
+                    tempAnswerNum = num1 * num2;
+                    tempAnswerDen = den1 * den2;
+                    break;
+                case '/':
+                    if (num2 === 0) continue; // Cannot divide by zero fraction
+                    tempAnswerNum = num1 * den2;
+                    tempAnswerDen = den1 * num2;
+                    break;
+            }
+
+            if (tempAnswerDen === 0) continue; // Should not happen with checks, but safety
+            
+            const simplifiedAnswer = simplifyFraction(tempAnswerNum, tempAnswerDen);
+            answerNum = simplifiedAnswer.num;
+            answerDen = simplifiedAnswer.den;
+
+            if (answerDen < 0) { // Normalize negative denominators
+                answerNum *= -1;
+                answerDen *= -1;
+            }
+
+            // Check if the answer is manageable (e.g., not too large, not zero denominator)
+            if (Math.abs(answerNum) <= 1000 && Math.abs(answerDen) <= 1000 && answerDen !== 0) {
+                problemGenerated = true;
+            }
+
+        } catch (e) {
+            // Log error but continue attempts
+            console.warn("Fraction problem generation error, retrying:", e.message);
+            problemGenerated = false;
+        }
+    }
+
+    if (!problemGenerated) {
+        num1 = 1; den1 = 2; num2 = 1; den2 = 4; operation = '+'; answerNum = 3; answerDen = 4;
+        setMessage('Fractions problem generation fallback. Please continue.');
+    }
+
+    problemText = `${num1}/${den1} ${operation} ${num2}/${den2} = ?`;
+    if (answerDen === 1) {
+        correctMathAnswer = answerNum; // Whole number
+    } else {
+        correctMathAnswer = `${answerNum}/${answerDen}`; // Fraction
+    }
+    
+    mathProblemDisplay.innerHTML = problemText;
+    mathAnswerInput.value = '';
+    // This problem type can have integer or fraction answers, so allow decimals
+    // For fractions, the user will type "X/Y"
+    mathAnswerInput.setAttribute('data-allow-decimal', 'true');
+    mathAnswerInput.setAttribute('data-allow-fraction', 'true');
+}
+
+
 function generateDecimalToBinaryProblem() {
     let decimalNum;
     let binaryAnswer;
@@ -919,7 +1023,7 @@ function generateBinaryAdditionProblem() {
         bitLength = generateRandomNum(4, 6);
     } else if (currentDifficulty === 'hard') {
         bitLength = generateRandomNum(6, 8);
-    } else { // expert
+    } else {
         bitLength = generateRandomNum(8, 10);
     }
 
@@ -949,7 +1053,7 @@ function generateBinaryAdditionProblem() {
         sumBinary = sumDec.toString(2);
 
         if (sumBinary.length <= bitLength + 1) {
-             problemGenerated = true;
+            problemGenerated = true;
         }
     }
 
@@ -964,7 +1068,6 @@ function generateBinaryAdditionProblem() {
     correctMathAnswer = sumBinary;
     mathAnswerInput.value = '';
 }
-
 
 function generateLinearEquationProblem() {
     let a, b, c, answer;
@@ -1013,7 +1116,6 @@ function generateLinearEquationProblem() {
     correctMathAnswer = answer;
     mathAnswerInput.value = '';
 }
-
 
 function generateArithmeticMeanProblem() {
     let numCount;
@@ -1148,7 +1250,6 @@ function generateEvaluatingFunctionProblem() {
     mathAnswerInput.value = '';
 }
 
-
 function generateFractionToDecimalProblem() {
     let numerator, denominator, answer;
     const MAX_ATTEMPTS = 200;
@@ -1266,9 +1367,8 @@ function startChallenge() {
 
     initialTimeForCurrentChallenge = difficultyTimes[currentDifficulty];
 
-    // Explicitly manage panel visibility for math challenge state
-    gamePanel.style.display = 'none'; // Hide game panel
-    rightPanel.style.display = 'flex'; // Show right panel
+    gamePanel.style.display = 'none';
+    rightPanel.style.display = 'flex';
 
     mathChallengeArea.style.display = 'block';
     customKeyboard.style.display = 'flex';
@@ -1277,14 +1377,12 @@ function startChallenge() {
     if (highScoreContainer) {
         highScoreContainer.style.display = 'none';
     }
-    // Pause button is managed by startMathTimer based on time left
-    // Reset button is hidden during math challenge
-    resetGameBtn.style.display = 'none'; 
+    resetGameBtn.style.display = 'none';
 
-    // Clear input field for new question
     mathAnswerInput.value = '';
 
     let allowDecimalInput = false;
+    let allowFractionInput = false;
 
     switch (selectedOperationType) {
         case 'arithmetic':
@@ -1298,6 +1396,11 @@ function startChallenge() {
             break;
         case 'absolute-value':
             generateAbsoluteValueProblem();
+            break;
+        case 'fractions':
+            generateFractionsProblem();
+            allowDecimalInput = true; // Fractions can often be represented as decimals
+            allowFractionInput = true; // Allow X/Y input
             break;
         case 'binary-decimal':
             generateBinaryToDecimalProblem();
@@ -1340,17 +1443,17 @@ function startChallenge() {
     }
 
     mathAnswerInput.setAttribute('data-allow-decimal', allowDecimalInput ? 'true' : 'false');
+    mathAnswerInput.setAttribute('data-allow-fraction', allowFractionInput ? 'true' : 'false');
+
 
     timeLeftForMath = initialTimeForCurrentChallenge;
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
     
     lastProblemText = mathProblemDisplay.textContent;
-    lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-decimal' || selectedOperationType === 'binary-addition') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
+    lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-decimal' || selectedOperationType === 'binary-addition' || selectedOperationType === 'fractions') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
 
     startMathTimer();
-    // The message area is global and should be hidden during math challenge,
-    // as timerDisplay will show the relevant info.
-    messageArea.style.display = 'none'; 
+    messageArea.style.display = 'none';
 }
 
 function startMathTimer() {
@@ -1359,7 +1462,6 @@ function startMathTimer() {
         timeLeftForMath--;
         timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
 
-        // Show pause button if time is 10s or less AND player has at least 2 points
         if (timeLeftForMath <= 10 && !isPaused && score >= 2) {
             pauseGameBtn.style.display = 'inline-block';
         } else {
@@ -1377,6 +1479,7 @@ function submitMathAnswer() {
     if (!awaitingMathAnswer) return;
 
     const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
+    const isFractionAllowed = mathAnswerInput.getAttribute('data-allow-fraction') === 'true';
     const userAnswerRaw = mathAnswerInput.value.trim();
     let userAnswer;
 
@@ -1395,6 +1498,58 @@ function submitMathAnswer() {
             mathAnswerInput.focus();
             return;
         }
+    } else if (selectedOperationType === 'fractions') {
+        userAnswer = userAnswerRaw;
+        // Handle fraction input "X/Y"
+        const fractionParts = userAnswer.split('/').map(s => s.trim());
+        if (fractionParts.length === 2 && !isNaN(parseInt(fractionParts[0])) && !isNaN(parseInt(fractionParts[1]))) {
+            const userNum = parseInt(fractionParts[0]);
+            const userDen = parseInt(fractionParts[1]);
+            if (userDen === 0) {
+                setMessage('Denominator cannot be zero!');
+                mathAnswerInput.value = '';
+                mathAnswerInput.focus();
+                return;
+            }
+            const simplifiedUser = simplifyFraction(userNum, userDen);
+            const simplifiedCorrect = simplifyFraction(
+                parseInt(correctMathAnswer.split('/')[0]),
+                parseInt(correctMathAnswer.split('/')[1])
+            );
+            // Compare simplified fractions
+            if (simplifiedUser.num === simplifiedCorrect.num && simplifiedUser.den === simplifiedCorrect.den) {
+                // It's a match!
+            } else {
+                setMessage('Incorrect answer! Try again. Remember to simplify if necessary.');
+                mathAnswerInput.value = '';
+                mathAnswerInput.focus();
+                return;
+            }
+        } else if (!isNaN(parseFloat(userAnswer))) {
+            // Allow decimal input for fractions too, compare as floats
+            userAnswer = parseFloat(userAnswer);
+            const correctFloat = eval(correctMathAnswer); // Safely evaluate "X/Y" to a float
+            if (Math.abs(userAnswer - correctFloat) > 0.001) { // Tolerance for float comparison
+                setMessage('Incorrect answer! Try again.');
+                mathAnswerInput.value = '';
+                mathAnswerInput.focus();
+                return;
+            }
+        } else if (!isNaN(parseInt(userAnswer)) && correctMathAnswer.toString().includes('/')) {
+            // If user enters an integer but answer is a fraction (e.g. 2/1 vs 2)
+            const correctFloat = eval(correctMathAnswer);
+            if (Math.abs(parseInt(userAnswer) - correctFloat) > 0.001) {
+                setMessage('Incorrect answer! Try again.');
+                mathAnswerInput.value = '';
+                mathAnswerInput.focus();
+                return;
+            }
+        } else {
+            setMessage('Please enter a valid number or fraction (e.g., "1/2")!');
+            mathAnswerInput.value = '';
+            mathAnswerInput.focus();
+            return;
+        }
     } else {
         userAnswer = isDecimalAllowed ? parseFloat(userAnswerRaw) : parseInt(userAnswerRaw);
         if (isNaN(userAnswer)) {
@@ -1405,9 +1560,16 @@ function submitMathAnswer() {
         }
     }
     
-    const isCorrect = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') ?
-                         userAnswer === correctMathAnswer :
-                         userAnswer === parseFloat(correctMathAnswer.toFixed(2));
+    let isCorrect = false;
+    if (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') {
+        isCorrect = userAnswer === correctMathAnswer;
+    } else if (selectedOperationType === 'fractions') {
+        // This case is handled by the specialized logic above. If execution reaches here, it means
+        // either it was a direct match (fraction simplified) or the float conversion matched.
+        isCorrect = true; // Assuming the specific fraction/decimal checks passed
+    } else {
+        isCorrect = userAnswer === parseFloat(correctMathAnswer.toFixed(2));
+    }
 
     if (isCorrect) {
         let pointsEarned = 0;
@@ -1435,24 +1597,20 @@ function submitMathAnswer() {
             }
         }
 
-        // Update all-time high score
         if (score > allTimeHighScore.score) {
             allTimeHighScore.score = score;
-            // Get the display text of the selected operation type from the button
             const selectedProblemTypeText = document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent;
             allTimeHighScore.problemType = selectedProblemTypeText;
             localStorage.setItem('allTimeMathSnakeHighScore', JSON.stringify(allTimeHighScore));
             updateAllTimeHighScoreDisplay();
         }
 
-
         setMessage(`Correct! +${pointsEarned} points.`);
         awaitingMathAnswer = false;
         clearInterval(mathTimerInterval);
         
-        // Explicitly manage panel visibility after math challenge
-        gamePanel.style.display = 'flex'; // Show game panel
-        rightPanel.style.display = 'none'; // Hide right panel
+        gamePanel.style.display = 'flex';
+        rightPanel.style.display = 'none';
 
         mathChallengeArea.style.display = 'none';
         customKeyboard.style.display = 'none';
@@ -1461,10 +1619,9 @@ function submitMathAnswer() {
         if (highScoreContainer) {
             highScoreContainer.style.display = 'flex';
         }
-        pauseGameBtn.style.display = 'none'; // Hide pause button after challenge
+        pauseGameBtn.style.display = 'none';
 
-        // Clear any existing gameInterval before setting a new one to prevent speed-up
-        clearInterval(gameInterval); 
+        clearInterval(gameInterval);
         gameInterval = setInterval(moveSnake, GAME_SPEED);
         generateFood();
         drawGame();
@@ -1478,40 +1635,46 @@ function submitMathAnswer() {
 function handleKeyboardInput(value) {
     if (!awaitingMathAnswer) return;
 
-    if (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') {
-        if (value === 'clear') {
+    const isBinaryInput = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition');
+    const isFractionInput = (selectedOperationType === 'fractions');
+
+    if (value === 'clear') {
+        mathAnswerInput.value = '';
+    } else if (value === 'backspace') {
+        mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
+    } else if (value === '-') {
+        if (mathAnswerInput.value === '') {
+            mathAnswerInput.value = '-';
+        } else if (mathAnswerInput.value === '-') {
             mathAnswerInput.value = '';
-        } else if (value === 'backspace') {
-            mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
-        } else if (value === '0' || value === '1') {
+        } else if (mathAnswerInput.value.startsWith('-')) {
+            mathAnswerInput.value = mathAnswerInput.value.substring(1);
+        } else {
+            mathAnswerInput.value = '-' + mathAnswerInput.value;
+        }
+    } else if (value === '.') {
+        const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
+        if (!mathAnswerInput.value.includes('.') && isDecimalAllowed) {
+            mathAnswerInput.value += value;
+        }
+    } else if (isBinaryInput) {
+        if (value === '0' || value === '1') {
+            mathAnswerInput.value += value;
+        }
+    } else if (isFractionInput) {
+        // For fractions, allow digits and '/'
+        if ((value >= '0' && value <= '9') || value === '/') {
             mathAnswerInput.value += value;
         }
     } else {
-        if (value === 'clear') {
-            mathAnswerInput.value = '';
-        } else if (value === 'backspace') {
-            mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
-        } else if (value === '.') {
-            const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
-            if (!mathAnswerInput.value.includes('.') && mathAnswerInput.value.indexOf('.') === -1 && isDecimalAllowed) { // Added check for existing decimal point
-                mathAnswerInput.value += value;
-            }
-        } else if (value === '-') {
-            if (mathAnswerInput.value === '') {
-                mathAnswerInput.value = '-';
-            } else if (mathAnswerInput.value === '-') {
-                mathAnswerInput.value = '';
-            } else if (mathAnswerInput.value.startsWith('-')) {
-                mathAnswerInput.value = mathAnswerInput.value.substring(1);
-            } else {
-                mathAnswerInput.value = '-' + mathAnswerInput.value;
-            }
-        } else {
+        // Default for numeric input
+        if (value >= '0' && value <= '9') {
             mathAnswerInput.value += value;
         }
     }
     mathAnswerInput.focus();
 }
+
 
 document.addEventListener('keydown', e => {
     if (awaitingMathAnswer) {
@@ -1530,6 +1693,11 @@ document.addEventListener('keydown', e => {
             }
         } else if (e.key === '-') {
             handleKeyboardInput(e.key);
+        } else if (e.key === '/') { // Allow '/' for fraction input
+            const isFractionAllowed = mathAnswerInput.getAttribute('data-allow-fraction') === 'true';
+            if (isFractionAllowed) {
+                 handleKeyboardInput(e.key);
+            }
         }
         return;
     }
@@ -1600,7 +1768,6 @@ resetGameBtn.addEventListener('click', resetGame);
 submitAnswerBtn.addEventListener('click', submitMathAnswer);
 restartGameBtn.addEventListener('click', resetGame);
 
-
 closeInfoModalBtn.addEventListener('click', () => {
     infoModal.style.display = 'none';
 });
@@ -1613,7 +1780,7 @@ infoModal.addEventListener('click', (e) => {
 
 startPlayingBtn.addEventListener('click', () => {
     welcomeModal.style.display = 'none';
-    initializeGame(); // This will call resizeCanvas internally
+    initializeGame();
 });
 
 difficultyButtons.forEach(button => {
@@ -1657,24 +1824,14 @@ function updateDifficultyAndOperationDisplay() {
     if (highScoreDisplay) {
         highScoreDisplay.textContent = highScores[highScoreKey] || 0;
     }
-    // The current high score container should only be visible during gameplay, not in the menu.
-    // Its visibility is now managed by initializeGame() and startGame().
-    // Removed conditional display logic from here to avoid conflicts.
-    // if (highScoreContainer) {
-    //     highScoreContainer.style.display = 'flex';
-    // } else {
-    //     highScoreContainer.style.display = 'none';
-    // }
 }
 
-// Function to update the all-time high score display
 function updateAllTimeHighScoreDisplay() {
     if (allTimeHighScoreDisplay && allTimeHighScoreProblemTypeDisplay) {
         allTimeHighScoreDisplay.textContent = allTimeHighScore.score;
         allTimeHighScoreProblemTypeDisplay.textContent = allTimeHighScore.problemType;
     }
 }
-
 
 function checkAndEnableStartGame() {
     if (currentDifficulty && selectedOperationType) {
@@ -1685,21 +1842,9 @@ function checkAndEnableStartGame() {
         if (highScoreDisplay) {
             highScoreDisplay.textContent = highScores[highScoreKey] || 0;
         }
-        // The current high score container should only be visible during gameplay, not in the menu.
-        // Its visibility is now managed by initializeGame() and startGame().
-        // Removed conditional display logic from here to avoid conflicts.
-        // if (highScoreContainer) {
-        //     highScoreContainer.style.display = 'flex';
-        // }
         startGameBtn.style.display = 'inline-block';
     } else {
         startGameBtn.disabled = true;
-        // The current high score container should only be visible during gameplay, not in the menu.
-        // Its visibility is now managed by initializeGame() and startGame().
-        // Removed conditional display logic from here to avoid conflicts.
-        // if (highScoreContainer) {
-        //     highScoreContainer.style.display = 'none';
-        // }
         startGameBtn.style.display = 'inline-block';
         if (!currentDifficulty && !selectedOperationType) {
             setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
@@ -1743,7 +1888,7 @@ installButton.addEventListener('click', () => {
 
 window.addEventListener('load', function() {
     welcomeModal.style.display = 'flex';
-    initializeGame(); // This will call resizeCanvas internally
+    initializeGame();
 });
 
 window.addEventListener('resize', resizeCanvas);
