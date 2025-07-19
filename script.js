@@ -1037,7 +1037,7 @@ function generateSquareRootProblem() {
             }
         }
         
-        if (answer > 0 && Math.abs(answer) < 1000 && isFinite(answer) && !isNaN(answer)) { // FIXED: Relaxed precision check
+        if (answer > 0 && Math.abs(answer) < 1000 && isFinite(answer) && !isNaN(answer)) {
             problemGenerated = true;
         }
     }
@@ -1321,7 +1321,7 @@ function generateAreaPerimeterProblem() {
     let problemGenerated = false;
 
     const shapes = ['rectangle', 'square', 'circle'];
-    const properties = ['area', 'perimeter']; // 'circumference' for circle is handled in code
+    const properties = ['area', 'perimeter'];
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
@@ -1367,7 +1367,6 @@ function generateAreaPerimeterProblem() {
                 break;
         }
 
-        // FIXED: Relaxed generation check to only ensure it's a valid number within range
         if (answer > 0 && Math.abs(answer) < 10000 && isFinite(answer) && !isNaN(answer)) {
             problemGenerated = true;
         }
@@ -1428,7 +1427,6 @@ function generateUnitConversionProblem() {
         
         answer = value * factor;
 
-        // FIXED: Relaxed generation check to only ensure it's a valid number within range
         if (Math.abs(answer) > 0.001 && Math.abs(answer) < 100000 && isFinite(answer) && !isNaN(answer)) {
             problemGenerated = true;
             fromUnit = fromUnitData.display;
@@ -1504,13 +1502,11 @@ function generatePythagoreanTheoremProblem() {
                 break;
         }
         
-        // FIXED: Only check for finite, non-NaN answer for problem generation
         if (calculatedAnswer > 0 && Math.abs(calculatedAnswer) < 500 && isFinite(calculatedAnswer) && !isNaN(calculatedAnswer)) {
-            // Only add "2 dec places" to problem text if it's a non-integer
             if (calculatedAnswer % 1 !== 0) {
                  problemText += " (2 dec places)";
             }
-            answer = parseFloat(calculatedAnswer.toFixed(2)); // Always round answer to 2 dec for consistency
+            answer = parseFloat(calculatedAnswer.toFixed(2));
             problemGenerated = true;
         }
     }
@@ -1686,7 +1682,6 @@ function generateSolvingInequalitiesProblem() {
 
         let solutionThreshold = (c - b) / a;
 
-        // Generate a test value that is sometimes a solution, sometimes not
         testValue = generateRandomNum(Math.floor(solutionThreshold) - 5, Math.ceil(solutionThreshold) + 5);
 
         let originalExpressionValue = a * testValue + b;
@@ -2626,7 +2621,7 @@ function handleKeyboardInput(value) {
     } else if (value === 'backspace') {
         mathAnswerInput.value = mathAnswerInput.value.slice(0, -1);
     } else if (value === '-') {
-        if (!isTextAnswer) {
+        if (!isTextAnswer) { // Only allow negative sign for numeric inputs
             if (mathAnswerInput.value === '') {
                 mathAnswerInput.value = '-';
             } else if (mathAnswerInput.value === '-') {
@@ -2651,15 +2646,14 @@ function handleKeyboardInput(value) {
             mathAnswerInput.value += value;
         }
     } else if (isTextAnswer) {
-        // Special handling for 'Yes' and 'No' from custom keyboard
         if (value === 'yes') {
-            mathAnswerInput.value = 'Yes';
+            mathAnswerInput.value = 'Yes'; // Set the full word
         } else if (value === 'no') {
-            mathAnswerInput.value = 'No';
+            mathAnswerInput.value = 'No'; // Set the full word
         }
-        // Other number keys from virtual keyboard would still append for these types if allowed
-        // (but for Yes/No, it's better to restrict to specific buttons)
+        // For actual letter input from physical keyboard, the keydown listener handles it
     } else {
+        // Default for numeric input
         if (value >= '0' && value <= '9') {
             mathAnswerInput.value += value;
         }
