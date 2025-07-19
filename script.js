@@ -1337,18 +1337,18 @@ function generateAreaPerimeterProblem() {
         } else if (currentDifficulty === 'hard') {
             val1 = generateRandomNum(10, 25);
             val2 = generateRandomNum(10, 25);
-        } else { // expert
+        } else {
             val1 = generateRandomNum(15, 30);
             val2 = generateRandomNum(15, 30);
         }
 
         if (shape === 'square') {
-            val2 = val1; // For square, length and width are same
-            property = properties[Math.floor(Math.random() * properties.length)]; // Square can ask for area or perimeter
+            val2 = val1;
+            property = properties[Math.floor(Math.random() * properties.length)];
         } else if (shape === 'circle') {
-            property = 'area'; // Or 'circumference' for circle (similar to perimeter)
+            property = 'area';
             if (Math.random() < 0.5) property = 'circumference';
-            val1 = generateRandomNum(2, currentDifficulty === 'easy' ? 7 : currentDifficulty === 'medium' ? 10 : 15); // radius
+            val1 = generateRandomNum(2, currentDifficulty === 'easy' ? 7 : currentDifficulty === 'medium' ? 10 : 15);
         }
         
         switch (shape) {
@@ -1363,7 +1363,7 @@ function generateAreaPerimeterProblem() {
             case 'circle':
                 problemText = `${property === 'area' ? 'Area' : 'Circumference'} of a circle with R=${val1}? (Use π=3.14)`;
                 answer = property === 'area' ? Math.PI * val1 * val1 : 2 * Math.PI * val1;
-                answer = parseFloat(answer.toFixed(2)); // Round to 2 decimal places for Pi
+                answer = parseFloat(answer.toFixed(2));
                 break;
         }
 
@@ -1427,7 +1427,6 @@ function generateUnitConversionProblem() {
         
         answer = value * factor;
 
-        // Ensure reasonable numbers for display and answer
         if (Math.abs(answer) > 0.001 && Math.abs(answer) < 100000 && (answer % 1 === 0 || (answer * 100) % 1 === 0)) {
             problemGenerated = true;
             fromUnit = fromUnitData.display;
@@ -1461,27 +1460,26 @@ function generatePythagoreanTheoremProblem() {
 
         let chosenTriple;
         if (currentDifficulty === 'easy') {
-            chosenTriple = pythagoreanTriples[generateRandomNum(0, 1)]; // Basic triples
+            chosenTriple = pythagoreanTriples[generateRandomNum(0, 1)];
         } else if (currentDifficulty === 'medium') {
             chosenTriple = pythagoreanTriples[generateRandomNum(0, 3)];
-        } else { // Hard and Expert can also use multiples or non-perfect
-            chosenTriple = pythagoreanTriples[generateRandomNum(0, pythagoreanTriples.length - 1)];
+        } else {
+            chosenTriple = pythagoreanTriples[Math.floor(Math.random() * pythagoreanTriples.length)];
             let multiplier = currentDifficulty === 'hard' ? generateRandomNum(1, 3) : generateRandomNum(1, 5);
             chosenTriple = chosenTriple.map(val => val * multiplier);
         }
 
-        [a, b, c] = chosenTriple; // a, b are legs, c is hypotenuse
+        [a, b, c] = chosenTriple;
 
-        sideToFind = generateRandomNum(1, 3); // 1: a, 2: b, 3: c
+        sideToFind = generateRandomNum(1, 3);
 
         if (currentDifficulty === 'expert' && Math.random() < 0.3) {
-             // Introduce non-perfect for expert
             let nonPerfectAdjust = generateRandomNum(1, 3);
-            if (sideToFind === 1) { // find a
+            if (sideToFind === 1) {
                 b += nonPerfectAdjust;
-            } else if (sideToFind === 2) { // find b
+            } else if (sideToFind === 2) {
                 a += nonPerfectAdjust;
-            } else { // find c
+            } else {
                 a += nonPerfectAdjust;
             }
         }
@@ -1490,23 +1488,21 @@ function generatePythagoreanTheoremProblem() {
         let calculatedAnswer;
 
         switch (sideToFind) {
-            case 1: // Find a
+            case 1:
                 problemText = `Leg b = ${b}, Hypotenuse c = ${c}. Find leg a: ?`;
                 calculatedAnswer = Math.sqrt(c * c - b * b);
                 break;
-            case 2: // Find b
+            case 2:
                 problemText = `Leg a = ${a}, Hypotenuse c = ${c}. Find leg b: ?`;
                 calculatedAnswer = Math.sqrt(c * c - a * a);
                 break;
-            case 3: // Find c (hypotenuse)
+            case 3:
                 problemText = `Leg a = ${a}, Leg b = ${b}. Find hypotenuse c: ?`;
                 calculatedAnswer = Math.sqrt(a * a + b * b);
                 break;
         }
 
-        // Validate calculated answer for integers or simple decimals
         if (calculatedAnswer > 0 && Math.abs(calculatedAnswer) < 500 && isFinite(calculatedAnswer)) {
-            // For Pythagorean, if answer is not integer, round to 2 dec places
             if (calculatedAnswer % 1 !== 0 && (currentDifficulty === 'hard' || currentDifficulty === 'expert')) {
                 answer = parseFloat(calculatedAnswer.toFixed(2));
                 problemText += " (2 dec places)";
@@ -1550,7 +1546,7 @@ function generateTrigonometryProblem() {
             anglePool = [0, 30, 45, 60, 90, 120, 135, 150, 180];
         } else if (currentDifficulty === 'hard') {
             anglePool = commonAngles;
-        } else { // expert - also introduce random angles for rounding
+        } else {
             anglePool = commonAngles.concat(Array.from({ length: 10 }, () => generateRandomNum(0, 360)));
         }
 
@@ -1567,14 +1563,13 @@ function generateTrigonometryProblem() {
                 calculatedAnswer = Math.cos(angleRad);
                 break;
             case 'tan':
-                if (angle === 90 || angle === 270) continue; // tan(90) and tan(270) are undefined
+                if (angle === 90 || angle === 270) continue;
                 calculatedAnswer = Math.tan(angleRad);
                 break;
         }
         
-        // Ensure values are not too small/large and can be reasonably rounded
         if (isFinite(calculatedAnswer) && !isNaN(calculatedAnswer) && Math.abs(calculatedAnswer) < 1000) {
-            answer = parseFloat(calculatedAnswer.toFixed(3)); // Round to 3 decimal places
+            answer = parseFloat(calculatedAnswer.toFixed(3));
             problemText = `${func}(${angle}°) = ? (3 dec places)`;
             problemGenerated = true;
         }
@@ -1592,6 +1587,288 @@ function generateTrigonometryProblem() {
     mathAnswerInput.setAttribute('data-allow-decimal', 'true');
 }
 
+function generateFactoringProblem() {
+    let commonFactor, term1Coefficient, term2Coefficient, problemText, answer;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        if (currentDifficulty === 'easy') {
+            commonFactor = generateRandomNum(2, 5);
+            term1Coefficient = generateRandomNum(1, 5);
+            term2Coefficient = generateRandomNum(1, 5);
+        } else if (currentDifficulty === 'medium') {
+            commonFactor = generateRandomNum(2, 10);
+            term1Coefficient = generateRandomNum(1, 8);
+            term2Coefficient = generateRandomNum(1, 8);
+        } else {
+            commonFactor = generateRandomNum(2, 20);
+            term1Coefficient = generateRandomNum(1, 10);
+            term2Coefficient = generateRandomNum(1, 10);
+        }
+
+        if (term1Coefficient === 0 || term2Coefficient === 0) continue;
+
+        let num1 = commonFactor * term1Coefficient;
+        let num2 = commonFactor * term2Coefficient;
+
+        // Ensure common factor is indeed the GCD for a cleaner problem
+        if (gcd(num1, num2) !== commonFactor) {
+            commonFactor = gcd(num1, num2); // Adjust common factor to true GCD
+            term1Coefficient = num1 / commonFactor;
+            term2Coefficient = num2 / commonFactor;
+        }
+
+        // Randomly include a negative sign for the second term
+        if (Math.random() < 0.5 && currentDifficulty !== 'easy') {
+            num2 *= -1;
+            term2Coefficient *= -1;
+        }
+
+        let variable = Math.random() < 0.5 ? 'x' : 'y';
+
+        // Choose between Ax + B and Ax + By style
+        if (Math.random() < 0.6 || currentDifficulty === 'easy') {
+            problemText = `Factor out common: ${num1}${variable} ${num2 >= 0 ? '+' : '-'} ${Math.abs(num2)} = ?(${term1Coefficient}${variable} ${term2Coefficient >= 0 ? '+' : '-'} ${Math.abs(term2Coefficient)})`;
+        } else {
+            // Both terms have variables
+            problemText = `Factor out common: ${num1}${variable} ${num2 >= 0 ? '+' : '-'} ${Math.abs(num2)}${variable} = ?(${term1Coefficient} ${term2Coefficient >= 0 ? '+' : '-'} ${Math.abs(term2Coefficient)})${variable}`;
+            if (commonFactor % 1 !== 0) continue; // Ensure integer GCF
+        }
+        
+        answer = commonFactor;
+
+        if (Math.abs(answer) > 0 && Math.abs(answer) < 1000) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        problemText = `Factor out common: 6x + 9 = ?(2x + 3)`;
+        answer = 3;
+        setMessage('Factoring (GCF) problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = problemText;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false');
+    mathAnswerInput.setAttribute('data-allow-fraction', 'false');
+    mathAnswerInput.setAttribute('data-allow-text-answer', 'false');
+}
+
+function generateSolvingInequalitiesProblem() {
+    let a, b, c, testValue, isSolution, problemText, answer;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    const operators = ['>', '<', '>=', '<='];
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        let op = operators[Math.floor(Math.random() * operators.length)];
+
+        if (currentDifficulty === 'easy') {
+            a = 1;
+            b = generateRandomNum(1, 10);
+            c = generateRandomNum(b + 1, b + 10); // Ensure a solution exists, often positive
+        } else if (currentDifficulty === 'medium') {
+            a = generateRandomNum(1, 5);
+            b = generateRandomNum(-5, 10);
+            c = generateRandomNum(-10, 20);
+        } else { // Hard and Expert can introduce negative 'a'
+            a = generateRandomNum(1, 7);
+            if (Math.random() < 0.5) a *= -1; // Introduce negative coefficient for 'x'
+            b = generateRandomNum(-10, 20);
+            c = generateRandomNum(-20, 30);
+        }
+        if (a === 0) a = 1; // Avoid division by zero
+
+        let solutionThreshold;
+        if (a > 0) {
+            solutionThreshold = (c - b) / a;
+        } else { // 'a' is negative, so inequality flips
+            solutionThreshold = (c - b) / a;
+            if (op === '>') op = '<';
+            else if (op === '<') op = '>';
+            else if (op === '>=') op = '<=';
+            else if (op === '<=') op = '>=';
+        }
+
+        // Generate a test value that is sometimes a solution, sometimes not
+        testValue = generateRandomNum(Math.floor(solutionThreshold) - 5, Math.ceil(solutionThreshold) + 5);
+
+        // Check if testValue is a solution for the original form (a > 0 or a < 0 handled by 'solutionThreshold')
+        let checkExpression = a * testValue + b;
+        let originalExpression = a * testValue + b; // Use this for display
+
+        isSolution = false;
+        switch (op) {
+            case '>': isSolution = (originalExpression > c); break;
+            case '<': isSolution = (originalExpression < c); break;
+            case '>=': isSolution = (originalExpression >= c); break;
+            case '<=': isSolution = (originalExpression <= c); break;
+        }
+        
+        problemText = `${a}x ${b >= 0 ? '+' : '-'} ${Math.abs(b)} ${op} ${c}. Is x = ${testValue} a solution? (Yes/No)`;
+        answer = isSolution ? 'Yes' : 'No';
+
+        // Filter for integer answers for easy/medium if possible
+        if ((currentDifficulty === 'easy' || currentDifficulty === 'medium') && (solutionThreshold % 1 !== 0)) {
+            continue; // Skip if threshold is not integer for simpler levels
+        }
+        
+        problemGenerated = true;
+    }
+
+    if (!problemGenerated) {
+        problemText = `2x + 5 > 15. Is x = 8 a solution? (Yes/No)`;
+        answer = 'Yes';
+        setMessage('Solving Inequalities problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = problemText;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false');
+    mathAnswerInput.setAttribute('data-allow-fraction', 'false');
+    mathAnswerInput.setAttribute('data-allow-text-answer', 'true');
+}
+
+function generateMatricesProblem() {
+    let rows, cols, matrixA, matrixB, operation, targetRow, targetCol, answer;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    const generateMatrix = (r, c, valMin, valMax) => {
+        let matrix = [];
+        for (let i = 0; i < r; i++) {
+            let row = [];
+            for (let j = 0; j < c; j++) {
+                row.push(generateRandomNum(valMin, valMax));
+            }
+            matrix.push(row);
+        }
+        return matrix;
+    };
+
+    const matrixToString = (matrix) => {
+        return '[' + matrix.map(row => '[' + row.join(',') + ']').join(',') + ']';
+    };
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        operation = Math.random() < 0.5 ? '+' : '-'; // Only addition/subtraction
+
+        let valMin, valMax;
+        if (currentDifficulty === 'easy') {
+            rows = 2; cols = 2;
+            valMin = 1; valMax = 5;
+        } else if (currentDifficulty === 'medium') {
+            rows = 2; cols = generateRandomNum(2, 3);
+            valMin = -5; valMax = 10;
+        } else if (currentDifficulty === 'hard') {
+            rows = generateRandomNum(2, 3); cols = generateRandomNum(2, 3);
+            valMin = -10; valMax = 15;
+        } else { // expert
+            rows = generateRandomNum(3, 4); cols = generateRandomNum(3, 4);
+            valMin = -15; valMax = 20;
+        }
+
+        matrixA = generateMatrix(rows, cols, valMin, valMax);
+        matrixB = generateMatrix(rows, cols, valMin, valMax);
+
+        targetRow = generateRandomNum(0, rows - 1);
+        targetCol = generateRandomNum(0, cols - 1);
+
+        let calculatedElement;
+        if (operation === '+') {
+            calculatedElement = matrixA[targetRow][targetCol] + matrixB[targetRow][targetCol];
+        } else {
+            calculatedElement = matrixA[targetRow][targetCol] - matrixB[targetRow][targetCol];
+        }
+        
+        answer = calculatedElement;
+
+        if (Math.abs(answer) < 1000) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        matrixA = [[1, 2], [3, 4]];
+        matrixB = [[5, 6], [7, 8]];
+        operation = '+';
+        targetRow = 0;
+        targetCol = 0;
+        answer = 6;
+        setMessage('Matrices problem generation fallback. Please continue.');
+    }
+    
+    // Displaying full matrices is hard in limited space, summarize
+    let matrixADisplay = matrixA.map(row => '[' + row.join(' ') + ']').join(' ');
+    let matrixBDisplay = matrixB.map(row => '[' + row.join(' ') + ']').join(' ');
+
+    mathProblemDisplay.innerHTML = `Given A=[${matrixADisplay}]<br>B=[${matrixBDisplay}]<br>What is (A ${operation} B)[${targetRow},${targetCol}]?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false');
+    mathAnswerInput.setAttribute('data-allow-fraction', 'false');
+    mathAnswerInput.setAttribute('data-allow-text-answer', 'false');
+}
+
+function generateLogarithmsProblem() {
+    let base, number, answer, problemText;
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        if (currentDifficulty === 'easy') {
+            base = generateRandomNum(2, 4);
+            answer = generateRandomNum(2, 4);
+        } else if (currentDifficulty === 'medium') {
+            base = generateRandomNum(2, 6);
+            answer = generateRandomNum(2, 5);
+        } else if (currentDifficulty === 'hard') {
+            base = generateRandomNum(2, 10);
+            answer = generateRandomNum(2, 6);
+        } else { // expert
+            base = generateRandomNum(2, 12);
+            answer = generateRandomNum(2, 7);
+            if (Math.random() < 0.3) answer = generateRandomNum(-3, -1); // Negative answers for fractions
+        }
+
+        number = Math.pow(base, answer);
+        
+        if (base === 1 || number <= 0 || !isFinite(number) || Math.abs(number) > 1000000 || Math.abs(answer) > 100) continue;
+        
+        problemText = `log${base} (${number}) = ?`;
+        correctMathAnswer = answer;
+
+        if (answer % 1 === 0 || (answer * 10) % 1 === 0 || (answer * 100) % 1 === 0) {
+            problemGenerated = true;
+        }
+    }
+
+    if (!problemGenerated) {
+        problemText = `log2 (8) = ?`;
+        answer = 3;
+        setMessage('Logarithms problem generation fallback. Please continue.');
+    }
+
+    mathProblemDisplay.textContent = problemText;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'true'); // Logarithms can have decimal answers
+    mathAnswerInput.setAttribute('data-allow-fraction', 'false');
+    mathAnswerInput.setAttribute('data-allow-text-answer', 'false');
+}
 
 function generateDecimalToBinaryProblem() {
     let decimalNum;
@@ -2099,6 +2376,20 @@ function startChallenge() {
             generateTrigonometryProblem();
             allowDecimalInput = true;
             break;
+        case 'factoring':
+            generateFactoringProblem();
+            break;
+        case 'solve-inequality':
+            generateSolvingInequalitiesProblem();
+            allowTextAnswer = true;
+            break;
+        case 'matrices':
+            generateMatricesProblem();
+            break;
+        case 'logarithms':
+            generateLogarithmsProblem();
+            allowDecimalInput = true;
+            break;
         case 'binary-decimal':
             generateBinaryToDecimalProblem();
             break;
@@ -2148,7 +2439,7 @@ function startChallenge() {
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
     
     lastProblemText = mathProblemDisplay.textContent;
-    lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition' || selectedOperationType === 'fractions' || selectedOperationType === 'prime-number') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
+    lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition' || selectedOperationType === 'fractions' || selectedOperationType === 'prime-number' || selectedOperationType === 'solve-inequality') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
 
     startMathTimer();
     messageArea.style.display = 'none';
