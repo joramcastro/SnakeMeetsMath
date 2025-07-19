@@ -763,8 +763,7 @@ function generateArithmeticProblem() {
     correctMathAnswer = Math.round(answer);
 }
 
-// Helper function to randomly apply negative sign
-function applyRandomSign(num) {
+function applySign(num) {
     return Math.random() < 0.5 ? num : -num;
 }
 
@@ -782,7 +781,7 @@ function generatePureAdditionPositiveProblem() {
         num2 = generateRandomNum(1, maxVal);
         answer = num1 + num2;
 
-        if (answer > 0 && answer < 1000000) {
+        if (answer >= 0 && answer < 1000000) { // Allowed 0 as result
             problemGenerated = true;
         }
     }
@@ -805,12 +804,12 @@ function generatePureSubtractionPositiveProblem() {
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
-        num1 = generateRandomNum(minVal + 1, maxVal * 2); // Ensure num1 is large enough for positive result
-        num2 = generateRandomNum(minVal, num1 - 1); // Ensure num2 < num1
-
+        num1 = generateRandomNum(minVal + 1, maxVal * 2);
+        num2 = generateRandomNum(minVal, num1 - 1);
+        
         answer = num1 - num2;
 
-        if (answer > 0 && answer < 1000000) {
+        if (answer >= 0 && answer < 1000000) { // Allowed 0 as result
             problemGenerated = true;
         }
     }
@@ -838,7 +837,7 @@ function generatePureMultiplicationPositiveProblem() {
         
         answer = num1 * num2;
 
-        if (answer > 0 && answer < 1000000) {
+        if (answer >= 0 && answer < 1000000) { // Allowed 0 as result
             problemGenerated = true;
         }
     }
@@ -868,7 +867,7 @@ function generatePureDivisionPositiveProblem() {
         num2 = divisorCandidate;
         answer = quotientCandidate;
 
-        if (num1 > 0 && num2 > 0 && answer > 0 && num1 <= maxVal * maxVal && answer < 1000000) {
+        if (num1 > 0 && num2 > 0 && answer >= 0 && num1 <= maxVal * maxVal && answer < 1000000) { // Allowed 0 as result
             problemGenerated = true;
         }
     }
@@ -896,7 +895,7 @@ function generatePureAdditionNegativeProblem() {
         num2 = applyRandomSign(generateRandomNum(1, maxVal));
         answer = num1 + num2;
 
-        if (Math.abs(answer) < 1000000 && answer !== 0) {
+        if (Math.abs(answer) < 1000000) { // Allowed 0 as result
             problemGenerated = true;
         }
     }
@@ -904,9 +903,8 @@ function generatePureAdditionNegativeProblem() {
         num1 = 5; num2 = -3; answer = 2;
         setMessage('Pure Addition (±ve) fallback. Please continue.');
     }
-    // Format problem string to handle negative numbers nicely
     let displayNum1 = num1;
-    let displayNum2 = num2 < 0 ? `(${num2})` : num2; // Wrap negative num2 in parentheses
+    let displayNum2 = num2 < 0 ? `(${num2})` : num2;
     mathProblemDisplay.textContent = `${displayNum1} + ${displayNum2} = ?`;
     correctMathAnswer = answer;
     mathAnswerInput.value = '';
@@ -926,7 +924,7 @@ function generatePureSubtractionNegativeProblem() {
         num2 = applyRandomSign(generateRandomNum(1, maxVal));
         answer = num1 - num2;
 
-        if (Math.abs(answer) < 1000000 && answer !== 0) {
+        if (Math.abs(answer) < 1000000) { // Allowed 0 as result
             problemGenerated = true;
         }
     }
@@ -935,7 +933,7 @@ function generatePureSubtractionNegativeProblem() {
         setMessage('Pure Subtraction (±ve) fallback. Please continue.');
     }
     let displayNum1 = num1;
-    let displayNum2 = num2 < 0 ? `(${num2})` : num2; // Wrap negative num2 in parentheses
+    let displayNum2 = num2 < 0 ? `(${num2})` : num2;
     mathProblemDisplay.textContent = `${displayNum1} - ${displayNum2} = ?`;
     correctMathAnswer = answer;
     mathAnswerInput.value = '';
@@ -959,7 +957,7 @@ function generatePureMultiplicationNegativeProblem() {
 
         answer = num1 * num2;
 
-        if (Math.abs(answer) < 1000000 && answer !== 0) {
+        if (Math.abs(answer) < 1000000) { // Allowed 0 as result
             problemGenerated = true;
         }
     }
@@ -1006,11 +1004,10 @@ function generatePureDivisionNegativeProblem() {
         num1 = applyRandomSign(rawDividend);
         num2 = applyRandomSign(divisorCandidate);
 
-        // Ensure the division result is an integer and sign is correct
-        if (num2 === 0 || rawDividend % num2 !== 0) continue; // Ensure integer division with original values
-        answer = num1 / num2; // Calculate answer after signs are applied
+        if (num2 === 0 || rawDividend % Math.abs(num2) !== 0) continue; // Ensure integer division and avoid division by zero
+        answer = num1 / num2;
 
-        if (Math.abs(answer) < 1000000 && answer !== 0) {
+        if (Math.abs(answer) < 1000000) { // Allowed 0 as result
             problemGenerated = true;
         }
     }
@@ -1735,11 +1732,18 @@ function generateUnitConversionProblem() {
         const fromUnitKey = Object.keys(category)[Math.floor(Math.random() * Object.keys(category).length)];
         const fromUnitData = category[fromUnitKey];
         const toUnitKeys = Object.keys(fromUnitData.to);
+        
+        if (toUnitKeys.length === 0) continue; // No conversion available for this unit
+        
         const toUnitKey = toUnitKeys[Math.floor(Math.random() * toUnitKeys.length)];
         
         value = generateRandomNum(1, currentDifficulty === 'easy' ? 20 : currentDifficulty === 'medium' ? 100 : currentDifficulty === 'hard' ? 500 : 1000);
         factor = fromUnitData.to[toUnitKey];
         
+        if (typeof factor !== 'number' || !isFinite(factor) || isNaN(factor) || factor === 0) {
+            continue; // Skip if factor is invalid or zero
+        }
+
         answer = value * factor;
 
         if (Math.abs(answer) > 0.001 && Math.abs(answer) < 100000 && isFinite(answer) && !isNaN(answer)) {
@@ -3107,7 +3111,7 @@ infoModal.addEventListener('click', (e) => {
 });
 
 startPlayingBtn.addEventListener('click', () => {
-    welcomeModal.style.display = 'none';
+    welcomeModal.style.display = 'flex';
     initializeGame();
 });
 
