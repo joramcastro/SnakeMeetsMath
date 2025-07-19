@@ -3,7 +3,7 @@ let currentCellSize;
 const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 350;
+const GAME_SPEED = 450;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -763,11 +763,13 @@ function generateArithmeticProblem() {
     correctMathAnswer = Math.round(answer);
 }
 
-function applySign(num) {
+// Helper function to randomly apply negative sign
+function applyRandomSign(num) {
     return Math.random() < 0.5 ? num : -num;
 }
 
-function generatePureAdditionProblem() {
+// --- Pure Arithmetic Operations (Positive Numbers Only) ---
+function generatePureAdditionPositiveProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
     const MAX_ATTEMPTS = 100;
@@ -776,8 +778,122 @@ function generatePureAdditionProblem() {
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
-        num1 = applySign(generateRandomNum(1, maxVal));
-        num2 = applySign(generateRandomNum(1, maxVal));
+        num1 = generateRandomNum(1, maxVal);
+        num2 = generateRandomNum(1, maxVal);
+        answer = num1 + num2;
+
+        if (answer > 0 && answer < 1000000) {
+            problemGenerated = true;
+        }
+    }
+    if (!problemGenerated) {
+        num1 = 5; num2 = 3; answer = 8;
+        setMessage('Pure Addition (+ve) fallback. Please continue.');
+    }
+    mathProblemDisplay.textContent = `${num1} + ${num2} = ?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false');
+}
+
+function generatePureSubtractionPositiveProblem() {
+    let num1, num2, answer;
+    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        num1 = generateRandomNum(minVal + 1, maxVal * 2); // Ensure num1 is large enough for positive result
+        num2 = generateRandomNum(minVal, num1 - 1); // Ensure num2 < num1
+
+        answer = num1 - num2;
+
+        if (answer > 0 && answer < 1000000) {
+            problemGenerated = true;
+        }
+    }
+    if (!problemGenerated) {
+        num1 = 8; num2 = 3; answer = 5;
+        setMessage('Pure Subtraction (+ve) fallback. Please continue.');
+    }
+    mathProblemDisplay.textContent = `${num1} - ${num2} = ?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false');
+}
+
+function generatePureMultiplicationPositiveProblem() {
+    let num1, num2, answer;
+    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        num1 = generateRandomNum(1, Math.min(maxVal, currentDifficulty === 'easy' ? 9 : currentDifficulty === 'medium' ? 20 : 50));
+        num2 = generateRandomNum(1, Math.min(maxVal, currentDifficulty === 'easy' ? 9 : currentDifficulty === 'medium' ? 15 : 20));
+        
+        answer = num1 * num2;
+
+        if (answer > 0 && answer < 1000000) {
+            problemGenerated = true;
+        }
+    }
+    if (!problemGenerated) {
+        num1 = 5; num2 = 3; answer = 15;
+        setMessage('Pure Multiplication (+ve) fallback. Please continue.');
+    }
+    mathProblemDisplay.textContent = `${num1} x ${num2} = ?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false');
+}
+
+function generatePureDivisionPositiveProblem() {
+    let num1, num2, answer;
+    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        let quotientCandidate = generateRandomNum(1, currentDifficulty === 'easy' ? 9 : currentDifficulty === 'medium' ? 12 : 20);
+        let divisorCandidate = generateRandomNum(1, currentDifficulty === 'easy' ? 9 : currentDifficulty === 'medium' ? 15 : 25);
+        
+        num1 = divisorCandidate * quotientCandidate;
+        num2 = divisorCandidate;
+        answer = quotientCandidate;
+
+        if (num1 > 0 && num2 > 0 && answer > 0 && num1 <= maxVal * maxVal && answer < 1000000) {
+            problemGenerated = true;
+        }
+    }
+    if (!problemGenerated) {
+        num1 = 15; num2 = 3; answer = 5;
+        setMessage('Pure Division (+ve) fallback. Please continue.');
+    }
+    mathProblemDisplay.textContent = `${num1} ÷ ${num2} = ?`;
+    correctMathAnswer = answer;
+    mathAnswerInput.value = '';
+    mathAnswerInput.setAttribute('data-allow-decimal', 'false');
+}
+
+// --- Pure Arithmetic Operations (Mixed Signs / Negative Numbers Included) ---
+function generatePureAdditionNegativeProblem() {
+    let num1, num2, answer;
+    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
+    const MAX_ATTEMPTS = 100;
+    let attempts = 0;
+    let problemGenerated = false;
+
+    while (!problemGenerated && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        num1 = applyRandomSign(generateRandomNum(1, maxVal));
+        num2 = applyRandomSign(generateRandomNum(1, maxVal));
         answer = num1 + num2;
 
         if (Math.abs(answer) < 1000000 && answer !== 0) {
@@ -786,15 +902,18 @@ function generatePureAdditionProblem() {
     }
     if (!problemGenerated) {
         num1 = 5; num2 = -3; answer = 2;
-        setMessage('Pure Addition fallback. Please continue.');
+        setMessage('Pure Addition (±ve) fallback. Please continue.');
     }
-    mathProblemDisplay.textContent = `${num1} + (${num2}) = ?`.replace('+ (-', '- ').replace(/\(\s*([0-9.]+)\s*\)/g, '$1'); // Clean up double signs
+    // Format problem string to handle negative numbers nicely
+    let displayNum1 = num1;
+    let displayNum2 = num2 < 0 ? `(${num2})` : num2; // Wrap negative num2 in parentheses
+    mathProblemDisplay.textContent = `${displayNum1} + ${displayNum2} = ?`;
     correctMathAnswer = answer;
     mathAnswerInput.value = '';
     mathAnswerInput.setAttribute('data-allow-decimal', 'false');
 }
 
-function generatePureSubtractionProblem() {
+function generatePureSubtractionNegativeProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
     const MAX_ATTEMPTS = 100;
@@ -803,8 +922,8 @@ function generatePureSubtractionProblem() {
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
-        num1 = applySign(generateRandomNum(1, maxVal));
-        num2 = applySign(generateRandomNum(1, maxVal));
+        num1 = applyRandomSign(generateRandomNum(1, maxVal));
+        num2 = applyRandomSign(generateRandomNum(1, maxVal));
         answer = num1 - num2;
 
         if (Math.abs(answer) < 1000000 && answer !== 0) {
@@ -813,15 +932,17 @@ function generatePureSubtractionProblem() {
     }
     if (!problemGenerated) {
         num1 = 8; num2 = -3; answer = 11;
-        setMessage('Pure Subtraction fallback. Please continue.');
+        setMessage('Pure Subtraction (±ve) fallback. Please continue.');
     }
-    mathProblemDisplay.textContent = `${num1} - (${num2}) = ?`.replace('- (-', '+ ').replace(/\(\s*([0-9.]+)\s*\)/g, '$1'); // Clean up double signs
+    let displayNum1 = num1;
+    let displayNum2 = num2 < 0 ? `(${num2})` : num2; // Wrap negative num2 in parentheses
+    mathProblemDisplay.textContent = `${displayNum1} - ${displayNum2} = ?`;
     correctMathAnswer = answer;
     mathAnswerInput.value = '';
     mathAnswerInput.setAttribute('data-allow-decimal', 'false');
 }
 
-function generatePureMultiplicationProblem() {
+function generatePureMultiplicationNegativeProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
     const MAX_ATTEMPTS = 100;
@@ -833,8 +954,8 @@ function generatePureMultiplicationProblem() {
         let tempNum1 = generateRandomNum(1, Math.min(maxVal, currentDifficulty === 'easy' ? 9 : currentDifficulty === 'medium' ? 20 : 50));
         let tempNum2 = generateRandomNum(1, Math.min(maxVal, currentDifficulty === 'easy' ? 9 : currentDifficulty === 'medium' ? 15 : 20));
         
-        num1 = applySign(tempNum1);
-        num2 = applySign(tempNum2);
+        num1 = applyRandomSign(tempNum1);
+        num2 = applyRandomSign(tempNum2);
 
         answer = num1 * num2;
 
@@ -844,7 +965,7 @@ function generatePureMultiplicationProblem() {
     }
     if (!problemGenerated) {
         num1 = -5; num2 = 3; answer = -15;
-        setMessage('Pure Multiplication fallback. Please continue.');
+        setMessage('Pure Multiplication (±ve) fallback. Please continue.');
     }
     let displayNum1 = num1 < 0 ? `(${num1})` : num1;
     let displayNum2 = num2 < 0 ? `(${num2})` : num2;
@@ -854,7 +975,7 @@ function generatePureMultiplicationProblem() {
     mathAnswerInput.setAttribute('data-allow-decimal', 'false');
 }
 
-function generatePureDivisionProblem() {
+function generatePureDivisionNegativeProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
     const MAX_ATTEMPTS = 100;
@@ -882,27 +1003,20 @@ function generatePureDivisionProblem() {
         
         let rawDividend = divisorCandidate * quotientCandidate;
         
-        // Randomly apply signs to the dividend and divisor
-        num1 = applySign(rawDividend);
-        num2 = applySign(divisorCandidate);
+        num1 = applyRandomSign(rawDividend);
+        num2 = applyRandomSign(divisorCandidate);
 
-        // Ensure the division result's sign is correct based on operands
-        // If one is negative and one is positive, result is negative. If both same sign, result is positive.
-        if ( (num1 > 0 && num2 < 0) || (num1 < 0 && num2 > 0) ) {
-            answer = -Math.abs(quotientCandidate);
-        } else {
-            answer = Math.abs(quotientCandidate);
+        // Ensure the division result is an integer and sign is correct
+        if (num2 === 0 || rawDividend % num2 !== 0) continue; // Ensure integer division with original values
+        answer = num1 / num2; // Calculate answer after signs are applied
+
+        if (Math.abs(answer) < 1000000 && answer !== 0) {
+            problemGenerated = true;
         }
-
-        if (num2 === 0 || Math.abs(answer) > 1000000 || answer === 0) continue;
-        // Make sure the division result is an integer (already ensured by design)
-        if (num1 % num2 !== 0) continue;
-
-        problemGenerated = true;
     }
     if (!problemGenerated) {
         num1 = -15; num2 = 3; answer = -5;
-        setMessage('Pure Division fallback. Please continue.');
+        setMessage('Pure Division (±ve) fallback. Please continue.');
     }
     let displayNum1 = num1;
     let displayNum2 = num2 < 0 ? `(${num2})` : num2;
@@ -911,6 +1025,7 @@ function generatePureDivisionProblem() {
     mathAnswerInput.value = '';
     mathAnswerInput.setAttribute('data-allow-decimal', 'false');
 }
+
 
 function generateExponentiationProblem() {
     let base, exponent, answer;
@@ -2499,17 +2614,29 @@ function startChallenge() {
         case 'arithmetic':
             generateArithmeticProblem();
             break;
-        case 'pure-addition':
-            generatePureAdditionProblem();
+        case 'pure-addition-positive':
+            generatePureAdditionPositiveProblem();
             break;
-        case 'pure-subtraction':
-            generatePureSubtractionProblem();
+        case 'pure-subtraction-positive':
+            generatePureSubtractionPositiveProblem();
             break;
-        case 'pure-multiplication':
-            generatePureMultiplicationProblem();
+        case 'pure-multiplication-positive':
+            generatePureMultiplicationPositiveProblem();
             break;
-        case 'pure-division':
-            generatePureDivisionProblem();
+        case 'pure-division-positive':
+            generatePureDivisionPositiveProblem();
+            break;
+        case 'pure-addition-negative':
+            generatePureAdditionNegativeProblem();
+            break;
+        case 'pure-subtraction-negative':
+            generatePureSubtractionNegativeProblem();
+            break;
+        case 'pure-multiplication-negative':
+            generatePureMultiplicationNegativeProblem();
+            break;
+        case 'pure-division-negative':
+            generatePureDivisionNegativeProblem();
             break;
         case 'exponentiation':
             generateExponentiationProblem();
