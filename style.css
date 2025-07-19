@@ -20,15 +20,20 @@
     --shadow-light: rgba(0, 0, 0, 0.1);
     --shadow-medium: rgba(0, 0, 0, 0.2);
     --shadow-heavy: rgba(0, 0, 0, 0.3);
+
+    /* New colors for Yes/No buttons */
+    --yes-button-color: #22c55e;
+    --yes-button-dark: #16a34a;
+    --no-button-color: #ef4444; /* Reusing red-alert for No */
+    --no-button-dark: #dc2626; /* Reusing red-alert-dark for No */
 }
 
-/* Ensure html and body take up 100% of the viewport */
 html, body {
     height: 100%;
     width: 100%;
     margin: 0;
-    padding: 0; /* Remove body padding */
-    overflow: hidden; /* Prevent native scrollbars */
+    padding: 0;
+    overflow: hidden;
 }
 
 body {
@@ -42,27 +47,25 @@ body {
     box-sizing: border-box;
 }
 
-/* Main wrapper to occupy entire available space */
 .main-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height: 100%; /* Fill height */
-    max-width: none; /* Remove horizontal limits */
+    height: 100%;
+    max-width: none;
     flex-grow: 1;
-    padding: 10px; /* Add some overall padding for the content inside */
+    padding: 10px;
     box-sizing: border-box;
 }
 
-/* Main content wrapper to also occupy entire available space */
 .main-content-wrapper {
-    position: relative; /* Needed for absolute positioning of children */
-    display: flex; /* Keep flex for potential future use, but children are absolute */
-    flex-direction: column; /* Default flex-direction */
-    gap: 0; /* No gap needed with absolute positioning */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
     width: 100%;
-    height: 100%; /* Fill height */
+    height: 100%;
     box-sizing: border-box;
     padding: 0;
     flex-grow: 1;
@@ -70,7 +73,6 @@ body {
     align-items: center;
 }
 
-/* Game Panel & Right Panel - Absolute positioning to fill parent and overlap */
 .game-panel, .right-panel {
     position: absolute;
     top: 0;
@@ -78,20 +80,19 @@ body {
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    padding: 20px; /* Default padding for panels */
-    background-color: var(--bg-light); /* Default background */
+    padding: 20px;
+    background-color: var(--bg-light);
     border-radius: 20px;
     box-shadow: 0 18px 45px var(--shadow-heavy);
     transition: all 0.3s ease;
     border: 2px solid var(--bg-gradient-start);
     
-    /* Flex properties for internal layout */
-    display: flex; /* Will be toggled by JS */
+    display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Center content vertically by default */
+    justify-content: center;
     gap: 12px;
-    overflow-y: auto; /* Allow internal scrolling if content exceeds height */
+    overflow-y: auto;
 }
 
 .game-panel:hover {
@@ -99,27 +100,23 @@ body {
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
 }
 
-/* Specific styles for right-panel (math challenge) if needed, overrides game-panel defaults */
 .right-panel {
-    background-color: var(--bg-medium); /* Different background for math challenge */
+    background-color: var(--bg-medium);
     border: 2px dashed #64748b;
 }
 
-/* Canvas styling - REMOVED fixed width/height properties */
 canvas {
     background-color: var(--bg-medium);
     border: 6px solid #81e6d9;
     display: block;
-    margin: 0 auto; /* Center the canvas */
+    margin: 0 auto;
     border-radius: 12px;
     box-shadow: 0 10px 25px var(--shadow-medium);
     transition: transform 0.3s ease;
-    /* JS will set actual width/height attributes */
-    /* Ensure it scales visually without distortion, but JS controls resolution */
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain; /* Important to maintain aspect ratio */
-    flex-grow: 1; /* Allow canvas to take available space in flex column */
+    object-fit: contain;
+    flex-grow: 1;
     flex-shrink: 1;
     flex-basis: auto;
 }
@@ -171,14 +168,12 @@ h1 {
     border: 1px solid #d1d8df;
 }
 
-/* Hide the current High Score container by default */
 #high-score-container {
     display: none !important;
 }
 
-/* Ensure All-Time High Score container is a flex container when visible */
 #all-time-high-score-container {
-    display: flex; /* Default to flex for menu display */
+    display: flex;
     justify-content: space-between;
     width: 100%;
     background-color: #f7fafc;
@@ -189,7 +184,7 @@ h1 {
     color: #5b21b6;
     box-shadow: inset 0 0 10px var(--shadow-light);
     border: 1px solid #d1d8df;
-    margin-top: 12px; /* Add some margin below the stats panel */
+    margin-top: 12px;
 }
 
 
@@ -301,7 +296,7 @@ details[open] > summary.operation-category-summary::after {
     cursor: pointer;
     font-weight: bold;
     margin-top: 12px;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
     box-shadow: 0 5px 15px var(--shadow-medium);
 }
 .math-challenge button:hover {
@@ -504,7 +499,7 @@ footer #footer-text {
     flex-direction: column;
     gap: 6px;
     width: 100%;
-    max-width: 180px; /* Keep for smaller screens and as a base */
+    max-width: 180px;
     margin-top: 0;
     flex-shrink: 0;
 }
@@ -548,6 +543,21 @@ footer #footer-text {
     background-color: #cbd5e1;
 }
 
+/* Styling for the new Yes/No buttons */
+.key-btn[data-value="yes"] {
+    background-color: var(--yes-button-color);
+}
+.key-btn[data-value="yes"]:hover {
+    background-color: var(--yes-button-dark);
+}
+
+.key-btn[data-value="no"] {
+    background-color: var(--no-button-color);
+}
+.key-btn[data-value="no"]:hover {
+    background-color: var(--no-button-dark);
+}
+
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -557,7 +567,6 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
-/* Cheat Sheet Modal Styles - Kept for reference but not actively used by current JS/HTML */
 .cheat-sheet-modal-content {
     background: linear-gradient(135deg, #d1e8ef, #e0f2f7);
     border: 2px solid #81e6d9;
@@ -654,63 +663,54 @@ input[type="number"] {
 }
 
 
-/* Media query for larger screens: Desktop/Tablet Landscape */
 @media (min-width: 768px) {
-    /* Main content wrapper now handles the full-screen layout */
     .main-content-wrapper {
-        flex-direction: row; /* Keep row for desktop */
-        align-items: stretch; /* Stretch children to fill height */
+        flex-direction: row;
+        align-items: stretch;
         justify-content: center;
         padding: 20px;
         flex-wrap: nowrap;
         height: 100%;
     }
 
-    /* Game Panel & Right Panel - Absolute positioning to fill parent and overlap */
     .game-panel, .right-panel {
-        position: absolute; /* Keep absolute to overlap */
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        padding: 30px; /* Increased padding for larger screens */
-        gap: 20px; /* Increased gap between internal elements */
+        padding: 30px;
+        gap: 20px;
     }
 
-    /* Specific adjustments for game-panel content during gameplay */
     .game-panel {
-        /* When game is active, it will contain canvas, score, buttons */
-        display: flex; /* Ensure it's a flex container */
-        flex-direction: column; /* Stack elements vertically */
-        justify-content: space-between; /* Push header/stats to top, buttons to bottom, canvas in middle */
-        align-items: center; /* Center horizontally */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    /* Specific adjustments for right-panel content during math challenge */
     .right-panel {
-        /* When math challenge is active, it will contain math problem, input, keyboard */
-        display: flex; /* Ensure it's a flex container */
-        flex-direction: row; /* Changed to row for side-by-side on desktop */
-        justify-content: center; /* Center content horizontally */
-        align-items: center; /* Center content vertically */
-        gap: 40px; /* Space between math challenge and keyboard */
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 40px;
     }
 
-    /* Canvas sizing for desktop - ensure it adapts within its parent */
     canvas {
-        flex-grow: 1; /* Allow canvas to grow and take space */
+        flex-grow: 1;
         flex-shrink: 1;
         flex-basis: auto;
         max-width: 100%;
         max-height: 100%;
-        margin: auto; /* Ensure it's centered within the available space */
+        margin: auto;
     }
 
-    /* Adjust elements within game-panel to ensure canvas has max space */
     .header, .stats-panel, .control-panel, .difficulty-panel, .operation-selection-panel, #message-area, #start-game-btn {
-        flex-shrink: 0; /* Prevent these from shrinking */
-        width: auto; /* Allow content-based width if not 100% */
-        max-width: 100%; /* Ensure they don't overflow */
+        flex-shrink: 0;
+        width: auto;
+        max-width: 100%;
     }
     .header h1 { font-size: 2.8rem; letter-spacing: 4px; }
     .game-panel h2 { font-size: 1.5rem; }
@@ -719,35 +719,33 @@ input[type="number"] {
     .operation-selection-panel details[open] > .operation-buttons { padding: 15px 20px 20px; }
     .btn { padding: 15px 30px; font-size: 1.2rem; }
 
-    /* Adjust elements within right-panel */
     .math-challenge, .custom-keyboard {
-        flex-shrink: 0; /* Prevent these from shrinking */
-        width: auto; /* Allow content-based width */
-        max-width: 45%; /* Limit math challenge width */
-        margin: 0; /* Remove auto margins */
+        flex-shrink: 0;
+        width: auto;
+        max-width: 45%;
+        margin: 0;
     }
     .math-challenge { font-size: 1.6rem; padding: 25px 20px; }
     .math-challenge input { font-size: 1.4rem; padding: 12px 18px; }
     .math-challenge button { padding: 12px 20px; font-size: 1.1rem; }
     .math-challenge #timer-display { font-size: 1.3rem; }
-    .custom-keyboard { max-width: 450px; /* Increased max-width for keyboard (50% wider) */ }
+    .custom-keyboard { max-width: 450px; }
     .custom-keyboard .key-btn { padding: 12px 0; font-size: 1.1rem; }
     .custom-keyboard .key-btn.wide { font-size: 0.9rem; }
 }
 
-/* Specific media query for 1920x1080p and larger for right-panel layout */
 @media (min-width: 1920px) {
     .main-wrapper {
-        padding: 40px; /* Increase overall padding for very large screens */
+        padding: 40px;
     }
     .game-panel, .right-panel {
-        max-width: 1400px; /* Allow panels to be wider on very large screens */
-        max-height: 900px; /* Adjust max height for 1080p to fit well */
-        padding: 50px; /* More padding inside panels */
+        max-width: 1400px;
+        max-height: 900px;
+        padding: 50px;
     }
 
     .right-panel {
-        flex-direction: row; /* Keep row for math challenge and keyboard */
+        flex-direction: row;
         justify-content: center;
         align-items: center;
         gap: 40px;
@@ -755,22 +753,22 @@ input[type="number"] {
 
     .math-challenge {
         width: auto;
-        max-width: 45%; /* Keep proportional width */
+        max-width: 45%;
         margin: 0;
     }
 
     .custom-keyboard {
         width: auto;
-        max-width: 450px; /* Adjusted max-width for keyboard to be 50% wider (from 300px to 450px) */
+        max-width: 450px;
         margin: 0;
     }
 
     h1 { font-size: 4rem; }
     .game-panel h2 { font-size: 2rem; }
-    .stats-panel { 
-        font-size: 2rem; /* Increased font size for stats */
-        padding: 20px 30px; /* Adjusted padding for stats */
-        justify-content: space-around; /* Distribute space evenly */
+    .stats-panel {
+        font-size: 2rem;
+        padding: 20px 30px;
+        justify-content: space-around;
     }
     .btn { font-size: 1.5rem; }
     .math-challenge { font-size: 1.8rem; }
@@ -781,8 +779,6 @@ input[type="number"] {
     .custom-keyboard .key-btn.wide { font-size: 1rem; }
 }
 
-
-/* Media query for small screens: Mobile */
 @media (max-width: 767px) {
     body {
         padding: 0;
@@ -803,14 +799,11 @@ input[type="number"] {
     .game-panel, .right-panel {
         padding: 15px;
         gap: 10px;
-        /* Set height to 100% of parent and allow internal scrolling */
-        height: 100%; 
+        height: 100%;
         overflow-y: auto;
         margin: auto;
-        /* Ensure content starts from the top on mobile */
-        justify-content: flex-start; 
+        justify-content: flex-start;
     }
-    /* Typography adjustments for small screens */
     h1 { font-size: 1.2rem; letter-spacing: 1px; }
     .game-panel p { font-size: 0.9rem; }
     .game-panel h2 { font-size: 0.95rem; }
@@ -829,7 +822,6 @@ input[type="number"] {
     .key-btn { padding: 8px 0; font-size: 1rem; min-width: 30px; }
     .key-btn.wide { font-size: 0.8rem; }
 
-    /* Cheat Sheet Modal Styles - kept but not used by current JS/HTML */
     .cheat-sheet-modal-content h2 { font-size: 1.5rem; }
     .cheat-sheet-content h3 { font-size: 1rem; }
     .cheat-sheet-content p { font-size: 0.85rem; }
