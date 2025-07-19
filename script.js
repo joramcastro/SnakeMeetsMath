@@ -834,14 +834,13 @@ function generateFractionsProblem() {
 
         num1 = generateRandomNum(numMin, numMax);
         den1 = generateRandomNum(denMin, denMax);
-        if (den1 === 0) continue; // Denominator cannot be zero
+        if (den1 === 0) continue;
 
-        // Ensure fractions are not initially simplifiable (or simplify them)
         let s1 = simplifyFraction(num1, den1);
         num1 = s1.num;
         den1 = s1.den;
 
-        if (Math.random() < 0.3) { // Introduce some mixed numbers or improper fractions
+        if (Math.random() < 0.3) {
             let whole = 0;
             if (currentDifficulty !== 'easy') {
                 whole = generateRandomNum(0, 3);
@@ -851,7 +850,7 @@ function generateFractionsProblem() {
         
         num2 = generateRandomNum(numMin, numMax);
         den2 = generateRandomNum(denMin, denMax);
-        if (den2 === 0) continue; // Denominator cannot be zero
+        if (den2 === 0) continue;
 
         let s2 = simplifyFraction(num2, den2);
         num2 = s2.num;
@@ -875,7 +874,7 @@ function generateFractionsProblem() {
                     break;
                 case '-':
                     if (currentDifficulty === 'easy' && (num1 / den1 < num2 / den2)) {
-                        continue; // Avoid negative answers for easy difficulty subtraction
+                        continue;
                     }
                     tempAnswerNum = num1 * den2 - num2 * den1;
                     tempAnswerDen = den1 * den2;
@@ -885,30 +884,28 @@ function generateFractionsProblem() {
                     tempAnswerDen = den1 * den2;
                     break;
                 case '/':
-                    if (num2 === 0) continue; // Cannot divide by zero fraction
+                    if (num2 === 0) continue;
                     tempAnswerNum = num1 * den2;
                     tempAnswerDen = den1 * num2;
                     break;
             }
 
-            if (tempAnswerDen === 0) continue; // Should not happen with checks, but safety
+            if (tempAnswerDen === 0) continue;
             
             const simplifiedAnswer = simplifyFraction(tempAnswerNum, tempAnswerDen);
             answerNum = simplifiedAnswer.num;
             answerDen = simplifiedAnswer.den;
 
-            if (answerDen < 0) { // Normalize negative denominators
+            if (answerDen < 0) {
                 answerNum *= -1;
                 answerDen *= -1;
             }
 
-            // Check if the answer is manageable (e.g., not too large, not zero denominator)
             if (Math.abs(answerNum) <= 1000 && Math.abs(answerDen) <= 1000 && answerDen !== 0) {
                 problemGenerated = true;
             }
 
         } catch (e) {
-            // Log error but continue attempts
             console.warn("Fraction problem generation error, retrying:", e.message);
             problemGenerated = false;
         }
@@ -921,15 +918,13 @@ function generateFractionsProblem() {
 
     problemText = `${num1}/${den1} ${operation} ${num2}/${den2} = ?`;
     if (answerDen === 1) {
-        correctMathAnswer = answerNum; // Whole number
+        correctMathAnswer = answerNum;
     } else {
-        correctMathAnswer = `${answerNum}/${answerDen}`; // Fraction
+        correctMathAnswer = `${answerNum}/${answerDen}`;
     }
     
     mathProblemDisplay.innerHTML = problemText;
     mathAnswerInput.value = '';
-    // This problem type can have integer or fraction answers, so allow decimals
-    // For fractions, the user will type "X/Y"
     mathAnswerInput.setAttribute('data-allow-decimal', 'true');
     mathAnswerInput.setAttribute('data-allow-fraction', 'true');
 }
@@ -1399,8 +1394,8 @@ function startChallenge() {
             break;
         case 'fractions':
             generateFractionsProblem();
-            allowDecimalInput = true; // Fractions can often be represented as decimals
-            allowFractionInput = true; // Allow X/Y input
+            allowDecimalInput = true;
+            allowFractionInput = true;
             break;
         case 'binary-decimal':
             generateBinaryToDecimalProblem();
@@ -1450,7 +1445,7 @@ function startChallenge() {
     timerDisplay.textContent = `Time left: ${timeLeftForMath}s`;
     
     lastProblemText = mathProblemDisplay.textContent;
-    lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-decimal' || selectedOperationType === 'binary-addition' || selectedOperationType === 'fractions') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
+    lastCorrectAnswerDisplay = (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition' || selectedOperationType === 'fractions') ? correctMathAnswer : parseFloat(correctMathAnswer.toFixed(2));
 
     startMathTimer();
     messageArea.style.display = 'none';
@@ -1512,11 +1507,17 @@ function submitMathAnswer() {
                 return;
             }
             const simplifiedUser = simplifyFraction(userNum, userDen);
-            const simplifiedCorrect = simplifyFraction(
-                parseInt(correctMathAnswer.split('/')[0]),
-                parseInt(correctMathAnswer.split('/')[1])
-            );
-            // Compare simplified fractions
+            let correctNum, correctDen;
+            if (typeof correctMathAnswer === 'string' && correctMathAnswer.includes('/')) {
+                const correctParts = correctMathAnswer.split('/').map(s => s.trim());
+                correctNum = parseInt(correctParts[0]);
+                correctDen = parseInt(correctParts[1]);
+            } else { // Correct answer is a whole number
+                correctNum = parseInt(correctMathAnswer);
+                correctDen = 1;
+            }
+            const simplifiedCorrect = simplifyFraction(correctNum, correctDen);
+            
             if (simplifiedUser.num === simplifiedCorrect.num && simplifiedUser.den === simplifiedCorrect.den) {
                 // It's a match!
             } else {
@@ -1525,20 +1526,18 @@ function submitMathAnswer() {
                 mathAnswerInput.focus();
                 return;
             }
-        } else if (!isNaN(parseFloat(userAnswer))) {
+        } else if (isDecimalAllowed && !isNaN(parseFloat(userAnswer))) {
             // Allow decimal input for fractions too, compare as floats
             userAnswer = parseFloat(userAnswer);
-            const correctFloat = eval(correctMathAnswer); // Safely evaluate "X/Y" to a float
-            if (Math.abs(userAnswer - correctFloat) > 0.001) { // Tolerance for float comparison
-                setMessage('Incorrect answer! Try again.');
-                mathAnswerInput.value = '';
-                mathAnswerInput.focus();
-                return;
+            let correctFloat;
+            if (typeof correctMathAnswer === 'string' && correctMathAnswer.includes('/')) {
+                const parts = correctMathAnswer.split('/');
+                correctFloat = parseFloat(parts[0]) / parseFloat(parts[1]);
+            } else {
+                correctFloat = parseFloat(correctMathAnswer);
             }
-        } else if (!isNaN(parseInt(userAnswer)) && correctMathAnswer.toString().includes('/')) {
-            // If user enters an integer but answer is a fraction (e.g. 2/1 vs 2)
-            const correctFloat = eval(correctMathAnswer);
-            if (Math.abs(parseInt(userAnswer) - correctFloat) > 0.001) {
+            
+            if (Math.abs(userAnswer - correctFloat) > 0.001) { // Tolerance for float comparison
                 setMessage('Incorrect answer! Try again.');
                 mathAnswerInput.value = '';
                 mathAnswerInput.focus();
@@ -1564,9 +1563,7 @@ function submitMathAnswer() {
     if (selectedOperationType === 'decimal-binary' || selectedOperationType === 'binary-addition') {
         isCorrect = userAnswer === correctMathAnswer;
     } else if (selectedOperationType === 'fractions') {
-        // This case is handled by the specialized logic above. If execution reaches here, it means
-        // either it was a direct match (fraction simplified) or the float conversion matched.
-        isCorrect = true; // Assuming the specific fraction/decimal checks passed
+        isCorrect = true; // Logic handled above
     } else {
         isCorrect = userAnswer === parseFloat(correctMathAnswer.toFixed(2));
     }
@@ -1662,12 +1659,10 @@ function handleKeyboardInput(value) {
             mathAnswerInput.value += value;
         }
     } else if (isFractionInput) {
-        // For fractions, allow digits and '/'
         if ((value >= '0' && value <= '9') || value === '/') {
             mathAnswerInput.value += value;
         }
     } else {
-        // Default for numeric input
         if (value >= '0' && value <= '9') {
             mathAnswerInput.value += value;
         }
@@ -1693,7 +1688,7 @@ document.addEventListener('keydown', e => {
             }
         } else if (e.key === '-') {
             handleKeyboardInput(e.key);
-        } else if (e.key === '/') { // Allow '/' for fraction input
+        } else if (e.key === '/') {
             const isFractionAllowed = mathAnswerInput.getAttribute('data-allow-fraction') === 'true';
             if (isFractionAllowed) {
                  handleKeyboardInput(e.key);
