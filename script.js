@@ -763,7 +763,10 @@ function generateArithmeticProblem() {
     correctMathAnswer = Math.round(answer);
 }
 
-// New Pure Arithmetic Problems
+function applySign(num) {
+    return Math.random() < 0.5 ? num : -num;
+}
+
 function generatePureAdditionProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
@@ -773,19 +776,19 @@ function generatePureAdditionProblem() {
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
-        num1 = generateRandomNum(1, maxVal);
-        num2 = generateRandomNum(1, maxVal);
+        num1 = applySign(generateRandomNum(1, maxVal));
+        num2 = applySign(generateRandomNum(1, maxVal));
         answer = num1 + num2;
 
-        if (answer > 0 && answer < 1000000) { // Keep answers within a reasonable positive range
+        if (Math.abs(answer) < 1000000 && answer !== 0) {
             problemGenerated = true;
         }
     }
     if (!problemGenerated) {
-        num1 = 5; num2 = 3; answer = 8;
+        num1 = 5; num2 = -3; answer = 2;
         setMessage('Pure Addition fallback. Please continue.');
     }
-    mathProblemDisplay.textContent = `${num1} + ${num2} = ?`;
+    mathProblemDisplay.textContent = `${num1} + (${num2}) = ?`.replace('+ (-', '- ').replace(/\(\s*([0-9.]+)\s*\)/g, '$1'); // Clean up double signs
     correctMathAnswer = answer;
     mathAnswerInput.value = '';
     mathAnswerInput.setAttribute('data-allow-decimal', 'false');
@@ -800,22 +803,19 @@ function generatePureSubtractionProblem() {
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
-        num1 = generateRandomNum(minVal * 2, maxVal * 2); // Ensure num1 is generally larger
-        num2 = generateRandomNum(minVal, num1 - minVal); // Ensure positive result
-
-        if (num1 <= num2 || num2 === 0) continue; // Ensure num1 > num2 and num2 is not zero
-        
+        num1 = applySign(generateRandomNum(1, maxVal));
+        num2 = applySign(generateRandomNum(1, maxVal));
         answer = num1 - num2;
 
-        if (answer > 0 && answer < 1000000) {
+        if (Math.abs(answer) < 1000000 && answer !== 0) {
             problemGenerated = true;
         }
     }
     if (!problemGenerated) {
-        num1 = 8; num2 = 3; answer = 5;
+        num1 = 8; num2 = -3; answer = 11;
         setMessage('Pure Subtraction fallback. Please continue.');
     }
-    mathProblemDisplay.textContent = `${num1} - ${num2} = ?`;
+    mathProblemDisplay.textContent = `${num1} - (${num2}) = ?`.replace('- (-', '+ ').replace(/\(\s*([0-9.]+)\s*\)/g, '$1'); // Clean up double signs
     correctMathAnswer = answer;
     mathAnswerInput.value = '';
     mathAnswerInput.setAttribute('data-allow-decimal', 'false');
@@ -830,31 +830,25 @@ function generatePureMultiplicationProblem() {
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
-        // Keep numbers smaller for multiplication to prevent excessively large answers
-        if (currentDifficulty === 'easy') {
-            num1 = generateRandomNum(1, 9);
-            num2 = generateRandomNum(1, 9);
-        } else if (currentDifficulty === 'medium') {
-            num1 = generateRandomNum(1, 20);
-            num2 = generateRandomNum(1, 15);
-        } else if (currentDifficulty === 'hard') {
-            num1 = generateRandomNum(10, 50);
-            num2 = generateRandomNum(10, 20);
-        } else { // expert
-            num1 = generateRandomNum(10, 100);
-            num2 = generateRandomNum(10, 50);
-        }
+        let tempNum1 = generateRandomNum(1, Math.min(maxVal, currentDifficulty === 'easy' ? 9 : currentDifficulty === 'medium' ? 20 : 50));
+        let tempNum2 = generateRandomNum(1, Math.min(maxVal, currentDifficulty === 'easy' ? 9 : currentDifficulty === 'medium' ? 15 : 20));
+        
+        num1 = applySign(tempNum1);
+        num2 = applySign(tempNum2);
+
         answer = num1 * num2;
 
-        if (answer > 0 && answer < 1000000) {
+        if (Math.abs(answer) < 1000000 && answer !== 0) {
             problemGenerated = true;
         }
     }
     if (!problemGenerated) {
-        num1 = 5; num2 = 3; answer = 15;
+        num1 = -5; num2 = 3; answer = -15;
         setMessage('Pure Multiplication fallback. Please continue.');
     }
-    mathProblemDisplay.textContent = `${num1} x ${num2} = ?`;
+    let displayNum1 = num1 < 0 ? `(${num1})` : num1;
+    let displayNum2 = num2 < 0 ? `(${num2})` : num2;
+    mathProblemDisplay.textContent = `${displayNum1} x ${displayNum2} = ?`;
     correctMathAnswer = answer;
     mathAnswerInput.value = '';
     mathAnswerInput.setAttribute('data-allow-decimal', 'false');
@@ -869,12 +863,11 @@ function generatePureDivisionProblem() {
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
-        // Generate divisor first, then quotient, then dividend to ensure integer result
         let quotientCandidate;
         let divisorCandidate;
 
         if (currentDifficulty === 'easy') {
-            divisorCandidate = generateRandomNum(2, 9);
+            divisorCandidate = generateRandomNum(1, 9);
             quotientCandidate = generateRandomNum(1, 9);
         } else if (currentDifficulty === 'medium') {
             divisorCandidate = generateRandomNum(2, 15);
@@ -882,24 +875,38 @@ function generatePureDivisionProblem() {
         } else if (currentDifficulty === 'hard') {
             divisorCandidate = generateRandomNum(5, 25);
             quotientCandidate = generateRandomNum(5, 20);
-        } else { // expert
+        } else {
             divisorCandidate = generateRandomNum(10, 40);
             quotientCandidate = generateRandomNum(10, 30);
         }
         
-        num1 = divisorCandidate * quotientCandidate;
-        num2 = divisorCandidate;
-        answer = quotientCandidate;
+        let rawDividend = divisorCandidate * quotientCandidate;
+        
+        // Randomly apply signs to the dividend and divisor
+        num1 = applySign(rawDividend);
+        num2 = applySign(divisorCandidate);
 
-        if (num1 > 0 && num2 > 0 && answer > 0 && num1 <= maxVal * maxVal && answer < 1000000) { // Max dividend might be high
-            problemGenerated = true;
+        // Ensure the division result's sign is correct based on operands
+        // If one is negative and one is positive, result is negative. If both same sign, result is positive.
+        if ( (num1 > 0 && num2 < 0) || (num1 < 0 && num2 > 0) ) {
+            answer = -Math.abs(quotientCandidate);
+        } else {
+            answer = Math.abs(quotientCandidate);
         }
+
+        if (num2 === 0 || Math.abs(answer) > 1000000 || answer === 0) continue;
+        // Make sure the division result is an integer (already ensured by design)
+        if (num1 % num2 !== 0) continue;
+
+        problemGenerated = true;
     }
     if (!problemGenerated) {
-        num1 = 15; num2 = 3; answer = 5;
+        num1 = -15; num2 = 3; answer = -5;
         setMessage('Pure Division fallback. Please continue.');
     }
-    mathProblemDisplay.textContent = `${num1} ÷ ${num2} = ?`;
+    let displayNum1 = num1;
+    let displayNum2 = num2 < 0 ? `(${num2})` : num2;
+    mathProblemDisplay.textContent = `${displayNum1} ÷ ${displayNum2} = ?`;
     correctMathAnswer = answer;
     mathAnswerInput.value = '';
     mathAnswerInput.setAttribute('data-allow-decimal', 'false');
@@ -1153,9 +1160,12 @@ function generatePercentageProblem() {
         } else if (currentDifficulty === 'medium') {
             base = generateRandomNum(50, 500) * 10;
             percentage = generateRandomNum(1, 100);
-        } else {
+        } else if (currentDifficulty === 'hard') {
             base = generateRandomNum(100, 1000) * 10;
             percentage = generateRandomNum(1, 200);
+        } else {
+            base = generateRandomNum(500, 2000) * 10;
+            percentage = generateRandomNum(1, 300);
         }
 
         switch (problemType) {
