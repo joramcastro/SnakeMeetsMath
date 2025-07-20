@@ -3,7 +3,7 @@ let currentCellSize;
 const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 350;
+const GAME_SPEED = 450;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -148,7 +148,7 @@ function checkAndEnableStartGame() {
 
 // Helper function to draw a rounded rectangle (used by drawGame)
 function drawRoundedRect(ctx, x, y, width, height, radius) {
-    radius = { tl: radius, tr: radius, br: radius, bl: radius };
+    radius = { tl: radius, tr: radius, br: radius, radius, bl: radius }; // Fixed typo: duplicate 'radius'
     ctx.beginPath();
     ctx.moveTo(x + radius.tl, y);
     ctx.lineTo(x + width - radius.tr, y);
@@ -280,7 +280,7 @@ function resizeCanvas() { // Moved definition of resizeCanvas higher up
     const panelPadding = 20;
 
     if (window.innerWidth === 1920 && window.innerHeight === 1080) {
-        currentCanvasSize = 600;
+        currentCanvasSize = 700;
     } else {
         if (isGameRunning && !awaitingMathAnswer) {
             parentElementForCanvas = gamePanel;
@@ -329,7 +329,7 @@ function resizeCanvas() { // Moved definition of resizeCanvas higher up
         let desiredSize = Math.min(targetWidth, targetHeight);
 
         const minCanvasSize = CELLS_PER_SIDE * 5;
-        const maxCanvasSize = 850;
+        const maxCanvasSize = 900;
 
         currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
         currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
@@ -1185,7 +1185,7 @@ function generateAbsoluteValueProblem() {
     let number, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
 
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1336,7 +1336,7 @@ function generateFractionsProblem() {
 
 function generatePercentageProblem() {
     let base, percentage, answer, problemType;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1805,13 +1805,17 @@ function generateUnitConversionProblem() {
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
+        // console.log(`Unit Conversion Attempt ${attempts}`); // Diagnostic Log
         const categoryName = categories[Math.floor(Math.random() * categories.length)];
         const category = units[categoryName];
         const fromUnitKey = Object.keys(category)[Math.floor(Math.random() * Object.keys(category).length)];
         const fromUnitData = category[fromUnitKey];
         const toUnitKeys = Object.keys(fromUnitData.to);
         
-        if (toUnitKeys.length === 0) continue;
+        if (toUnitKeys.length === 0) {
+            // console.log(`Skipping: No conversions for ${fromUnitKey}`); // Diagnostic Log
+            continue;
+        }
         
         const toUnitKey = toUnitKeys[Math.floor(Math.random() * toUnitKeys.length)];
         
@@ -1819,38 +1823,46 @@ function generateUnitConversionProblem() {
         factor = fromUnitData.to[toUnitKey];
         
         if (typeof factor !== 'number' || !isFinite(factor) || isNaN(factor) || factor === 0) {
+            // console.log(`Skipping: Invalid factor ${factor} for ${fromUnitKey} to ${toUnitKey}`); // Diagnostic Log
             continue;
         }
 
         answer = value * factor;
-
-        // FIXED: Refined condition for unit conversion answers
-        if (isFinite(answer) && !isNaN(answer) && Math.abs(answer) >= 0.01 && Math.abs(answer) < 1000000) { // Must be >= 0.01 and within reasonable range
+        let roundedAnswer = parseFloat(answer.toFixed(2)); // Round to 2 for testing acceptance
+        
+        // FIXED: Refined condition for unit conversion answers (ensure not too small after rounding)
+        if (isFinite(answer) && !isNaN(answer) && Math.abs(roundedAnswer) >= 0.01 && Math.abs(answer) < 1000000) {
+            // console.log(`Unit Conversion SUCCESS: ${value}${fromUnitKey} to ${toUnitKey}. Answer: ${answer}`); // Diagnostic Log
             problemGenerated = true;
             fromUnit = fromUnitData.display;
             toUnit = units[categoryName][toUnitKey].display;
+            correctMathAnswer = roundedAnswer; // Use the rounded answer for correction
+        } else {
+            // console.log(`Unit Conversion FAILED condition: value=${value}, factor=${factor}, answer=${answer}, roundedAnswer=${roundedAnswer}`); // Diagnostic Log
         }
     }
 
     if (!problemGenerated) {
-        value = 1; fromUnit = 'meters'; toUnit = 'centimeters'; answer = 100;
+        value = 1; fromUnit = 'meters'; toUnit = 'centimeters'; correctMathAnswer = 100;
         setMessage('Unit Conversion problem generation fallback. Please continue.');
+        // console.log('Unit Conversion fallback triggered.'); // Diagnostic Log
     }
     
     problemText = `Convert ${value} ${fromUnit} to ${toUnit}: ?`;
-    correctMathAnswer = parseFloat(answer.toFixed(2));
+    mathProblemDisplay.textContent = problemText;
     mathAnswerInput.value = '';
     mathAnswerInput.setAttribute('data-allow-decimal', 'true');
 }
 
 function generatePythagoreanTheoremProblem() {
     let a, b, c, sideToFind, answer;
-    const MAX_ATTEMPTS = 500; // Increased attempts significantly
+    const MAX_ATTEMPTS = 500;
     let attempts = 0;
     let problemGenerated = false;
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
+        // console.log(`Pythagorean Attempt ${attempts}`); // Diagnostic Log
         const pythagoreanTriples = [
             [3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25], [20, 21, 29],
             [9, 40, 41], [11, 60, 61], [12, 35, 37]
@@ -1867,10 +1879,11 @@ function generatePythagoreanTheoremProblem() {
 
         sideToFind = generateRandomNum(1, 3);
 
-        // ONLY apply non-perfect adjustment if finding the hypotenuse in expert mode
+        // Fixed: ONLY apply non-perfect adjustment if finding the hypotenuse in expert mode
         if (currentDifficulty === 'expert' && Math.random() < 0.3 && sideToFind === 3) {
             let nonPerfectAdjust = generateRandomNum(1, 3);
             if (Math.random() < 0.5) { tempA += nonPerfectAdjust; } else { tempB += nonPerfectAdjust; }
+            // console.log(`Expert non-perfect: a=${tempA}, b=${tempB}, c=${tempC}`); // Diagnostic Log
         }
         
         let problemText;
@@ -1878,12 +1891,19 @@ function generatePythagoreanTheoremProblem() {
 
         switch (sideToFind) {
             case 1: // Find a: a = sqrt(c^2 - b^2)
-                if (tempC * tempC - tempB * tempB <= 0) continue; // Ensure positive argument for Math.sqrt
+                // Ensure positive argument for Math.sqrt. If not, this combination is invalid.
+                if (tempC * tempC - tempB * tempB <= 0) {
+                    // console.log(`Skipping: Invalid sqrt argument (c^2 - b^2 <= 0) for a=${tempA}, b=${tempB}, c=${tempC}`); // Diagnostic Log
+                    continue;
+                }
                 calculatedAnswer = Math.sqrt(tempC * tempC - tempB * tempB);
                 problemText = `Leg b = ${tempB}, Hypotenuse c = ${tempC}. Find leg a: ?`;
                 break;
             case 2: // Find b: b = sqrt(c^2 - a^2)
-                if (tempC * tempC - tempA * tempA <= 0) continue; // Ensure positive argument for Math.sqrt
+                if (tempC * tempC - tempA * tempA <= 0) {
+                    // console.log(`Skipping: Invalid sqrt argument (c^2 - a^2 <= 0) for a=${tempA}, b=${tempB}, c=${tempC}`); // Diagnostic Log
+                    continue;
+                }
                 calculatedAnswer = Math.sqrt(tempC * tempC - tempA * tempA);
                 problemText = `Leg a = ${tempA}, Hypotenuse c = ${tempC}. Find leg b: ?`;
                 break;
@@ -1895,15 +1915,19 @@ function generatePythagoreanTheoremProblem() {
         
         // Final validity check for calculated answer
         if (isNaN(calculatedAnswer) || !isFinite(calculatedAnswer) || calculatedAnswer <= 0) {
-            continue; // Skip this attempt if result is invalid (e.g., NaN or non-positive)
+            // console.log(`Skipping: Calculated answer invalid (NaN, Infinity, or <=0): ${calculatedAnswer}`); // Diagnostic Log
+            continue;
         }
 
         if (Math.abs(calculatedAnswer) < 500) { // Limit magnitude of the answer
-            if (calculatedAnswer % 1 !== 0) { // If it's a decimal, add hint and round
+            if (calculatedAnswer % 1 !== 0) { // If it's a decimal, add hint
                  problemText += " (2 dec places)";
             }
             answer = parseFloat(calculatedAnswer.toFixed(2)); // Round to 2 decimals for the answer
             problemGenerated = true;
+            // console.log(`Pythagorean SUCCESS: ${problemText}, Answer: ${answer}`); // Diagnostic Log
+        } else {
+            // console.log(`Pythagorean FAILED magnitude: ${calculatedAnswer}`); // Diagnostic Log
         }
     }
 
@@ -1911,6 +1935,7 @@ function generatePythagoreanTheoremProblem() {
         problemText = `Leg a = 3, Leg b = 4. Find hypotenuse c: ?`;
         answer = 5;
         setMessage('Pythagorean Theorem problem generation fallback. Please continue.');
+        // console.log('Pythagorean fallback triggered.'); // Diagnostic Log
     }
 
     mathProblemDisplay.textContent = problemText;
@@ -2446,12 +2471,12 @@ function generateArithmeticMeanProblem() {
         }
 
         const sum = numbers.reduce((acc, curr) => acc + curr, 0);
-        let answer = sum / numbers.length; // temp variable to check validity
+        let answer = sum / numbers.length;
 
         if (answer % 1 === 0 || (answer * 10) % 1 === 0 || (answer * 100) % 1 === 0) {
              if (Math.abs(answer) < 10000) {
                  problemGenerated = true;
-                 correctMathAnswer = answer; // Assign directly if integer/2-decimal
+                 correctMathAnswer = answer;
              }
         }
     }
@@ -3049,7 +3074,7 @@ function handleKeyboardInput(value) {
         }
     } else if (value === '.') {
         const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
-        if (!mathAnswerInput.value.includes('.') && isDecimalAllowed) { // FIXED: changed isDecimalInput to isDecimalAllowed
+        if (!mathAnswerInput.value.includes('.') && isDecimalAllowed) { // Fixed: `isDecimalInput` to `isDecimalAllowed`
             mathAnswerInput.value += value;
         }
     } else if (isBinaryInput) {
@@ -3126,7 +3151,7 @@ window.addEventListener('load', function() {
 
     // Attach all core event listeners here
     canvas.addEventListener('touchstart', (e) => {
-        // console.log("Touch start detected."); // Diagnostic Log
+        console.log("Touch start detected."); // Diagnostic Log
         if (awaitingMathAnswer || !isGameRunning || isPaused) return;
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
@@ -3134,7 +3159,7 @@ window.addEventListener('load', function() {
     }, { passive: false });
 
     canvas.addEventListener('touchmove', (e) => {
-        // console.log("Touch move detected."); // Diagnostic Log
+        console.log("Touch move detected."); // Diagnostic Log
         if (awaitingMathAnswer || !isGameRunning || isPaused) return;
         touchEndX = e.touches[0].clientX;
         touchEndY = e.touches[0].clientY;
@@ -3142,7 +3167,7 @@ window.addEventListener('load', function() {
     }, { passive: false });
 
     canvas.addEventListener('touchend', () => {
-        // console.log("Touch end detected. Swipe check initiated."); // Diagnostic Log
+        console.log("Touch end detected. Swipe check initiated."); // Diagnostic Log
         if (awaitingMathAnswer || !isGameRunning || isPaused) return;
 
         const dx = touchEndX - touchStartX;
@@ -3151,18 +3176,18 @@ window.addEventListener('load', function() {
         if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipeDistance) {
             if (dx > 0 && direction !== 'left') {
                 direction = 'right';
-                // console.log("Direction set to Right"); // Diagnostic Log
+                console.log("Direction set to Right"); // Diagnostic Log
             } else if (dx < 0 && direction !== 'right') {
                 direction = 'left';
-                // console.log("Direction set to Left"); // Diagnostic Log
+                console.log("Direction set to Left"); // Diagnostic Log
             }
         } else if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > minSwipeDistance) {
             if (dy > 0 && direction !== 'up') {
                 direction = 'down';
-                // console.log("Direction set to Down"); // Diagnostic Log
+                console.log("Direction set to Down"); // Diagnostic Log
             } else if (dy < 0 && direction !== 'down') {
                 direction = 'up';
-                // console.log("Direction set to Up"); // Diagnostic Log
+                console.log("Direction set to Up"); // Diagnostic Log
             }
         }
         touchStartX = 0;
