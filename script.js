@@ -3,7 +3,7 @@ let currentCellSize;
 const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 450;
+const GAME_SPEED = 350;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -3123,76 +3123,73 @@ document.addEventListener('keydown', e => {
     }
 });
 
-canvas.addEventListener('touchstart', (e) => {
-    if (awaitingMathAnswer || !isGameRunning || isPaused) return;
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-    e.preventDefault();
-}, { passive: false });
 
-canvas.addEventListener('touchmove', (e) => {
-    if (awaitingMathAnswer || !isGameRunning || isPaused) return;
-    touchEndX = e.touches[0].clientX;
-    touchEndY = e.touches[0].clientY;
-    e.preventDefault();
-}, { passive: false });
-
-canvas.addEventListener('touchend', () => {
-    if (awaitingMathAnswer || !isGameRunning || isPaused) return;
-
-    const dx = touchEndX - touchStartX;
-    const dy = touchEndY - touchStartY;
-
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipeDistance) {
-        if (dx > 0 && direction !== 'left') {
-            direction = 'right';
-        } else if (dx < 0 && direction !== 'right') {
-            direction = 'left';
-        }
-    } else if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > minSwipeDistance) {
-        if (dy > 0 && direction !== 'up') {
-            direction = 'down';
-        } else if (dy < 0 && direction !== 'down') {
-            direction = 'up';
-        }
-    }
-    touchStartX = 0;
-    touchStartY = 0;
-    touchEndX = 0;
-    touchEndY = 0;
-});
-
-customKeyboard.addEventListener('click', (e) => {
-    if (e.target.classList.contains('key-btn')) {
-        handleKeyboardInput(e.target.dataset.value);
-    }
-});
-
-startGameBtn.addEventListener('click', () => {
-    welcomeModal.style.display = 'none';
-    if (currentDifficulty && selectedOperationType) {
-        startGame();
-    } else {
-        initializeGame();
-    }
-});
-pauseGameBtn.addEventListener('click', pauseGame);
-resetGameBtn.addEventListener('click', resetGame);
-submitAnswerBtn.addEventListener('click', submitMathAnswer);
-restartGameBtn.addEventListener('click', resetGame);
-
-closeInfoModalBtn.addEventListener('click', () => {
-    infoModal.style.display = 'none';
-});
-
-infoModal.addEventListener('click', (e) => {
-    if (e.target === infoModal) {
-        infoModal.style.display = 'none';
-    }
-});
-
+// --- Event Listeners (All consolidated inside window.load for guaranteed DOM availability) ---
 window.addEventListener('load', function() {
+    // Initial display of welcome modal and game initialization
     welcomeModal.style.display = 'flex';
     initializeGame();
-    window.addEventListener('resize', resizeCanvas); // Moved here for definitive definition
+
+    // Attach all core event listeners here
+    customKeyboard.addEventListener('click', (e) => {
+        if (e.target.classList.contains('key-btn')) {
+            handleKeyboardInput(e.target.dataset.value);
+        }
+    });
+
+    startGameBtn.addEventListener('click', () => {
+        // This log is now inside the correct firing condition.
+        // console.log("Start Playing button clicked!"); // Re-enable for testing if needed
+        welcomeModal.style.display = 'none'; // Hide welcome modal first
+        if (currentDifficulty && selectedOperationType) {
+            startGame(); // Start the game if selections are made
+        } else {
+            initializeGame(); // Re-initialize game state to default and show menu
+        }
+    });
+
+    pauseGameBtn.addEventListener('click', pauseGame);
+    resetGameBtn.addEventListener('click', resetGame);
+    submitAnswerBtn.addEventListener('click', submitMathAnswer);
+    restartGameBtn.addEventListener('click', resetGame);
+
+    closeInfoModalBtn.addEventListener('click', () => {
+        infoModal.style.display = 'none';
+    });
+
+    infoModal.addEventListener('click', (e) => {
+        if (e.target === infoModal) {
+            infoModal.style.display = 'none';
+        }
+    });
+
+    startPlayingBtn.addEventListener('click', () => {
+        // This log helps confirm the button click is recognized
+        console.log("Start Playing button clicked!");
+        welcomeModal.style.display = 'none'; // Hide the modal
+        initializeGame(); // Initialize game state and show options
+    });
+
+    difficultyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            difficultyButtons.forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+            currentDifficulty = button.dataset.difficulty;
+            updateDifficultyAndOperationDisplay();
+            checkAndEnableStartGame();
+        });
+    });
+
+    operationButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            operationButtons.forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+            selectedOperationType = button.dataset.operationType;
+            updateDifficultyAndOperationDisplay();
+            checkAndEnableStartGame();
+        });
+    });
+
+    // Attach the resize event listener here as well
+    window.addEventListener('resize', resizeCanvas);
 });
