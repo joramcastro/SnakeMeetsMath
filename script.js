@@ -3,7 +3,7 @@ let currentCellSize;
 const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 450;
+const GAME_SPEED = 350;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -1775,7 +1775,7 @@ function generateAreaPerimeterProblem() {
 }
 
 function generateUnitConversionProblem() {
-    let value, fromUnit, toUnit, factor, answer, problemText;
+    let value, fromUnit, toUnit, factor, answer, problemText = ''; // Initialized problemText
     const MAX_ATTEMPTS = 500;
     let attempts = 0;
     let problemGenerated = false;
@@ -1836,6 +1836,7 @@ function generateUnitConversionProblem() {
             problemGenerated = true;
             fromUnit = fromUnitData.display;
             toUnit = units[categoryName][toUnitKey].display;
+            problemText = `Convert ${value} ${fromUnit} to ${toUnit}: ?`; // Ensure problemText is set here
             correctMathAnswer = roundedAnswer; // Use the rounded answer for correction
         } else {
             console.log(`Unit Conversion FAILED condition: value=${value}, factor=${factor}, answer=${answer}, roundedAnswer=${roundedAnswer}`); // Diagnostic Log
@@ -1843,12 +1844,12 @@ function generateUnitConversionProblem() {
     }
 
     if (!problemGenerated) {
-        value = 1; fromUnit = 'meters'; toUnit = 'centimeters'; correctMathAnswer = 100;
+        problemText = `Convert 1 meters to centimeters: ?`; // Fallback problemText
+        correctMathAnswer = 100; // Fallback answer
         setMessage('Unit Conversion problem generation fallback. Please continue.');
         console.log('Unit Conversion fallback triggered.'); // Diagnostic Log
     }
     
-    problemText = `Convert ${value} ${fromUnit} to ${toUnit}: ?`;
     mathProblemDisplay.textContent = problemText;
     mathAnswerInput.value = '';
     mathAnswerInput.setAttribute('data-allow-decimal', 'true');
@@ -1859,6 +1860,7 @@ function generatePythagoreanTheoremProblem() {
     const MAX_ATTEMPTS = 500;
     let attempts = 0;
     let problemGenerated = false;
+    let problemText = ''; // Initialized problemText
 
     while (!problemGenerated && attempts < MAX_ATTEMPTS) {
         attempts++;
@@ -1886,29 +1888,28 @@ function generatePythagoreanTheoremProblem() {
             console.log(`Expert non-perfect enabled for hypotenuse. a=${tempA}, b=${tempB}`); // Diagnostic Log
         }
         
-        let problemText;
         let calculatedAnswer;
 
         switch (sideToFind) {
             case 1: // Find a: a = sqrt(c^2 - b^2)
                 if (tempC * tempC - tempB * tempB <= 0) {
                     console.log(`Skipping: Invalid sqrt arg (c^2 - b^2 <= 0) for a=${tempA}, b=${tempB}, c=${tempC}`); // Diagnostic Log
-                    continue; // Skip this attempt if not a valid triangle for finding 'a'
+                    continue;
                 }
                 calculatedAnswer = Math.sqrt(tempC * tempC - tempB * tempB);
-                problemText = `Leg b = ${tempB}, Hypotenuse c = ${tempC}. Find leg a: ?`;
+                problemText = `Leg b = ${tempB}, Hypotenuse c = ${tempC}. Find leg a: ?`; // Ensure problemText is set here
                 break;
             case 2: // Find b: b = sqrt(c^2 - a^2)
                 if (tempC * tempC - tempA * tempA <= 0) {
                     console.log(`Skipping: Invalid sqrt arg (c^2 - a^2 <= 0) for a=${tempA}, b=${tempB}, c=${tempC}`); // Diagnostic Log
-                    continue; // Skip this attempt if not a valid triangle for finding 'b'
+                    continue;
                 }
                 calculatedAnswer = Math.sqrt(tempC * tempC - tempA * tempA);
-                problemText = `Leg a = ${tempA}, Hypotenuse c = ${tempC}. Find leg b: ?`;
+                problemText = `Leg a = ${tempA}, Hypotenuse c = ${tempC}. Find leg b: ?`; // Ensure problemText is set here
                 break;
             case 3: // Find c (hypotenuse)
                 calculatedAnswer = Math.sqrt(tempA * tempA + tempB * tempB);
-                problemText = `Leg a = ${tempA}, Leg b = ${tempB}. Find hypotenuse c: ?`;
+                problemText = `Leg a = ${tempA}, Leg b = ${tempB}. Find hypotenuse c: ?`; // Ensure problemText is set here
                 break;
         }
         
@@ -1931,8 +1932,8 @@ function generatePythagoreanTheoremProblem() {
     }
 
     if (!problemGenerated) {
-        problemText = `Leg a = 3, Leg b = 4. Find hypotenuse c: ?`;
-        answer = 5;
+        problemText = `Leg a = 3, Leg b = 4. Find hypotenuse c: ?`; // Fallback problemText
+        answer = 5; // Fallback answer
         setMessage('Pythagorean Theorem problem generation fallback. Please continue.');
         console.log('Pythagorean fallback triggered.'); // Diagnostic Log
     }
@@ -1944,7 +1945,7 @@ function generatePythagoreanTheoremProblem() {
 }
 
 function generateTrigonometryProblem() {
-    let angle, func, answer, problemText;
+    let angle, func, answer, problemText = ''; // Initialized problemText
     const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
@@ -2168,7 +2169,7 @@ function generateMatricesProblem() {
             rows = 2; cols = generateRandomNum(2, 3);
             valMin = -5; valMax = 10;
         } else if (currentDifficulty === 'hard') {
-            rows = 2; cols = generateRandomNum(2, 3); cols = generateRandomNum(2, 3);
+            rows = generateRandomNum(2, 3); cols = generateRandomNum(2, 3);
             valMin = -10; valMax = 15;
         } else {
             rows = generateRandomNum(3, 4); cols = generateRandomNum(3, 4);
@@ -2984,7 +2985,6 @@ function submitMathAnswer() {
     } else if (selectedOperationType === 'fractions') {
         isCorrect = true;
     } else if (selectedOperationType === 'trigonometry') { // Fixed: Add specific validation for trigonometry
-        // correctMathAnswer is already float. Compare with tolerance.
         isCorrect = Math.abs(userAnswer - correctMathAnswer) < 0.005; // Tolerance for 3 decimal places
     }
     else {
