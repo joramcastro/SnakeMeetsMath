@@ -3,7 +3,7 @@ let currentCellSize;
 const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 350;
+const GAME_SPEED = 450;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -22,7 +22,7 @@ const difficultyPanel = document.getElementById('difficulty-panel');
 const difficultyButtons = document.querySelectorAll('.difficulty-btn');
 const gameOverModal = document.getElementById('gameOverModal');
 const finalScoreDisplay = document.getElementById('finalScore');
-const restartGameBtn = document.getElementById('restartGameBtn'); // Corrected declaration (already done)
+const restartGameBtn = document.getElementById('restartGameBtn');
 const installButton = document.getElementById('install-button');
 const customKeyboard = document.getElementById('custom-keyboard');
 const messageArea = document.getElementById('message-area');
@@ -31,7 +31,7 @@ const operationSelectionPanel = document.getElementById('operation-selection-pan
 const operationButtons = document.querySelectorAll('.operation-btn');
 
 const infoModal = document.getElementById('infoModal');
-const closeInfoModalBtn = document.getElementById('closeInfoModalBtn'); // Corrected declaration (already done)
+const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
 
 const welcomeModal = document.getElementById('welcomeModal');
 const startPlayingBtn = document.getElementById('startPlayingBtn');
@@ -83,226 +83,70 @@ const difficultyTimes = {
 
 let allTimeHighScore = JSON.parse(localStorage.getItem('allTimeMathSnakeHighScore')) || { score: 0, problemType: 'N/A' };
 
-function resizeCanvas() {
-    let parentElementForCanvas;
-    let targetWidth, targetHeight;
-    const panelPadding = 20;
 
-    if (window.innerWidth === 1920 && window.innerHeight === 1080) {
-        currentCanvasSize = 600;
-    } else {
-        if (isGameRunning && !awaitingMathAnswer) {
-            parentElementForCanvas = gamePanel;
-            if (!parentElementForCanvas) {
-                console.error("Game panel not found during resize. Using window dimensions.");
-                targetWidth = window.innerWidth - (panelPadding * 2);
-                targetHeight = window.innerHeight - (panelPadding * 2);
-            } else {
-                const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
-                const controlPanelHeight = controlPanel.offsetHeight || 0;
-                const fixedTopElementsHeight = statsPanelHeight + controlPanelHeight;
-                const estimatedGaps = 12 * 2;
+// --- Utility and Display Functions (Moved to top for scope) ---
 
-                targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
-                targetHeight = parentElementForCanvas.clientHeight - fixedTopElementsHeight - estimatedGaps - (panelPadding * 2);
-            }
-        } else if (awaitingMathAnswer) {
-            return;
-        } else {
-            parentElementForCanvas = gamePanel;
-            if (!parentElementForCanvas) {
-                console.error("Game panel not found during menu resize. Using window dimensions.");
-                targetWidth = window.innerWidth - (panelPadding * 2);
-                targetHeight = window.innerHeight - (panelPadding * 2);
-            } else {
-                const headerHeight = header.offsetHeight || 0;
-                const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
-                const operationSelectionPanelHeight = operationSelectionPanel.offsetHeight || 0;
-                const difficultyPanelHeight = difficultyPanel.offsetHeight || 0;
-                const messageAreaHeight = messageArea.offsetHeight || 0;
-                const startGameBtnHeight = startGameBtn.offsetHeight || 0;
-                const allTimeHighScoreContainerHeight = allTimeHighScoreContainer ? allTimeHighScoreContainer.offsetHeight : 0;
-
-                const menuElementsHeight = headerHeight + statsPanelHeight + operationSelectionPanelHeight +
-                                        difficultyPanelHeight + messageAreaHeight + startGameBtnHeight + allTimeHighScoreContainerHeight;
-                const estimatedGaps = 12 * 7;
-
-                targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
-                targetHeight = parentElementForCanvas.clientHeight - menuElementsHeight - estimatedGaps - (panelPadding * 2);
-            }
-        }
-
-        targetWidth = Math.max(0, targetWidth);
-        targetHeight = Math.max(0, targetHeight);
-
-        let desiredSize = Math.min(targetWidth, targetHeight);
-
-        const minCanvasSize = CELLS_PER_SIDE * 5;
-        const maxCanvasSize = 850;
-
-        currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
-        currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
-        currentCanvasSize = Math.max(currentCanvasSize, CELLS_PER_SIDE);
-    }
-
-    canvas.width = currentCanvasSize;
-    canvas.height = currentCanvasSize;
-    currentCellSize = currentCanvasSize / CELLS_PER_SIDE;
-
-    if (snake && snake.length > 0) {
-        let effectiveOldCellSize = currentCellSize;
-        if (snake[0].x !== 0 && snake[0].y !== 0 && snake.length > 1) {
-            effectiveOldCellSize = Math.abs(snake[1].x - snake[0].x) || Math.abs(snake[1].y - snake[0].y);
-        } else if (snake[0].x !== 0) {
-            effectiveOldCellSize = snake[0].x / (INITIAL_SNAKE_LENGTH - 1);
-        } else if (snake[0].y !== 0) {
-            effectiveOldCellSize = snake[0].y / (INITIAL_SNAKE_LENGTH - 1);
-        }
-        
-        if (isNaN(effectiveOldCellSize) || effectiveOldCellSize <= 0) {
-            effectiveOldCellSize = currentCanvasSize / CELLS_PER_SIDE;
-        }
-
-        const oldSnakeGrid = snake.map(segment => ({
-            x: Math.round(segment.x / effectiveOldCellSize),
-            y: Math.round(segment.y / effectiveOldCellSize)
-        }));
-
-        snake = oldSnakeGrid.map(segment => ({
-            x: segment.x * currentCellSize,
-            y: segment.y * currentCellSize
-        }));
-    } else {
-        snake = [];
-        for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
-            snake.push({ x: (INITIAL_SNAKE_LENGTH - 1 - i) * currentCellSize, y: 0 });
-        }
-    }
-
-    if (food && food.x !== undefined && food.y !== undefined) {
-        const oldFoodGridX = Math.round(food.x / currentCellSize);
-        const oldFoodGridY = Math.round(food.y / currentCellSize);
-
-        food = {
-            x: oldFoodGridX * currentCellSize,
-            y: oldFoodGridY * currentCellSize
-        };
-        if (food.x >= currentCanvasSize || food.y >= currentCanvasSize || isFoodOnSnake(food)) {
-            generateFood();
-        }
-    } else {
-        generateFood();
-    }
-
-    drawGame();
-}
-
-function resetGame() {
-    endGame();
-    initializeGame();
-}
-
-function endGame() {
-    isGameRunning = false;
-    clearInterval(gameInterval);
-    clearInterval(mathTimerInterval);
-    clearInterval(pauseCountdownInterval);
-    finalScoreDisplay.textContent = score;
-    gameOverModal.style.display = 'flex';
-    
-    mathChallengeArea.style.display = 'none';
-    customKeyboard.style.display = 'none';
-    rightPanel.style.display = 'none';
-
-    gamePanel.style.display = 'flex';
-    canvas.style.display = 'none';
-    scoreDisplay.parentElement.style.display = 'none';
-
-    if (highScoreContainer) {
-        highScoreContainer.style.display = 'none';
-    }
-    if (allTimeHighScoreContainer) {
-        allTimeHighScoreContainer.style.display = 'flex';
-    }
-
-    if (lastProblemText && lastCorrectAnswerDisplay) {
-        setMessage(`Game Over! The correct answer for "${lastProblemText}" was **${lastCorrectAnswerDisplay}**. Keep practicing, you'll get it next time!`);
-    } else {
-        setMessage('Game Over! Better luck next time!');
-    }
-    
-    startGameBtn.style.display = 'inline-block';
-    pauseGameBtn.style.display = 'none';
-    resetGameBtn.style.display = 'inline-block';
-    difficultyPanel.style.display = 'flex';
-    operationSelectionPanel.style.display = 'flex';
-    header.style.display = 'block';
-    controlPanel.style.display = 'flex';
-
-    startGameBtn.disabled = true;
-    currentDifficulty = null;
-    selectedOperationType = null;
-    updateDifficultyAndOperationDisplay();
-    updateAllTimeHighScoreDisplay();
-}
-
-function initializeGame() {
-    resizeCanvas();
-
-    snake = [];
-    for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
-        snake.push({ x: (INITIAL_SNAKE_LENGTH - 1 - i) * currentCellSize, y: 0 });
-    }
-
-    direction = 'right';
-    score = 0;
-    scoreDisplay.textContent = score;
-    
-    if (highScoreContainer) {
-        highScoreContainer.style.display = 'none';
-    }
-    
-    isGameRunning = false;
-    isPaused = false;
-    awaitingMathAnswer = false;
-    
-    gamePanel.style.display = 'flex';
-    rightPanel.style.display = 'none';
-
-    mathChallengeArea.style.display = 'none';
-    customKeyboard.style.display = 'none';
-    gameOverModal.style.display = 'none';
-    infoModal.style.display = 'none';
-    canvas.style.display = 'none';
-    scoreDisplay.parentElement.style.display = 'none';
-
-    clearInterval(gameInterval);
-    clearInterval(mathTimerInterval);
-    clearInterval(pauseCountdownInterval);
-
-    startGameBtn.style.display = 'inline-block';
-    startGameBtn.disabled = true;
-    pauseGameBtn.style.display = 'none';
-    resetGameBtn.style.display = 'none';
-    difficultyPanel.style.display = 'flex';
-    operationSelectionPanel.style.display = 'flex';
+function setMessage(msg) {
+    messageArea.innerHTML = msg;
     messageArea.style.display = 'block';
-    header.style.display = 'block';
-    controlPanel.style.display = 'flex';
-    if (allTimeHighScoreContainer) {
-        allTimeHighScoreContainer.style.display = 'flex';
-    }
-
-    currentDifficulty = null;
-    selectedOperationType = null;
-
-    generateFood();
-    drawGame();
-    updateDifficultyAndOperationDisplay();
-    setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
-    updateAllTimeHighScoreDisplay();
 }
 
+function updateDifficultyAndOperationDisplay() {
+    difficultyButtons.forEach(btn => {
+        if (btn.dataset.difficulty === currentDifficulty) {
+            btn.classList.add('selected');
+        } else {
+            btn.classList.remove('selected');
+        }
+    });
+
+    operationButtons.forEach(btn => {
+        if (btn.dataset.operationType === selectedOperationType) {
+            btn.classList.add('selected');
+        } else {
+            btn.classList.remove('selected');
+        }
+    });
+
+    const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
+    if (highScoreDisplay) {
+        highScoreDisplay.textContent = highScores[highScoreKey] || 0;
+    }
+}
+
+function updateAllTimeHighScoreDisplay() {
+    if (allTimeHighScoreDisplay && allTimeHighScoreProblemTypeDisplay) {
+        allTimeHighScoreDisplay.textContent = allTimeHighScore.score;
+        allTimeHighScoreProblemTypeDisplay.textContent = allTimeHighScore.problemType;
+    }
+}
+
+function checkAndEnableStartGame() {
+    if (currentDifficulty && selectedOperationType) {
+        startGameBtn.disabled = false;
+        const selectedProblemText = document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent;
+        setMessage(`Ready to play! Selected: **${selectedProblemText}** at **${currentDifficulty.toUpperCase()}** difficulty. Click **Start Game**.`);
+        const highScoreKey = `${selectedOperationType}_${currentDifficulty}`;
+        if (highScoreDisplay) {
+            highScoreDisplay.textContent = highScores[highScoreKey] || 0;
+        }
+        startGameBtn.style.display = 'inline-block';
+    } else {
+        startGameBtn.disabled = true;
+        startGameBtn.style.display = 'inline-block';
+        if (!currentDifficulty && !selectedOperationType) {
+            setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
+        } else if (!currentDifficulty) {
+            const problemTypeText = selectedOperationType ? document.querySelector(`.operation-btn[data-operation-type="${selectedOperationType}"]`).textContent : 'a problem type';
+            setMessage(`Problem type set to **${problemTypeText.toUpperCase()}**. Now choose a **difficulty**.`);
+        } else {
+            const difficultyText = currentDifficulty ? currentDifficulty.toUpperCase() : 'a difficulty';
+            setMessage(`Difficulty set to **${difficultyText}**. Now choose a **problem type**.`);
+        }
+    }
+}
+
+// Helper function to draw a rounded rectangle (used by drawGame)
 function drawRoundedRect(ctx, x, y, width, height, radius) {
     radius = { tl: radius, tr: radius, br: radius, bl: radius };
     ctx.beginPath();
@@ -320,7 +164,7 @@ function drawRoundedRect(ctx, x, y, width, height, radius) {
     ctx.stroke();
 }
 
-
+// --- Game Drawing Functions ---
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -425,6 +269,8 @@ function drawGame() {
     });
 }
 
+
+// --- Game Core Functions ---
 
 function moveSnake() {
     if (!isGameRunning || isPaused || awaitingMathAnswer) return;
@@ -587,6 +433,9 @@ function resumeGame() {
     messageArea.style.display = 'none';
 }
 
+
+// --- Math Problem Generation Helpers ---
+
 function getDigitRange(difficulty) {
     switch (difficulty) {
         case 'easy': return { min: 1, max: 9 };
@@ -641,6 +490,14 @@ function isPrime(num) {
     }
     return true;
 }
+
+// Helper function to randomly apply negative sign
+function applyRandomSign(num) {
+    return Math.random() < 0.5 ? num : -num;
+}
+
+
+// --- Math Problem Generation Functions ---
 
 function generateArithmeticProblem() {
     const operators = ['+', '-', '*', '/'];
@@ -761,10 +618,6 @@ function generateArithmeticProblem() {
 
     mathProblemDisplay.textContent = `${num1} ${displayOp} ${num2} = ?`;
     correctMathAnswer = Math.round(answer);
-}
-
-function applySign(num) {
-    return Math.random() < 0.5 ? num : -num;
 }
 
 // --- Pure Arithmetic Operations (Positive Numbers Only) ---
@@ -3091,27 +2944,18 @@ customKeyboard.addEventListener('click', (e) => {
 });
 
 startGameBtn.addEventListener('click', () => {
-    console.log("Start Playing button clicked!"); // Diagnostic log
+    welcomeModal.style.display = 'none'; // Hide welcome modal first
     if (currentDifficulty && selectedOperationType) {
-        welcomeModal.style.display = 'none'; // Hide welcome modal when game starts from start button
-        initializeGame(); // This will trigger game start with selections
+        startGame(); // Start the game if selections are made
     } else {
-        // If no selections, initializeGame will show message.
-        // If selections are made, initializeGame does not automatically start the game,
-        // it just sets up the state to then allow startGame() to be called.
-        // So, we need to call startGame() explicitly after selections are validated.
-        // However, initializeGame() always sets disabled = true. So this logic is a bit intertwined.
-        // For 'Start Playing' on welcomeModal, it directly goes to initializeGame, which then shows selection options.
-        // For 'Start Game (Current Selection)', it validates and calls startGame.
-        // It seems the current logic is fine for the flow, but welcomeModal should hide first.
-        welcomeModal.style.display = 'none'; // Hide welcome modal
-        initializeGame(); // This handles showing initial menu and checks for selections
+        // If no selections, initializeGame will show message and allow selection.
+        initializeGame(); // Re-initialize game state to default and show menu
     }
 });
 pauseGameBtn.addEventListener('click', pauseGame);
 resetGameBtn.addEventListener('click', resetGame);
 submitAnswerBtn.addEventListener('click', submitMathAnswer);
-restartGameBtn.addEventListener('click', resetGame); // Corrected this to call `resetGame` function
+restartGameBtn.addEventListener('click', resetGame); // Corrected to call `resetGame` function
 
 closeInfoModalBtn.addEventListener('click', () => {
     infoModal.style.display = 'none';
