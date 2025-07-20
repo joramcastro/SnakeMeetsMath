@@ -3,7 +3,7 @@ let currentCellSize;
 const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 350;
+const GAME_SPEED = 450;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -213,7 +213,7 @@ function endGame() {
 
 
 function initializeGame() {
-    resizeCanvas();
+    resizeCanvas(); // This now calls a defined resizeCanvas function
 
     snake = [];
     for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
@@ -272,6 +272,120 @@ function initializeGame() {
 function resetGame() {
     endGame();
     initializeGame();
+}
+
+function resizeCanvas() { // Moved definition of resizeCanvas higher up
+    let parentElementForCanvas;
+    let targetWidth, targetHeight;
+    const panelPadding = 20;
+
+    if (window.innerWidth === 1920 && window.innerHeight === 1080) {
+        currentCanvasSize = 600;
+    } else {
+        if (isGameRunning && !awaitingMathAnswer) {
+            parentElementForCanvas = gamePanel;
+            if (!parentElementForCanvas) {
+                console.error("Game panel not found during resize. Using window dimensions.");
+                targetWidth = window.innerWidth - (panelPadding * 2);
+                targetHeight = window.innerHeight - (panelPadding * 2);
+            } else {
+                const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
+                const controlPanelHeight = controlPanel.offsetHeight || 0;
+                const fixedTopElementsHeight = statsPanelHeight + controlPanelHeight;
+                const estimatedGaps = 12 * 2;
+
+                targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
+                targetHeight = parentElementForCanvas.clientHeight - fixedTopElementsHeight - estimatedGaps - (panelPadding * 2);
+            }
+        } else if (awaitingMathAnswer) {
+            return;
+        } else {
+            parentElementForCanvas = gamePanel;
+            if (!parentElementForCanvas) {
+                console.error("Game panel not found during menu resize. Using window dimensions.");
+                targetWidth = window.innerWidth - (panelPadding * 2);
+                targetHeight = window.innerHeight - (panelPadding * 2);
+            } else {
+                const headerHeight = header.offsetHeight || 0;
+                const statsPanelHeight = document.querySelector('.stats-panel').offsetHeight || 0;
+                const operationSelectionPanelHeight = operationSelectionPanel.offsetHeight || 0;
+                const difficultyPanelHeight = difficultyPanel.offsetHeight || 0;
+                const messageAreaHeight = messageArea.offsetHeight || 0;
+                const startGameBtnHeight = startGameBtn.offsetHeight || 0;
+                const allTimeHighScoreContainerHeight = allTimeHighScoreContainer ? allTimeHighScoreContainer.offsetHeight : 0;
+
+                const menuElementsHeight = headerHeight + statsPanelHeight + operationSelectionPanelHeight +
+                                        difficultyPanelHeight + messageAreaHeight + startGameBtnHeight + allTimeHighScoreContainerHeight;
+                const estimatedGaps = 12 * 7;
+
+                targetWidth = parentElementForCanvas.clientWidth - (panelPadding * 2);
+                targetHeight = parentElementForCanvas.clientHeight - menuElementsHeight - estimatedGaps - (panelPadding * 2);
+            }
+        }
+
+        targetWidth = Math.max(0, targetWidth);
+        targetHeight = Math.max(0, targetHeight);
+
+        let desiredSize = Math.min(targetWidth, targetHeight);
+
+        const minCanvasSize = CELLS_PER_SIDE * 5;
+        const maxCanvasSize = 850;
+
+        currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
+        currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
+        currentCanvasSize = Math.max(currentCanvasSize, CELLS_PER_SIDE);
+    }
+
+    canvas.width = currentCanvasSize;
+    canvas.height = currentCanvasSize;
+    currentCellSize = currentCanvasSize / CELLS_PER_SIDE;
+
+    if (snake && snake.length > 0) {
+        let effectiveOldCellSize = currentCellSize;
+        if (snake[0].x !== 0 && snake[0].y !== 0 && snake.length > 1) {
+            effectiveOldCellSize = Math.abs(snake[1].x - snake[0].x) || Math.abs(snake[1].y - snake[0].y);
+        } else if (snake[0].x !== 0) {
+            effectiveOldCellSize = snake[0].x / (INITIAL_SNAKE_LENGTH - 1);
+        } else if (snake[0].y !== 0) {
+            effectiveOldCellSize = snake[0].y / (INITIAL_SNAKE_LENGTH - 1);
+        }
+        
+        if (isNaN(effectiveOldCellSize) || effectiveOldCellSize <= 0) {
+            effectiveOldCellSize = currentCanvasSize / CELLS_PER_SIDE;
+        }
+
+        const oldSnakeGrid = snake.map(segment => ({
+            x: Math.round(segment.x / effectiveOldCellSize),
+            y: Math.round(segment.y / effectiveOldCellSize)
+        }));
+
+        snake = oldSnakeGrid.map(segment => ({
+            x: segment.x * currentCellSize,
+            y: segment.y * currentCellSize
+        }));
+    } else {
+        snake = [];
+        for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
+            snake.push({ x: (INITIAL_SNAKE_LENGTH - 1 - i) * currentCellSize, y: 0 });
+        }
+    }
+
+    if (food && food.x !== undefined && food.y !== undefined) {
+        const oldFoodGridX = Math.round(food.x / currentCellSize);
+        const oldFoodGridY = Math.round(food.y / currentCellSize);
+
+        food = {
+            x: oldFoodGridX * currentCellSize,
+            y: oldFoodGridY * currentCellSize
+        };
+        if (food.x >= currentCanvasSize || food.y >= currentCanvasSize || isFoodOnSnake(food)) {
+            generateFood();
+        }
+    } else {
+        generateFood();
+    }
+
+    drawGame();
 }
 
 
@@ -2778,7 +2892,7 @@ function submitMathAnswer() {
         if (!/^[01]+$/.test(userAnswer)) {
             setMessage('For Binary conversion/addition, please enter only 0s and 1s!');
             mathAnswerInput.value = '';
-            mathAnswerInput.focus();
+        mathAnswerInput.focus();
             return;
         }
     } else if (selectedOperationType === 'fractions') {
@@ -3065,7 +3179,7 @@ startGameBtn.addEventListener('click', () => {
 pauseGameBtn.addEventListener('click', pauseGame);
 resetGameBtn.addEventListener('click', resetGame);
 submitAnswerBtn.addEventListener('click', submitMathAnswer);
-restartGameBtn.addEventListener('click', resetGame); // Corrected to call `resetGame` function
+restartGameBtn.addEventListener('click', resetGame);
 
 closeInfoModalBtn.addEventListener('click', () => {
     infoModal.style.display = 'none';
@@ -3080,6 +3194,5 @@ infoModal.addEventListener('click', (e) => {
 window.addEventListener('load', function() {
     welcomeModal.style.display = 'flex';
     initializeGame();
+    window.addEventListener('resize', resizeCanvas); // Moved here for definitive definition
 });
-
-window.addEventListener('resize', resizeCanvas);
