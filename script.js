@@ -3,7 +3,7 @@ let currentCellSize;
 const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 450;
+const GAME_SPEED = 350;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -84,7 +84,7 @@ const difficultyTimes = {
 let allTimeHighScore = JSON.parse(localStorage.getItem('allTimeMathSnakeHighScore')) || { score: 0, problemType: 'N/A' };
 
 
-// --- Utility and Display Functions (Moved to top for scope) ---
+// --- Utility and Display Functions (Moved to top for guaranteed availability) ---
 
 function setMessage(msg) {
     messageArea.innerHTML = msg;
@@ -163,6 +163,117 @@ function drawRoundedRect(ctx, x, y, width, height, radius) {
     ctx.fill();
     ctx.stroke();
 }
+
+
+// --- Game State Management and Core Logic ---
+
+function endGame() {
+    isGameRunning = false;
+    clearInterval(gameInterval);
+    clearInterval(mathTimerInterval);
+    clearInterval(pauseCountdownInterval);
+    finalScoreDisplay.textContent = score;
+    gameOverModal.style.display = 'flex';
+    
+    mathChallengeArea.style.display = 'none';
+    customKeyboard.style.display = 'none';
+    rightPanel.style.display = 'none';
+
+    gamePanel.style.display = 'flex';
+    canvas.style.display = 'none';
+    scoreDisplay.parentElement.style.display = 'none';
+
+    if (highScoreContainer) {
+        highScoreContainer.style.display = 'none';
+    }
+    if (allTimeHighScoreContainer) {
+        allTimeHighScoreContainer.style.display = 'flex';
+    }
+
+    if (lastProblemText && lastCorrectAnswerDisplay) {
+        setMessage(`Game Over! The correct answer for "${lastProblemText}" was **${lastCorrectAnswerDisplay}**. Keep practicing, you'll get it next time!`);
+    } else {
+        setMessage('Game Over! Better luck next time!');
+    }
+    
+    startGameBtn.style.display = 'inline-block';
+    pauseGameBtn.style.display = 'none';
+    resetGameBtn.style.display = 'inline-block';
+    difficultyPanel.style.display = 'flex';
+    operationSelectionPanel.style.display = 'flex';
+    header.style.display = 'block';
+    controlPanel.style.display = 'flex';
+
+    startGameBtn.disabled = true;
+    currentDifficulty = null;
+    selectedOperationType = null;
+    updateDifficultyAndOperationDisplay();
+    updateAllTimeHighScoreDisplay();
+}
+
+
+function initializeGame() {
+    resizeCanvas();
+
+    snake = [];
+    for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
+        snake.push({ x: (INITIAL_SNAKE_LENGTH - 1 - i) * currentCellSize, y: 0 });
+    }
+
+    direction = 'right';
+    score = 0;
+    scoreDisplay.textContent = score;
+    
+    if (highScoreContainer) {
+        highScoreContainer.style.display = 'none';
+    }
+    
+    isGameRunning = false;
+    isPaused = false;
+    awaitingMathAnswer = false;
+    
+    gamePanel.style.display = 'flex';
+    rightPanel.style.display = 'none';
+
+    mathChallengeArea.style.display = 'none';
+    customKeyboard.style.display = 'none';
+    gameOverModal.style.display = 'none';
+    infoModal.style.display = 'none';
+    canvas.style.display = 'none';
+    scoreDisplay.parentElement.style.display = 'none';
+
+    clearInterval(gameInterval);
+    clearInterval(mathTimerInterval);
+    clearInterval(pauseCountdownInterval);
+
+    startGameBtn.style.display = 'inline-block';
+    startGameBtn.disabled = true;
+    pauseGameBtn.style.display = 'none';
+    resetGameBtn.style.display = 'none';
+    difficultyPanel.style.display = 'flex';
+    operationSelectionPanel.style.display = 'flex';
+    messageArea.style.display = 'block';
+    header.style.display = 'block';
+    controlPanel.style.display = 'flex';
+    if (allTimeHighScoreContainer) {
+        allTimeHighScoreContainer.style.display = 'flex';
+    }
+
+    currentDifficulty = null;
+    selectedOperationType = null;
+
+    generateFood();
+    drawGame();
+    updateDifficultyAndOperationDisplay();
+    setMessage('Welcome! Please choose a **problem type** and **difficulty** to start.');
+    updateAllTimeHighScoreDisplay();
+}
+
+function resetGame() {
+    endGame();
+    initializeGame();
+}
+
 
 // --- Game Drawing Functions ---
 function drawGame() {
@@ -270,7 +381,7 @@ function drawGame() {
 }
 
 
-// --- Game Core Functions ---
+// --- Game Core Mechanics ---
 
 function moveSnake() {
     if (!isGameRunning || isPaused || awaitingMathAnswer) return;
@@ -1100,7 +1211,7 @@ function generateFractionsProblem() {
     if (answerDen === 1) {
         correctMathAnswer = answerNum;
     } else {
-        correctMathAnswer = `${answerNum}/${answerDen}`;
+        correctMathAnswer = `${answerNum}/${den2}`;
     }
     
     mathProblemDisplay.innerHTML = problemText;
@@ -2944,12 +3055,11 @@ customKeyboard.addEventListener('click', (e) => {
 });
 
 startGameBtn.addEventListener('click', () => {
-    welcomeModal.style.display = 'none'; // Hide welcome modal first
+    welcomeModal.style.display = 'none';
     if (currentDifficulty && selectedOperationType) {
-        startGame(); // Start the game if selections are made
+        startGame();
     } else {
-        // If no selections, initializeGame will show message and allow selection.
-        initializeGame(); // Re-initialize game state to default and show menu
+        initializeGame();
     }
 });
 pauseGameBtn.addEventListener('click', pauseGame);
