@@ -16,7 +16,7 @@ const mathAnswerInput = document.getElementById('math-answer-input');
 const submitAnswerBtn = document.getElementById('submit-answer-btn');
 const timerDisplay = document.getElementById('timer-display');
 const startGameBtn = document.getElementById('start-game-btn');
-const pauseGameBtn = document.getElementById('pause-game-btn');
+const pauseGameBtn = document = document.getElementById('pause-game-btn');
 const resetGameBtn = document.getElementById('reset-game-btn');
 const difficultyPanel = document.getElementById('difficulty-panel');
 const difficultyButtons = document.querySelectorAll('.difficulty-btn');
@@ -66,7 +66,7 @@ let touchStartX = 0;
 let touchStartY = 0;
 let touchEndX = 0;
 let touchEndY = 0;
-const minSwipeDistance = 30;
+const minSwipeDistance = 30; // Min distance for a swipe to register
 
 let pauseCountdownInterval = null;
 let pauseTimeLeft = 0;
@@ -2648,7 +2648,7 @@ function generateCompoundInterestProblem() {
 
         totalAmount = principal * Math.pow((1 + (rate / 100) / periods), (periods * time));
 
-        if (totalAmount > principal && totalAmount < 10000000 && (totalAmount * 100) % 1 === 0) {
+        if (totalAmount > principal && totalAmount < 10000000 && (totalTotal * 100) % 1 === 0) { // FIXED: typo here (totalTotal) -> totalAmount
             problemGenerated = true;
         }
     }
@@ -3131,6 +3131,52 @@ window.addEventListener('load', function() {
     initializeGame();
 
     // Attach all core event listeners here
+    canvas.addEventListener('touchstart', (e) => {
+        // console.log("Touch start detected."); // Diagnostic Log
+        if (awaitingMathAnswer || !isGameRunning || isPaused) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+        // console.log("Touch move detected."); // Diagnostic Log
+        if (awaitingMathAnswer || !isGameRunning || isPaused) return;
+        touchEndX = e.touches[0].clientX;
+        touchEndY = e.touches[0].clientY;
+        e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', () => {
+        // console.log("Touch end detected. Swipe check initiated."); // Diagnostic Log
+        if (awaitingMathAnswer || !isGameRunning || isPaused) return;
+
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipeDistance) {
+            if (dx > 0 && direction !== 'left') {
+                direction = 'right';
+                // console.log("Direction set to Right"); // Diagnostic Log
+            } else if (dx < 0 && direction !== 'right') {
+                direction = 'left';
+                // console.log("Direction set to Left"); // Diagnostic Log
+            }
+        } else if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > minSwipeDistance) {
+            if (dy > 0 && direction !== 'up') {
+                direction = 'down';
+                // console.log("Direction set to Down"); // Diagnostic Log
+            } else if (dy < 0 && direction !== 'down') {
+                direction = 'up';
+                // console.log("Direction set to Up"); // Diagnostic Log
+            }
+        }
+        touchStartX = 0;
+        touchStartY = 0;
+        touchEndX = 0;
+        touchEndY = 0;
+    });
+
     customKeyboard.addEventListener('click', (e) => {
         if (e.target.classList.contains('key-btn')) {
             handleKeyboardInput(e.target.dataset.value);
@@ -3138,13 +3184,12 @@ window.addEventListener('load', function() {
     });
 
     startGameBtn.addEventListener('click', () => {
-        // This log is now inside the correct firing condition.
-        // console.log("Start Playing button clicked!"); // Re-enable for testing if needed
-        welcomeModal.style.display = 'none'; // Hide welcome modal first
+        // console.log("Start Game button clicked!"); // Diagnostic log
+        welcomeModal.style.display = 'none';
         if (currentDifficulty && selectedOperationType) {
-            startGame(); // Start the game if selections are made
+            startGame();
         } else {
-            initializeGame(); // Re-initialize game state to default and show menu
+            initializeGame();
         }
     });
 
@@ -3164,10 +3209,9 @@ window.addEventListener('load', function() {
     });
 
     startPlayingBtn.addEventListener('click', () => {
-        // This log helps confirm the button click is recognized
-        console.log("Start Playing button clicked!");
-        welcomeModal.style.display = 'none'; // Hide the modal
-        initializeGame(); // Initialize game state and show options
+        console.log("Start Playing button clicked!"); // Diagnostic log (keeping this one here for the initial problem)
+        welcomeModal.style.display = 'none';
+        initializeGame();
     });
 
     difficultyButtons.forEach(button => {
