@@ -849,7 +849,7 @@ function generateArithmeticProblem() {
 function generatePureAdditionPositiveProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -876,7 +876,7 @@ function generatePureAdditionPositiveProblem() {
 function generatePureSubtractionPositiveProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -904,7 +904,7 @@ function generatePureSubtractionPositiveProblem() {
 function generatePureMultiplicationPositiveProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -932,7 +932,7 @@ function generatePureMultiplicationPositiveProblem() {
 function generatePureDivisionPositiveProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -963,7 +963,7 @@ function generatePureDivisionPositiveProblem() {
 function generatePureAdditionNegativeProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -992,7 +992,7 @@ function generatePureAdditionNegativeProblem() {
 function generatePureSubtractionNegativeProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1021,7 +1021,7 @@ function generatePureSubtractionNegativeProblem() {
 function generatePureMultiplicationNegativeProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1054,7 +1054,7 @@ function generatePureMultiplicationNegativeProblem() {
 function generatePureDivisionNegativeProblem() {
     let num1, num2, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1185,7 +1185,7 @@ function generateAbsoluteValueProblem() {
     let number, answer;
     const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
 
-    const MAX_ATTEMPTS = 100;
+    const MAX_ATTEMPTS = 200; // Increased attempts
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1336,7 +1336,7 @@ function generateFractionsProblem() {
 
 function generatePercentageProblem() {
     let base, percentage, answer, problemType;
-    const MAX_ATTEMPTS = 100;
+    const MAX_ATTEMPTS = 200; // Increased attempts
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1397,7 +1397,7 @@ function generatePercentageProblem() {
 
 function generateSquareRootProblem() {
     let number, answer;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1414,16 +1414,16 @@ function generateSquareRootProblem() {
             minBase = 20; maxBase = 50;
         }
         
-        answer = generateRandomNum(1, maxBase); // Ensure positive base for sqrt
+        answer = generateRandomNum(1, maxBase);
         number = answer * answer;
 
         if (currentDifficulty === 'hard' || currentDifficulty === 'expert') {
             if (Math.random() < 0.5) {
                 let offset = Math.random() < 0.5 ? -generateRandomNum(1, 3) : generateRandomNum(1, 3);
                 number += offset;
-                if (number < 1) continue; // Ensure positive number for sqrt
+                if (number < 1) continue;
                 answer = Math.sqrt(number);
-                if (answer % 1 === 0) continue; // Skip if it accidentally becomes a perfect square
+                if (answer % 1 === 0) continue;
             }
         }
         
@@ -1445,7 +1445,7 @@ function generateSquareRootProblem() {
 
 function generateOrderOfOperationsProblem() {
     let problemString, answer;
-    const MAX_ATTEMPTS = 500; // Increased attempts
+    const MAX_ATTEMPTS = 500;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1566,7 +1566,7 @@ function generateOrderOfOperationsProblem() {
 
 function generateLCMProblem() {
     let num1, num2, answer;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1605,7 +1605,7 @@ function generateLCMProblem() {
 
 function generateGCDProblem() {
     let num1, num2, answer;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1644,7 +1644,7 @@ function generateGCDProblem() {
 
 function generatePrimeNumberProblem() {
     let number, isItPrime, problemType;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1706,7 +1706,7 @@ function generatePrimeNumberProblem() {
 
 function generateAreaPerimeterProblem() {
     let shape, val1, val2, problemText, answer;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1776,7 +1776,7 @@ function generateAreaPerimeterProblem() {
 
 function generateUnitConversionProblem() {
     let value, fromUnit, toUnit, factor, answer, problemText;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 500; // Increased attempts
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1824,7 +1824,8 @@ function generateUnitConversionProblem() {
 
         answer = value * factor;
 
-        if (isFinite(answer) && !isNaN(answer) && Math.abs(answer) < 10000000) { // Relaxed condition, increased upper bound
+        // FIXED: Refined condition for unit conversion answers
+        if (isFinite(answer) && !isNaN(answer) && Math.abs(answer) >= 0.01 && Math.abs(answer) < 1000000) { // Must be >= 0.01 and within reasonable range
             problemGenerated = true;
             fromUnit = fromUnitData.display;
             toUnit = units[categoryName][toUnitKey].display;
@@ -1855,47 +1856,34 @@ function generatePythagoreanTheoremProblem() {
             [9, 40, 41], [11, 60, 61], [12, 35, 37]
         ];
 
-        let chosenTriple;
-        if (currentDifficulty === 'easy') {
-            chosenTriple = pythagoreanTriples[generateRandomNum(0, 1)];
-        } else if (currentDifficulty === 'medium') {
-            chosenTriple = pythagoreanTriples[generateRandomNum(0, 3)];
-        } else {
-            chosenTriple = pythagoreanTriples[Math.floor(Math.random() * pythagoreanTriples.length)];
-            let multiplier = currentDifficulty === 'hard' ? generateRandomNum(1, 3) : generateRandomNum(1, 5);
-            chosenTriple = chosenTriple.map(val => val * multiplier);
-        }
+        let chosenTriple = pythagoreanTriples[Math.floor(Math.random() * pythagoreanTriples.length)];
+        let multiplier = 1;
+        if (currentDifficulty === 'hard') { multiplier = generateRandomNum(1, 3); }
+        if (currentDifficulty === 'expert') { multiplier = generateRandomNum(1, 5); }
 
-        let tempA = chosenTriple[0];
-        let tempB = chosenTriple[1];
-        let tempC = chosenTriple[2]; // Hypotenuse from perfect triple
+        let tempA = chosenTriple[0] * multiplier;
+        let tempB = chosenTriple[1] * multiplier;
+        let tempC = chosenTriple[2] * multiplier; // Hypotenuse from perfect triple
 
         sideToFind = generateRandomNum(1, 3);
 
-        // For expert difficulty, introduce non-perfect squares
-        if (currentDifficulty === 'expert' && Math.random() < 0.3) {
-            let nonPerfectAdjust = generateRandomNum(1, 3); // Small integer adjustment
-            if (sideToFind === 3) { // If finding hypotenuse, adjust one leg slightly
-                if (Math.random() < 0.5) { tempA += nonPerfectAdjust; } else { tempB += nonPerfectAdjust; }
-            } else if (sideToFind === 1) { // Finding leg 'a', adjust leg 'b' and ensure tempC > tempB
-                 tempB += nonPerfectAdjust;
-                 // To ensure validity, it's safer to always generate a valid perfect triangle,
-                 // and ONLY introduce non-perfect when finding the hypotenuse.
-                 // For finding a leg, we rely on the chosenTriple.
-            } else if (sideToFind === 2) { // Finding leg 'b', adjust leg 'a' and ensure tempC > tempA
-                 tempA += nonPerfectAdjust;
-            }
+        // ONLY apply non-perfect adjustment if finding the hypotenuse in expert mode
+        if (currentDifficulty === 'expert' && Math.random() < 0.3 && sideToFind === 3) {
+            let nonPerfectAdjust = generateRandomNum(1, 3);
+            if (Math.random() < 0.5) { tempA += nonPerfectAdjust; } else { tempB += nonPerfectAdjust; }
         }
         
         let problemText;
         let calculatedAnswer;
 
         switch (sideToFind) {
-            case 1: // Find a
+            case 1: // Find a: a = sqrt(c^2 - b^2)
+                if (tempC * tempC - tempB * tempB <= 0) continue; // Ensure positive argument for Math.sqrt
                 calculatedAnswer = Math.sqrt(tempC * tempC - tempB * tempB);
                 problemText = `Leg b = ${tempB}, Hypotenuse c = ${tempC}. Find leg a: ?`;
                 break;
-            case 2: // Find b
+            case 2: // Find b: b = sqrt(c^2 - a^2)
+                if (tempC * tempC - tempA * tempA <= 0) continue; // Ensure positive argument for Math.sqrt
                 calculatedAnswer = Math.sqrt(tempC * tempC - tempA * tempA);
                 problemText = `Leg a = ${tempA}, Hypotenuse c = ${tempC}. Find leg b: ?`;
                 break;
@@ -1905,16 +1893,16 @@ function generatePythagoreanTheoremProblem() {
                 break;
         }
         
-        // Critical check: Ensure calculatedAnswer is a valid, positive number
+        // Final validity check for calculated answer
         if (isNaN(calculatedAnswer) || !isFinite(calculatedAnswer) || calculatedAnswer <= 0) {
-            continue; // Skip this attempt if result is invalid (e.g., sqrt of negative number)
+            continue; // Skip this attempt if result is invalid (e.g., NaN or non-positive)
         }
 
-        if (Math.abs(calculatedAnswer) < 500) {
-            if (calculatedAnswer % 1 !== 0) {
+        if (Math.abs(calculatedAnswer) < 500) { // Limit magnitude of the answer
+            if (calculatedAnswer % 1 !== 0) { // If it's a decimal, add hint and round
                  problemText += " (2 dec places)";
             }
-            answer = parseFloat(calculatedAnswer.toFixed(2));
+            answer = parseFloat(calculatedAnswer.toFixed(2)); // Round to 2 decimals for the answer
             problemGenerated = true;
         }
     }
@@ -1933,7 +1921,7 @@ function generatePythagoreanTheoremProblem() {
 
 function generateTrigonometryProblem() {
     let angle, func, answer, problemText;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -1994,7 +1982,7 @@ function generateTrigonometryProblem() {
 
 function generateFactoringProblem() {
     let commonFactor, term1Coefficient, term2Coefficient, problemText, answer;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -2062,7 +2050,7 @@ function generateFactoringProblem() {
 
 function generateSolvingInequalitiesProblem() {
     let a, b, c, testValue, isSolution, problemText, answer;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -2128,7 +2116,7 @@ function generateSolvingInequalitiesProblem() {
 
 function generateMatricesProblem() {
     let rows, cols, matrixA, matrixB, operation, targetRow, targetCol, answer;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -2206,7 +2194,7 @@ function generateMatricesProblem() {
 
 function generateLogarithmsProblem() {
     let base, number, answer, problemText;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -2234,7 +2222,7 @@ function generateLogarithmsProblem() {
         problemText = `log${base} (${number}) = ?`;
         correctMathAnswer = answer;
 
-        if (isFinite(answer) && !isNaN(answer)) { // Relaxed condition
+        if (isFinite(answer) && !isNaN(answer)) {
             problemGenerated = true;
         }
     }
@@ -2261,7 +2249,7 @@ function generateDecimalToBinaryProblem() {
                                  currentDifficulty === 'hard' ? 255 :
                                  1023);
 
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -2293,7 +2281,7 @@ function generateBinaryToDecimalProblem() {
                                  currentDifficulty === 'medium' ? 6 :
                                  currentDifficulty === 'hard' ? 8 : 10);
 
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -2356,7 +2344,7 @@ function generateBinaryAdditionProblem() {
         return binary;
     };
 
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -2389,7 +2377,6 @@ function generateBinaryAdditionProblem() {
 
 function generateLinearEquationProblem() {
     let a, b, c, answer;
-    const { min: minVal, max: maxVal } = getDigitRange(currentDifficulty);
     const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
@@ -2438,9 +2425,7 @@ function generateLinearEquationProblem() {
 function generateArithmeticMeanProblem() {
     let numCount;
     let numbers = [];
-    let answer;
-
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -2461,29 +2446,29 @@ function generateArithmeticMeanProblem() {
         }
 
         const sum = numbers.reduce((acc, curr) => acc + curr, 0);
-        answer = sum / numbers.length;
+        let answer = sum / numbers.length; // temp variable to check validity
 
         if (answer % 1 === 0 || (answer * 10) % 1 === 0 || (answer * 100) % 1 === 0) {
              if (Math.abs(answer) < 10000) {
                  problemGenerated = true;
+                 correctMathAnswer = answer; // Assign directly if integer/2-decimal
              }
         }
     }
 
     if (!problemGenerated) {
-        numbers = [1, 2, 3]; answer = 2;
+        numbers = [1, 2, 3]; correctMathAnswer = 2;
         setMessage('Arithmetic Mean problem generation fallback. Please continue.');
     }
 
     mathProblemDisplay.textContent = `What is the mean of ${numbers.join(', ')}?`;
-    correctMathAnswer = answer;
     mathAnswerInput.value = '';
 }
 
 function generateStandardDeviationProblem() {
     let numCount;
     let numbers = [];
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -2505,11 +2490,10 @@ function generateStandardDeviationProblem() {
 
         const mean = numbers.reduce((sum, val) => sum + val, 0) / numbers.length;
         const variance = numbers.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / numbers.length;
-        let answer = Math.sqrt(variance); // temp variable to check validity
+        let answer = Math.sqrt(variance);
 
-        if (answer > 0.1 && answer < 100 && isFinite(answer) && !isNaN(answer)) { // Relaxed condition
+        if (answer > 0.1 && answer < 100 && isFinite(answer) && !isNaN(answer)) {
             problemGenerated = true;
-            // Now, set the actual correctMathAnswer to the rounded value
             correctMathAnswer = parseFloat(answer.toFixed(2));
         }
     }
@@ -2525,7 +2509,7 @@ function generateStandardDeviationProblem() {
 
 function generateEvaluatingFunctionProblem() {
     let a, b, c, x, problemString, answer;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -2607,7 +2591,7 @@ function generateFractionToDecimalProblem() {
 
 function generateSimpleInterestProblem() {
     let principal, rate, time, interest, totalAmount;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -2637,7 +2621,7 @@ function generateSimpleInterestProblem() {
 
 function generateCompoundInterestProblem() {
     let principal, rate, time, periods, totalAmount;
-    const MAX_ATTEMPTS = 200; // Increased attempts
+    const MAX_ATTEMPTS = 200;
     let attempts = 0;
     let problemGenerated = false;
 
@@ -2658,7 +2642,7 @@ function generateCompoundInterestProblem() {
 
         totalAmount = principal * Math.pow((1 + (rate / 100) / periods), (periods * time));
 
-        if (totalAmount > principal && totalAmount < 10000000 && isFinite(totalAmount) && !isNaN(totalAmount)) { // Relaxed condition
+        if (totalAmount > principal && totalAmount < 10000000 && isFinite(totalAmount) && !isNaN(totalAmount)) {
             problemGenerated = true;
         }
     }
@@ -3065,7 +3049,7 @@ function handleKeyboardInput(value) {
         }
     } else if (value === '.') {
         const isDecimalAllowed = mathAnswerInput.getAttribute('data-allow-decimal') === 'true';
-        if (!mathAnswerInput.value.includes('.') && isDecimalInput) { // Fixed: changed && isDecimalAllowed to && isDecimalInput
+        if (!mathAnswerInput.value.includes('.') && isDecimalAllowed) { // FIXED: changed isDecimalInput to isDecimalAllowed
             mathAnswerInput.value += value;
         }
     } else if (isBinaryInput) {
