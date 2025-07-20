@@ -3,7 +3,7 @@ let currentCellSize;
 const CELLS_PER_SIDE = 20;
 
 const INITIAL_SNAKE_LENGTH = 1;
-const GAME_SPEED = 350;
+const GAME_SPEED = 450;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -280,7 +280,7 @@ function resizeCanvas() { // Moved definition of resizeCanvas higher up
     const panelPadding = 20;
 
     if (window.innerWidth === 1920 && window.innerHeight === 1080) {
-        currentCanvasSize = 600;
+        currentCanvasSize = 800;
     } else {
         if (isGameRunning && !awaitingMathAnswer) {
             parentElementForCanvas = gamePanel;
@@ -329,7 +329,7 @@ function resizeCanvas() { // Moved definition of resizeCanvas higher up
         let desiredSize = Math.min(targetWidth, targetHeight);
 
         const minCanvasSize = CELLS_PER_SIDE * 5;
-        const maxCanvasSize = 850;
+        const maxCanvasSize = 900;
 
         currentCanvasSize = Math.max(minCanvasSize, Math.min(desiredSize, maxCanvasSize));
         currentCanvasSize = Math.floor(currentCanvasSize / CELLS_PER_SIDE) * CELLS_PER_SIDE;
